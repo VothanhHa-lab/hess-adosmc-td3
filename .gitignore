@@ -38,3 +38,15 @@ PUBLISH_STEPS_VI.md
 # Internal notes
 paper/NOVELTY_SEARCH.md
 paper/novelty_search/
+
+# IEEE Access LaTeX template files (class, style, logos and licensed fonts): not redistributed here.
+# Copy them from the official IEEE Access template into paper/ before building (see paper/README.md).
+paper/ieeeaccess.cls
+paper/IEEEtran.cls
+paper/IEEEtran.bst
+paper/spotcolor.sty
+paper/bullet.png
+paper/logo.png
+paper/notaglinelogo.png
+paper/t1*
+paper/main.pdf

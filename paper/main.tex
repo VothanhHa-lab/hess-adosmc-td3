@@ -1,19 +1,40 @@
-\documentclass[10pt,twocolumn]{article}
-\usepackage[a4paper,margin=18mm,columnsep=6mm]{geometry}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern}
-\usepackage{amsmath,amssymb,amsthm}
+\documentclass{ieeeaccess}
+% Process-colour equivalent of the PANTONE 3015 C spot colour (same CMYK values as ieeeaccess.cls),
+% so that titles, headings and caption labels render in every PDF viewer.
+\definecolor{accessblue}{cmyk}{1,0.3,0,0.2}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{url}
+\let\accessyear\year\def\year{2026}% ieeeaccess.cls redefines \year; pgf needs a number
+\usepackage{tikz}
 \usepackage{booktabs}
 \usepackage{siunitx}
 \usepackage{xcolor}
-\usepackage{tikz}
+
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
-\usepackage[ruled,linesnumbered]{algorithm2e}
-\usepackage[numbers,sort&compress]{natbib}
-\usepackage[hidelinks]{hyperref}
-\usepackage{cuted}
-\sisetup{detect-all}
+\let\year\accessyear
+\usepackage[ruled,linesnumbered,norelsize,noend]{algorithm2e}
+\SetNlSty{}{}{}
+\usepackage{bm}
+\sisetup{mode=match,reset-math-version=false,reset-text-family=false,reset-text-series=false,reset-text-shape=false}
+
+\makeatletter
+\def\figurename{Fig.}
+\AtBeginDocument{\DeclareMathVersion{bold}
+\SetSymbolFont{operators}{bold}{T1}{times}{b}{n}
+\SetSymbolFont{NewLetters}{bold}{T1}{times}{b}{it}
+\SetMathAlphabet{\mathrm}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathit}{bold}{T1}{times}{b}{it}
+\SetMathAlphabet{\mathbf}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathtt}{bold}{OT1}{pcr}{b}{n}
+\SetSymbolFont{symbols}{bold}{OMS}{cmsy}{b}{n}
+\renewcommand\boldmath{\@nomath\boldmath\mathversion{bold}}}
+\makeatother
+
+\providecommand{\qedsymbol}{$\square$}
+\newenvironment{proof}[1][Proof]{\par\noindent\textit{#1.}\ }{\hfill\qedsymbol\par\medskip}
 \newtheorem{assumption}{Assumption}
 \newtheorem{proposition}{Proposition}
 \newtheorem{lemma}{Lemma}
@@ -28,24 +49,44 @@
 \input{numbers_tier1.tex}
 \input{numbers_lambda.tex}
 
-\title{Certificate-Enforcing Adaptive Disturbance-Observer Sliding-Mode Control for Battery--Supercapacitor Electric Vehicles and a Held-Out Benchmark of Learned and Model-Predictive Supervisors}
-\author{Vo Thanh Ha\thanks{University of Transport and Communications, No.~3 Cau Giay, Hanoi, Vietnam. Corresponding author: vothanhha.ktd@utc.edu.vn}}
-\date{}
-
 \begin{document}
-\maketitle
+\history{Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.}
+\doi{10.1109/ACCESS.2024.0429000}
+
+\title{Certificate-Enforcing Adaptive Disturbance-Observer Sliding-Mode Control for Battery--Supercapacitor Electric Vehicles and a Held-Out Benchmark of Learned and Model-Predictive Supervisors}
+
+\author{\uppercase{Vo Thanh Ha}\authorrefmark{1}}
+
+\address[1]{Faculty of Electrical and Electronic Engineering, University of Transport and Communications, No.~3 Cau Giay, Hanoi, Vietnam}
+
+% No external funding: \tfootnote omitted.
+
+\markboth
+{V. T. Ha: Certificate-Enforcing Adaptive DO-SMC for Battery--Supercapacitor EVs}
+{V. T. Ha: Certificate-Enforcing Adaptive DO-SMC for Battery--Supercapacitor EVs}
+
+\corresp{Corresponding author: Vo Thanh Ha (e-mail: vothanhha.ktd@utc.edu.vn).}
 
 \begin{abstract}
 \input{sec_abstract.tex}
 \end{abstract}
 
-\noindent\textbf{Keywords:} hybrid energy storage; sliding mode control; disturbance observer; safe reinforcement learning; TD3; electric vehicles.
+\begin{keywords}
+Disturbance observers, electric vehicles, energy management, hybrid energy storage, model predictive control, reinforcement learning, safety filter, sliding mode control, supercapacitors.
+\end{keywords}
+
+\titlepgskip=-21pt
+
+\maketitle
 
 \input{sec_intro.tex}
 \input{sec_model.tex}
 \input{sec3_method.tex}
 \input{sec4_results.tex}
 \input{sec_conclusion.tex}
+
+\appendices
+\input{sec_appendix_proof.tex}
 
 \input{sec_availability.tex}
 
@@ -55,12 +96,15 @@ The author gratefully acknowledges the academic and research support provided by
 \section*{Declaration of Generative AI Use}
 Generative AI (Claude, Anthropic) was used under the author's direction to assist with simulation coding, drafting and English editing of the manuscript, and literature and reference checking. The author designed the study, verified all code, derivations, results and references, and takes full responsibility for the content of this article.
 
-\section*{Declaration of competing interest}
+\section*{Conflict of Interest}
 The author declares no competing interests.
 
-\appendix
-\input{sec_appendix_proof.tex}
-
-\bibliographystyle{unsrtnat}
+\bibliographystyle{IEEEtran}
 \bibliography{refs}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{figures/author_vothanhha.png}}]{Vo Thanh Ha}
+received the B.S. degree in control and automation engineering from Thai Nguyen University of Technology, Thai Nguyen, Vietnam, in 2002, and the M.S. degree in control engineering from Hanoi University of Science and Technology, Hanoi, Vietnam, in 2004. She received the Ph.D. degree in control engineering from the same university in 2020. Since 2005, she has been with the University of Transport and Communications, Hanoi, Vietnam, where she is currently an Associate Professor with the Faculty of Electrical and Electronics Engineering. Her research interests include electrical drives, robot control, autonomous and electric vehicles, and power electronics. She has authored and coauthored several papers in international journals and conferences and serves as a reviewer for various international scientific journals. She can be contacted at: vothanhha.ktd@utc.edu.vn.
+\end{IEEEbiography}
+
+\EOD
 \end{document}
