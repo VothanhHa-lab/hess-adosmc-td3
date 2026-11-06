@@ -1,0 +1,85 @@
+{
+ "param_index_consistency": {
+  "pass": true
+ },
+ "ndo_const_converges": {
+  "pass": true,
+  "final_err": 1.2056261766701937e-08,
+  "expected": "(1-lam*Ts)^k decay -> 0"
+ },
+ "ndo_ramp_steady_error_equals_rho_over_lam": {
+  "pass": true,
+  "final_err": 199.9999999975853,
+  "rho_over_lam": 200.0
+ },
+ "metric_settle_time": {
+  "pass": true,
+  "got": 0.161,
+  "expected": 0.16094379124341004
+ },
+ "metric_recovery_time": {
+  "pass": true,
+  "got": 0.4606,
+  "expected": 0.4605170185988092
+ },
+ "metric_max_slew_ramp": {
+  "pass": true,
+  "got": 500.0000002332268,
+  "expected": 500.0
+ },
+ "mpc_unconstrained_equals_lqr": {
+  "pass": true,
+  "rel_dev": 7.26543790698006e-14,
+  "poles": "[-240.0000000136525, -100.00000013938188]"
+ },
+ "determinism_and_reset": {
+  "pass": true
+ },
+ "energy_balance_averaged": {
+  "pass": true,
+  "dE_stored_J": -0.050652859025831276,
+  "net_in_J": -0.0506528559490107,
+  "abs_residual_J": 3.0768205760978162e-09,
+  "rel_residual": 1.0802783539914686e-14
+ },
+ "energy_balance_switched": {
+  "pass": true,
+  "dE_stored_J": -0.06319132197037902,
+  "net_in_J": -0.06319133908255026,
+  "abs_residual_J": 1.7112171235567075e-08,
+  "rel_residual": 6.008113384610056e-14
+ },
+ "switched_ripple_vs_analytic": {
+  "pass": true,
+  "battery_sim": 2.500002745978472,
+  "battery_analytic": 2.499485943420987,
+  "sc_sim": 4.749566204847479,
+  "sc_analytic": 4.687554325301298
+ },
+ "averaged_vs_switched_maxdev": {
+  "pass": true,
+  "averaged": 43.212514138123254,
+  "switched": 43.215374895836874
+ },
+ "timestep_convergence_maxdev": {
+  "pass": true,
+  "rel_change_10_vs_40": 0.0009676444368947574,
+  "values": "{'0': [45.9431052571062, 45.94310525710324], '1': [43.16443577613728, 43.16443577613512], '2': [3.61513773710476, 3.618639293286037]}"
+ },
+ "ndo_bound_eq17_closed_loop": {
+  "pass": true,
+  "max_Dtilde": 4620.577614534783,
+  "rho_D_obs": 2687051.772410363,
+  "rho_over_lambda": 10748.207089641452
+ },
+ "INFO_eq38_ks_gt_Dtilde_max_with_paper_ks": {
+  "pass": true,
+  "ks": 120.0,
+  "Dtilde_max": 4620.577614534783,
+  "satisfied": "no"
+ },
+ "idle_steady_state_vdc": {
+  "pass": true,
+  "max_abs_e_idle": 0.0016170945347653287
+ }
+}

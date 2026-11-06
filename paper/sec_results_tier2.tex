@@ -1,0 +1,76 @@
+\subsection{Tier 2: training and validation}\label{sec:res_train}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../results/figures/F3_validation_curves.pdf}
+\caption{Validation return per decision during training (three seeds per variant; evaluated every 40 episodes on WLTC low, WLTC medium and WLTC medium$\times1.6$). For reference, the fixed and SOC-rule supervisors score \ValFixed\ and \ValRule. Two evaluations fall below the plotted range (no-filter seed 33 at episode 40; filter-v2 seed 33 at episode 160).}
+\label{fig:val}
+\end{figure}
+
+Fig.~\ref{fig:val} shows the validation return during training. With checkpoint selection on validation only, the selected agents score:
+\begin{itemize}
+\item filter v2: \ValVtwoSA, \ValVtwoSB, \ValVtwoSC\ (seeds 11, 22, 33);
+\item filter v1: \ValVoneSA, \ValVoneSB, \ValVoneSC;
+\item no filter: \ValNofSA, \ValNofSB, \ValNofSC.
+\end{itemize}
+For comparison, the SOC rule scores \ValRule\ and the fixed supervisor \ValFixed. The curves are not monotone, and one seed of each of the no-filter and v2 variants has a transient collapse. Validation alone would therefore suggest that every filtered agent beats both non-learning baselines. The test results below show that this conclusion does not transfer to all unseen cycles.
+
+\subsection{Tier 2: held-out test cycles}\label{sec:res_test}
+\input{tab_test.tex}
+
+Table~\ref{tab:test} and Fig.~\ref{fig:testbars} summarise the five test items. All rows share tier 1 (A-DO-SMC). Bus-voltage regulation therefore differs only where the supervisor causes a power deficit.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{../results/figures/F5_test_battery_rms_saturation.pdf}
+\caption{Held-out test cycles: RMS battery current (left) and fraction of time with the total-current command saturated, i.e.\ a power deficit (right). Learned supervisors: bar = mean over three training seeds, whisker = min--max.}
+\label{fig:testbars}
+\end{figure*}
+
+\paragraph{Cycles inside the training power envelope}
+On WLTC high and WLTC extra-high, the proposed supervisor (TD3 + filter v2) lowers the RMS battery current in all nine seed pairs, with no saturation:
+\begin{itemize}
+\item WLTC high: from \R{wh:afix:ibrms}\,A (fixed) and \R{wh:arule:ibrms}\,A (SOC rule) to \R{wh:v2:ibrms:mean}\,A, i.e.\ \R{wh:v2vsafix:dibrmsabs}\,\% lower than fixed and \R{wh:v2vsarule:dibrmsabs}\,\% lower than the rule;
+\item WLTC extra-high: \R{wxa:v2vsafix:dibrmsabs}\,\% lower than fixed.
+\end{itemize}
+The bus voltage is unaffected: \R{wh:v2:maxdev:mean}\,V versus \R{wh:afix:maxdev}\,V on WLTC high. The price is a higher RMS rate of change of the battery current: \R{wxa:v2vsafix:dslew}\,\% versus fixed on WLTC extra-high.
+
+\paragraph{How the agent achieves this}
+The raw logs show that the agents do not use $v_{sc,ref}$ as a slowly varying reserve set-point, which is what it was intended to be. Instead they move it quickly: its standard deviation within a run is \VrefStdMin--\VrefStdMax\,V. As a result, the recovery term \eqref{eq:prec} sits at its $\pm\PrecMax$\,kW limit in \CapFracMin--\CapFracMax\,\% of the samples. With the fixed supervisor, the mean $|P_{rec}|$ is only \PrecWHfixedAbs\,kW on WLTC high. In effect the agent has turned the bounded recovery term into a bang-bang actuator for battery power. On transient cycles it switches this power against the load and so lowers the RMS battery current. The agent also keeps $\tau_b$ near its lower bound for most of the time (Fig.~\ref{fig:us06}), which explains the faster battery-current changes.
+
+\paragraph{US06: out of the training envelope}
+On US06 the same behaviour is harmful. The SC is depleted by long acceleration phases and needs sustained recharging. Here the switching policy delivers a mean recovery power of only \PrecUSvtwoMin--\PrecUSvtwoMax\,kW (seeds 11, 22, 33), against \PrecUSfixed\,kW for the fixed supervisor, which simply recharges at its limit. The SC voltage therefore falls to \R{us06a:v2:vmin:mean}\,V (fixed: \R{us06a:afix:vmin}\,V), below the power-capability level \eqref{eq:vpow}. The command is saturated \R{us06a:v2:sat:mean}\,\% of the time, whereas the fixed supervisor never saturates, and the bus-voltage excursion reaches \R{us06a:v2:maxdev:mean}\,V. This is not a loss of tier-1 stability, since the loop recovers once the demand falls, but it is an operating failure. The \R{us06a:v2vsafix:dibrmsabs}\,\% lower RMS battery current does not compensate for it.
+
+The reserve bound \eqref{eq:vlo} constrains the \emph{reference} $v_{sc,ref}$, not the SC voltage itself, and it is sized with the largest deficit of the training cycles ($E_{res}=\EresKJ$\,kJ). Neither property protects against a policy that keeps the reference high on average while withholding recharge power.
+
+\paragraph{Loads beyond the rating}
+With the load scaled by 1.1 (US06) or 1.2 (WLTC extra-high), the peak demand exceeds the vehicle rating used in \eqref{eq:vpow}. On US06$\times1.1$, every configuration saturates: fixed \R{us06b:afix:sat}\,\%, SOC rule \R{us06b:arule:sat}\,\%, v2 \R{us06b:v2:sat:mean}\,\%. On WLTC extra-high$\times1.2$, v2 avoids saturation, as do fixed and rule. It still lowers the RMS battery current by \R{wxb:v2vsafix:dibrmsabs}\,\%, but the SC voltage drops to \R{wxb:v2:vmin:mean}\,V, inside the penalised band of \eqref{eq:reward}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{../results/figures/F4_us06_supervision.pdf}
+\caption{US06 (held-out): load power, SC voltage (solid) with its reference (dotted), and the supervisory parameters $\tau_b$ and $\lambda$, plus battery current, for the fixed and SOC-rule supervisors and the median-validation agents of filter v1 and v2. The learned agents switch $v_{sc,ref}$ rapidly, so the recovery power is mostly at its $\pm\PrecMax$\,kW limit, and they keep $\tau_b$ near its lower bound. Filter v2 keeps $v_{sc,ref}\ge\VloVtwo$\,V, yet the net recharge is lower than with the fixed supervisor and the SC voltage falls below the level needed to supply the demand.}
+\label{fig:us06}
+\end{figure*}
+
+\subsection{Effect of the safety filter}\label{sec:res_filter}
+The filter changes the failure behaviour more than the average performance.
+\begin{itemize}
+\item \emph{No filter.} One of the three seeds drove the bus out of its admissible range (simulation terminated) on US06, US06$\times1.1$ and WLTC extra-high$\times1.2$. This gives \R{us06a:nof:fails}/9, \R{us06b:nof:fails}/9 and \R{wxb:nof:fails}/9 failed runs. Its saturation on US06 averaged \R{us06a:nof:sat:mean}\,\%.
+\item \emph{Filter v1.} No run failed; saturation on US06 was \R{us06a:v1:sat:mean}\,\%.
+\item \emph{Filter v2.} No run failed; saturation on US06 was \R{us06a:v2:sat:mean}\,\%. On WLTC extra-high$\times1.2$, saturation dropped from \R{wxb:v1:sat:mean}\,\% (v1) to \R{wxb:v2:sat:mean}\,\%.
+\end{itemize}
+The filter also narrows the spread between seeds (Table~\ref{tab:test}). On the main test cycles it modified the $v_{sc,ref}$ component of the action in \FiltVscMin--\FiltVscMax\,\% of the decisions, through the rate limit or the bounds, which reflects the fast switching described above.
+
+\subsection{Additional held-out cycles}\label{sec:res_extra}
+\input{tab_extra.tex}
+
+Table~\ref{tab:extra} reports three cycles that were introduced after filter v2 was fixed and influenced no design choice.
+\begin{itemize}
+\item \emph{WMTC.} v2 lowers the RMS battery current by \R{wmtc:v2vsafix:dibrmsabs}\,\% (fixed) and \R{wmtc:v2vsarule:dibrmsabs}\,\% (rule) without saturation, whereas v1 saturated \R{wmtc:v1:sat:mean}\,\% of the time.
+\item \emph{FTP-MC1b} (mild). The reduction is \R{ftp:v2vsafix:dibrmsabs}\,\% (fixed) and \R{ftp:v2vsarule:dibrmsabs}\,\% (rule).
+\item \emph{Long-haul segment} (mostly steady cruising). The agent \emph{increases} the RMS battery current from \R{lh:afix:ibrms}\,A to \R{lh:v2:ibrms:mean}\,A (+\R{lh:v2vsafix:dibrms}\,\%). The same switching of $P_{rec}$ between $\pm\PrecMax$\,kW now has no transient to cancel. It therefore adds a square-wave component of about $\PrecMax\,\mathrm{kW}/\SI{300}{V}\approx\SI{17}{A}$ to an otherwise nearly constant battery current; with the fixed supervisor, the mean $|P_{rec}|$ is \PrecLHfixedAbs\,kW.
+\end{itemize}
+This is a second, different failure mode outside the training distribution.
+
+\subsection{Computational cost}\label{sec:res_cost}
+On the simulation host, one tier-1 update (compiled) costs \TimeADOSMC\,\si{\micro s}. One tier-2 decision (actor with \NActorParams\ parameters plus safety filter, interpreted Python) costs \TimeAgent\,\si{\micro s} every \SI{100}{ms}. Both figures are relative indicators only; execution on an automotive microcontroller was not measured.

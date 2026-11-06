@@ -1,0 +1,42 @@
+| test item | reference | metric | mean Δ (proposed − ref) | [min, max] | wins (proposed better) |
+|---|---|---|---|---|---|
+| us06x1.0 | A-DO-SMC + fixed | ib_rms_A | -3.07 % | [-4.28, -1.61] | 9/9 |
+| us06x1.0 | A-DO-SMC + fixed | ib_slew_rms_Aps | +241.07 % | [+118.40, +384.34] | 0/9 |
+| us06x1.0 | A-DO-SMC + fixed | sat_frac | +1.13 pp | [+0.55, +1.43] | 0/9 |
+| us06x1.0 | A-DO-SMC + fixed | return | -541.91 | [-693.76, -202.39] | 0/9 |
+| us06x1.0 | A-DO-SMC + rule | ib_rms_A | -3.42 % | [-4.63, -1.97] | 9/9 |
+| us06x1.0 | A-DO-SMC + rule | ib_slew_rms_Aps | +176.47 % | [+76.95, +292.50] | 0/9 |
+| us06x1.0 | A-DO-SMC + rule | sat_frac | +1.13 pp | [+0.55, +1.43] | 0/9 |
+| us06x1.0 | A-DO-SMC + rule | return | -463.94 | [-615.67, -124.30] | 0/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + fixed | ib_rms_A | -19.75 % | [-20.54, -18.77] | 9/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + fixed | ib_slew_rms_Aps | +7.61 % | [-12.07, +35.00] | 3/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + fixed | sat_frac | +0.00 pp | [+0.00, +0.00] | 0/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + fixed | return | +372.40 | [+241.60, +477.36] | 9/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + rule | ib_rms_A | -13.90 % | [-14.75, -12.85] | 9/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + rule | ib_slew_rms_Aps | +6.64 % | [-12.87, +33.77] | 4/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + rule | sat_frac | +0.00 pp | [+0.00, +0.00] | 0/9 |
+| wltc_high_3bx1.0 | A-DO-SMC + rule | return | +223.57 | [+92.80, +328.59] | 9/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + fixed | ib_rms_A | -6.93 % | [-8.57, -5.59] | 9/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + fixed | ib_slew_rms_Aps | +28.97 % | [+4.83, +58.89] | 0/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + fixed | sat_frac | +0.00 pp | [+0.00, +0.00] | 0/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + fixed | return | +209.59 | [+195.56, +230.47] | 9/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + rule | ib_rms_A | -6.81 % | [-8.46, -5.47] | 9/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + rule | ib_slew_rms_Aps | +28.93 % | [+5.00, +58.72] | 0/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + rule | sat_frac | +0.00 pp | [+0.00, +0.00] | 0/9 |
+| wltc_extrahigh_3x1.0 | A-DO-SMC + rule | return | +204.98 | [+191.07, +225.99] | 9/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + fixed | ib_rms_A | -3.52 % | [-5.10, -2.54] | 9/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + fixed | ib_slew_rms_Aps | +11.70 % | [-2.88, +38.95] | 3/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + fixed | sat_frac | +0.00 pp | [+0.00, +0.00] | 0/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + fixed | return | -4587.75 | [-8062.75, -2569.27] | 0/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + rule | ib_rms_A | -3.10 % | [-4.68, -2.11] | 9/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + rule | ib_slew_rms_Aps | +9.09 % | [-5.21, +35.62] | 6/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + rule | sat_frac | +0.00 pp | [+0.00, +0.00] | 0/9 |
+| wltc_extrahigh_3x1.2 | A-DO-SMC + rule | return | -4813.71 | [-8288.63, -2795.25] | 0/9 |
+| us06x1.1 | A-DO-SMC + fixed | ib_rms_A | -0.92 % | [-1.66, -0.31] | 9/9 |
+| us06x1.1 | A-DO-SMC + fixed | ib_slew_rms_Aps | +18.14 % | [-10.89, +36.95] | 3/9 |
+| us06x1.1 | A-DO-SMC + fixed | sat_frac | +0.37 pp | [+0.03, +0.57] | 0/9 |
+| us06x1.1 | A-DO-SMC + fixed | return | -2196.07 | [-4585.78, -14.06] | 0/9 |
+| us06x1.1 | A-DO-SMC + rule | ib_rms_A | -1.78 % | [-2.52, -1.18] | 9/9 |
+| us06x1.1 | A-DO-SMC + rule | ib_slew_rms_Aps | +135.73 % | [+77.80, +173.26] | 0/9 |
+| us06x1.1 | A-DO-SMC + rule | sat_frac | +0.98 pp | [+0.64, +1.18] | 0/9 |
+| us06x1.1 | A-DO-SMC + rule | return | -2427.20 | [-4817.18, -245.46] | 0/9 |

@@ -1,0 +1,46 @@
+\subsection{Tier 1: certificate-enforcing adaptive DO-SMC}\label{sec:tier1}
+
+\subsubsection{Disturbance observer and its error signal}
+The nonlinear disturbance observer (NDO) of~\cite{ha2026gtsd},
+\begin{equation}
+\Dh = z + \lambda e,\qquad \dot z = -\lambda z - \lambda\,(g u + \lambda e),\label{eq:ndo}
+\end{equation}
+gives $\dot{\Dh} = \lambda(D-\Dh) = \lambda\Dt$ and $\dot{\Dt}=\dot D-\lambda\Dt$ for constant $\lambda$. Hence, under $|\dot D|\le\rho_D$,
+\begin{equation}
+|\Dt(t)|\le |\Dt(t_0)|e^{-\lambda(t-t_0)}+\rho_D/\lambda.\label{eq:ndobound}
+\end{equation}
+When the supervisor changes $\lambda$ from $\lambda^-$ to $\lambda^+$, the auxiliary state is re-initialised as $z^+=\Dh^- - \lambda^+e$. This keeps $\Dh$, and therefore $\Dt$, continuous, so \eqref{eq:ndobound} holds piecewise with $\lambda\ge\lambda_{\min}$.
+
+The identity $\dot{\Dh}=\lambda\Dt$ is the key observation used here: \emph{the observer reveals its own estimation error.} We form the estimate
+\begin{align}
+\hat\varepsilon(t)&=\frac{1}{\lambda}\Big|\mathcal{F}_{\tau_f}\big[\dot{\Dh}\big](t)\Big|,\nonumber\\
+\varepsilon(t)&=\max\big(\hat\varepsilon(t),\ \varepsilon(t^-)e^{-T_s/\tau_{env}}\big),\label{eq:env}
+\end{align}
+where $\mathcal{F}_{\tau_f}$ is a first-order filter (backward difference followed by a \SI{2}{\milli\second} low-pass) and $\varepsilon$ is a decaying peak envelope.
+
+\subsubsection{Sliding surface and control law}
+With the integral sliding variable $s=e+c_v\xi$, the control law is
+\begin{align}
+u &= \mathrm{sat}_{[u_{\min},u_{\max}]}\Big(\tfrac{1}{g}\big(-\Dh - c_v e\nonumber\\
+&\qquad - k_s(t)\,\mathrm{sat}(s/\phi_s(t))\big)\Big),\label{eq:law}\\
+k_s(t) &= k_{\min}+\beta\,\varepsilon(t),\qquad \phi_s(t)=k_s(t)/k',\label{eq:ks}\\
+\dot\xi &= \begin{cases} e, & |s|\le\phi_s \text{ and no input saturation},\\ 0, & \text{otherwise},\end{cases}\label{eq:condint}
+\end{align}
+with $\beta>1$ and a constant boundary-layer slope $k'$. Two properties follow directly.
+
+\noindent(i) \emph{Fixed small-signal dynamics.} Inside the boundary layer, $k_s\,\mathrm{sat}(s/\phi_s)=k's$ does not depend on $k_s(t)$. The linearised closed loop therefore keeps the poles $\{-c_v,-k'\}$ for any gain trajectory, so the adaptation cannot destabilise the small-signal behaviour.
+
+\noindent(ii) \emph{Online enforcement of the reaching condition.} The sufficient condition $k_s>|\Dt|_{\max}$ of~\cite{ha2026gtsd} (its Eq.~(38)) is replaced by $k_s(t)\ge\beta\varepsilon(t)+k_{\min}$, which tracks the actual estimation error. The conditional integrator~\eqref{eq:condint} removes the windup observed with a fixed small $k_s$.
+
+\begin{assumption}\label{as:est}
+There is $\delta\ge 0$ with $|\Dt(t)|\le\beta\varepsilon(t)+\delta$ for all $t\ge t_0$, and $k_{\min}>\delta$.
+\end{assumption}
+
+\begin{proposition}\label{prop:uub}
+Let Assumption~\ref{as:est} hold, the input be unsaturated, and $\lambda(t)\ge\lambda_{\min}$ be piecewise constant with bumpless switching. Then $s$ reaches the set $|s|\le\bar\phi$ in finite time, where $\bar\phi=\sup_t\max(\phi_s(t),\,\sup|\Dt|/k')$, and remains there. Consequently, $e$ and $\xi$ are uniformly ultimately bounded.
+\end{proposition}
+\begin{proof}[Proof sketch]
+From \eqref{eq:edyn}, \eqref{eq:law}, $\dot s=-k_s\,\mathrm{sat}(s/\phi_s)+\Dt$. With $V=\tfrac12 s^2$ and $|s|>\phi_s$: $\dot V\le-(k_s-|\Dt|)|s|\le-(k_{\min}-\delta)|s|<0$, which gives finite-time reaching of the boundary layer. Inside the layer, $\dot s=-k's+\Dt$ is a stable first-order system driven by the bounded input $\Dt$ from \eqref{eq:ndobound}, so $|s|$ is ultimately bounded by $\sup|\Dt|/k'$. On $|s|\le\bar\phi$ the conditional integrator is active, so $\dot s=\dot e+c_v e$, i.e.\ $\dot e=-c_v e+\dot s$. This is input-to-state stable with respect to $\dot s=-k's+\Dt$, which is bounded. Hence $e$ is uniformly ultimately bounded, and so is $\xi=(s-e)/c_v$. A complete proof that also treats input saturation and the discretisation is left as an open item.
+\end{proof}
+
+Assumption~\ref{as:est} is an assumption about the estimator and is \emph{checked numerically}. In the GTSD transient scenario, $k_s(t)\ge|\Dt(t)|$ holds during \AssumptionHoldPct\ of the time (Section~\ref{sec:results}).

@@ -1,0 +1,36 @@
+{
+ "machine": "x86_64",
+ "note": "compiled numba loop on a desktop/server CPU; relative indicator only",
+ "PI": {
+  "median_us": 0.1957117200004177,
+  "min_us": 0.1871628399999281,
+  "max_us": 0.22819537500026854,
+  "M": 200000,
+  "repeats": 7,
+  "qp_active_frac": 0.0
+ },
+ "Robust MPC": {
+  "median_us": 0.6961114099999577,
+  "min_us": 0.6487696849990243,
+  "max_us": 0.842877719999251,
+  "M": 200000,
+  "repeats": 7,
+  "qp_active_frac": 0.01528
+ },
+ "DO-SMC": {
+  "median_us": 0.17494001499926526,
+  "min_us": 0.16854581000075086,
+  "max_us": 0.1830861400003414,
+  "M": 200000,
+  "repeats": 7,
+  "qp_active_frac": 0.0
+ },
+ "Robust MPC (constraints active)": {
+  "median_us": 5.577001020000125,
+  "min_us": 5.418684200000143,
+  "max_us": 5.95889499000009,
+  "M": 200000,
+  "repeats": 7,
+  "qp_active_frac": 0.936175
+ }
+}

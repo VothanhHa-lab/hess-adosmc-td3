@@ -1,0 +1,52 @@
+\subsection{Simulation setup}\label{sec:setup}
+
+
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\caption{Main parameters. P: from~\cite{ha2026gtsd}; A: assumed in this work.}
+\label{tab:params}
+\begin{tabular}{@{}p{0.40\columnwidth}p{0.47\columnwidth}c@{}}
+\toprule
+Quantity & Value & Src.\\\midrule
+$v^*_{dc}$, $C_{dc}$ & \SI{400}{V}, \SI{2.2}{mF} & P\\
+Battery OCV, $Q_b$, $R_0$ & \SI{300}{V}, \SI{40}{Ah}, \SI{80}{m\ohm} & P/P/A\\
+$C_{sc}$, $v_{sc}$ range & \SI{120}{F}, 150--\SI{300}{V} & P\\
+$L_b$, $L_{sc}$ & \SI{1.5}{mH}, \SI{1.0}{mH} & P\\
+$I_{b,\max}$, $I_{sc,\max}$ & \SI{80}{A}, \SI{180}{A} & P\\
+$\lambda$ (nominal), $k_{\min}$, $k'$ & \SI{250}{s^{-1}}, \SI{120}{V/s}, \SI{240}{s^{-1}} & P\\
+$c_v$, $\beta$, $\tau_f$, $\tau_{env}$ & \SI{100}{s^{-1}}, 1.5, \SI{2}{ms}, \SI{50}{ms} & A\\
+$\tau_b$, $v_{sc,ref}$ (fixed sup.) & \SI{0.2}{s}, \SI{250}{V} & A\\
+$k_E$, $P_{rec,\max}$ & \SI{0.02}{s^{-1}}, \SI{5}{kW} & A\\
+$T_s$, plant step & \SI{50}{\micro s}, \SI{10}{\micro s} (RK4) & A\\
+Noise $\sigma_v$, $\sigma_i$ & \SI{0.2}{V}, \SI{0.2}{A} & A\\
+Vehicle $m$, $C_dA$, $C_{rr}$ & \SI{1600}{kg}, \SI{0.644}{m^2}, 0.009 & A\\
+$P_{trac,\max}$, $P_{regen,\max}$ & \SI{60}{kW}, \SI{30}{kW} & A\\
+Reward $w_v,w_b,w_s,w_{sat},w_{sc}$ & 0.5, 1, 0.5, 5, 2 & A\\
+$e_{\rm ref}$, $\dot\imath_{\rm ref}$, $r_{\max}$ & \SI{5}{V}, \SI{500}{A/s}, 10 & A\\
+TD3: $\gamma$, $\tau$, lr, batch & 0.98, 0.005, $3{\times}10^{-4}$, 128 & A\\\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Plant and solver}
+Equations \eqref{eq:ib}--\eqref{eq:soc} are integrated with fixed-step RK4. The step is \SI{10}{\micro\second} for the drive cycles and \SI{5}{\micro\second} for the short GTSD profiles; reducing the step to \SI{2.5}{\micro\second} changes the reported indices by a relative amount below \TimestepRelPct. Measurements carry white noise. The controller is digital with a one-sample delay.
+
+\paragraph{Load profiles}
+Speed traces of standard cycles are taken from the FASTSim repository at a pinned commit~\cite{brooker2015fastsim,fastsimrepo}. They are interpolated with a shape-preserving spline and converted to bus power with a road-load model ($P_{\rm aux}=\SI{1}{kW}$, motoring efficiency 0.9, regenerative share $0.7\times0.8$, clipped to the motor rating). The test set contains five items that are never used for training or checkpoint selection: US06 ($\times1.0$, $\times1.1$), WLTC high, and WLTC extra-high ($\times1.0$, $\times1.2$). Three further cycles (WMTC, FTP-MC1b, and the first \SI{1200}{s} of a long-haul trace) were added only after filter v2 had been fixed; no design decision depends on them. The two load profiles of~\cite{ha2026gtsd}, reconstructed from its figures, are used to evaluate tier 1.
+
+\paragraph{Compared configurations}
+All configurations use the same plant, allocation structure, current loops, limits and noise realisations (seeds 101--103).
+\begin{itemize}
+\item \emph{Outer loops:} PI tuned to the same small-signal poles $\{-c_v,-k'\}$; the DO-SMC of~\cite{ha2026gtsd} with fixed $k_s=\SI{120}{V/s}$; an offset-free robust MPC (horizon 20, constraint tightening after~\cite{chisci2001}, LQR terminal cost with the same poles); and the proposed A-DO-SMC.
+\item \emph{Supervisors (with A-DO-SMC):} fixed $\theta$; a SOC-adaptive split with $\tau_b$ interpolated between 0.2 and \SI{5}{s} according to SC SOC, in the spirit of~\cite{nguyen2021adaptive}; TD3 without a filter; TD3 with filter v1; and TD3 with filter v2 (proposed).
+\end{itemize}
+
+\paragraph{Indices}
+\begin{itemize}
+\item Bus voltage: maximum and RMS deviation.
+\item Battery current: RMS value and RMS rate of change computed on \SI{1}{ms} block means.
+\item Battery charge throughput (Ah).
+\item Saturated fraction: share of samples in which the commanded total current was clipped, i.e.\ a power deficit.
+\item Minimum SC voltage.
+\end{itemize}
+Every index is computed from the true (noise-free) plant signals.

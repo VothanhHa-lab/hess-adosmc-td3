@@ -1,0 +1,11 @@
+\section{Proposed Two-Tier Control Strategy}\label{sec:method}
+The proposed controller has two tiers (Fig.~\ref{fig:arch}).
+\begin{itemize}
+\item \emph{Tier 1} (Section~\ref{sec:tier1}) is a disturbance-observer sliding-mode controller whose switching gain is adapted so that the reaching condition is enforced online.
+\item \emph{Tier 2} (Section~\ref{sec:tier2}) is a reinforcement-learning supervisor that adapts the power-sharing and observer parameters through a safety filter.
+\end{itemize}
+Section~\ref{sec:impl} gives the complete discrete-time structure used for simulation.
+
+\input{sec_tier1.tex}
+\input{sec_tier2.tex}
+\input{sec_impl.tex}

@@ -1,0 +1,11 @@
+\section{Conclusion}\label{sec:conclusion}
+This paper combined a certificate-enforcing adaptive DO-SMC with a safety-filtered TD3 supervisor for a battery--supercapacitor EV storage system, and evaluated both tiers on held-out standard drive cycles.
+
+\paragraph{Tier 1}
+The adaptive DO-SMC estimates the observer error from $\dot{\hat D}=\lambda\tilde D$ and schedules the switching gain on it, which enforces the reaching condition online. On the transient profile of the reproduced design, the bus-voltage deviation fell from \R{pt:dosmc:maxdev}\,V to \R{pt:afix:maxdev}\,V. This matches an observer-compensated robust MPC, at the computational cost of the original fixed-gain controller.
+
+\paragraph{Tier 2}
+The TD3 supervisor with the safety filter reduced the RMS battery current on cycles resembling the training data, by \R{wh:v2vsafix:dibrmsabs}\,\% (WLTC high) and \R{ftp:v2vsafix:dibrmsabs}\,\% (FTP-MC1b) relative to fixed parameters. It never drove the bus out of range, whereas an unfiltered agent did. It also exhibited two failure modes on unseen cycles: power deficits on US06 (\R{us06a:v2:sat:mean}\,\% saturated time, against none for fixed parameters) and a tripled RMS battery current on steady cruising. Both trace back to the agent using the SC reference as a fast power actuator, which a filter acting on the reference value cannot prevent.
+
+\paragraph{Practical recommendation}
+The certificate-enforcing inner loop can be used on its own. A learned supervisor should not be deployed without a runtime-assurance fallback and a filter that constrains the net SC energy balance. Future work will add these elements, evaluate them on new held-out data, and validate both tiers in controller-hardware-in-the-loop.

@@ -1,0 +1,60 @@
+\section{System Modelling and Problem Formulation}\label{sec:model}
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[font=\small, >={Latex[length=2mm]},
+  blk/.style={draw, rounded corners=2pt, align=center, minimum height=10mm, minimum width=30mm, inner sep=3pt},
+  arr/.style={->, thick}]
+\node[blk, fill=blue!8]   (agent) at (0,3.0)   {TD3 actor\\(tier 2, every 0.1\,s)};
+\node[blk, fill=orange!15](filt)  at (6.4,3.0) {Safety filter $\Pi_\mathcal{S}$\\box, rate, reserve};
+\node[blk, fill=green!10] (ndo)   at (0,0.8)   {NDO\\$\hat D=z+\lambda e$};
+\node[blk, fill=green!10] (smc)   at (5.0,0.8) {A-DO-SMC\\$k_s=k_{\min}+\beta\varepsilon$};
+\node[blk, fill=green!10] (alloc) at (10.4,0.8) {Allocation\\LPF $\tau_b$ + $P_{rec}(v_{sc,ref})$};
+\node[blk, fill=gray!12, minimum width=128mm] (plant) at (5.2,-1.4) {Current loops $\rightarrow$ bidirectional boost converters $\rightarrow$ battery, SC, DC bus, traction load $P_L(t)$};
+\draw[arr] (agent) -- node[above]{$a_k$} (filt);
+\draw[arr] (filt.south) -- ++(0,-0.6) -| node[pos=0.75,left]{$\lambda$} (ndo.north);
+\draw[arr] (filt.east) -| node[pos=0.25,above]{$\tau_b,\ v_{sc,ref}$} (alloc.north);
+\draw[arr] (ndo) -- node[above]{$\hat D,\ \varepsilon$} (smc);
+\draw[arr] (smc) -- node[above]{$u=i^*_{\rm HESS}$} (alloc);
+\draw[arr] (alloc.south) -- node[right]{$i_b^*,\ i_{sc}^*$} (alloc.south |- plant.north);
+\draw[arr] (ndo.south |- plant.north) -- node[left]{$v_{dc}, i_b, i_{sc}, v_{sc}$} (ndo.south);
+\draw[arr, dashed] (ndo.west) -- ++(-0.5,0) |- node[pos=0.25,left]{obs.} (agent.west);
+\begin{scope}[on background layer]
+\node[draw=green!50!black, dashed, rounded corners, fit=(ndo)(smc)(alloc), inner sep=4pt] (t1) {};
+\end{scope}
+\node[anchor=north, font=\scriptsize, text=green!40!black] at ([yshift=-1pt]t1.south) {tier 1 (20\,kHz): reaching condition enforced online};
+\end{tikzpicture}
+\caption{Two-tier architecture. Tier 1 regulates the bus voltage and enforces the reaching condition online for any admissible $\theta$. Tier 2 adapts $\theta=(\tau_b,v_{sc,ref},\lambda)$ through a safety filter.}
+\label{fig:arch}
+\end{figure*}
+
+
+\subsection{Battery--supercapacitor HESS}
+The HESS consists of a Li-ion battery and a supercapacitor (SC), each connected to a common DC bus through a bidirectional boost converter (Fig.~\ref{fig:arch}). With the averaged converter model,
+\begin{align}
+L_b \dot i_b &= v_b - r_b i_b - (1-d_b)\,v_{dc},\label{eq:ib}\\
+L_{sc} \dot i_{sc} &= v_{sc} - r_{sc} i_{sc} - (1-d_{sc})\,v_{dc},\label{eq:isc}\\
+C_{dc}\dot v_{dc} &= (1-d_b)\,i_b + (1-d_{sc})\,i_{sc} - P_L(t)/v_{dc},\label{eq:vdc}\\
+C_{sc}\dot v_C &= -i_{sc},\qquad \dot{\mathrm{SOC}}_b = -\eta_b i_b/(3600\,Q_b),\label{eq:soc}
+\end{align}
+where $v_b=\mathrm{OCV}(\mathrm{SOC}_b)-R_0 i_b$ and $v_{sc}=v_C-R_{esr}i_{sc}$ are the terminal voltages, $d_b,d_{sc}\in[0,d_{\max}]$ are duty ratios and $P_L$ is the traction power (constant-power load, $P_L<0$ during regenerative braking). The inductor currents are limited, $|i_b|\le I_{b,\max}$ and $|i_{sc}|\le I_{sc,\max}$. Parameters (Table~\ref{tab:params}) follow~\cite{ha2026gtsd}; values not reported there are stated as assumptions.
+
+Note that with $v_b, v_{sc} < v_{dc}$ the averaged boost form \eqref{eq:ib}--\eqref{eq:isc} is required; the form $L\dot i = u\,v_{src}-v_{dc}-ri$ used in~\cite{ha2026gtsd} would need $u>1$ and cannot represent a duty ratio.
+
+\subsection{Control structure}
+A cascaded digital controller is sampled at $T_s=\SI{50}{\micro\second}$ with a one-sample computation delay. The outer loop computes the total bus-side HESS current $u=i^*_{\mathrm{HESS}}$, the allocation layer splits it into battery and SC references, and PI current loops with voltage feed-forward generate the duty ratios. The complete discrete-time structure used for simulation is given in Section~\ref{sec:impl}. Writing $e=v_{dc}-v^*_{dc}$, the outer-loop design model is
+\begin{equation}
+\dot e = g\,u + D(t),\qquad g = 1/C_{dc,n},\label{eq:edyn}
+\end{equation}
+where the aggregated disturbance $D$ collects the unmeasured load current, the inner-loop tracking error and all parameter mismatch. $u$ is bounded by the instantaneous capability of the two sources, $u\in[u_{\min},u_{\max}]$, with $u_{\max}=(v_bI_{b,\max}+v_{sc}I_{sc,\max})/v_{dc}$ and $u_{\min}$ defined analogously.
+
+\subsection{Allocation with SC energy recovery}
+With $P^*=v_{dc}u$, the battery share is the low-pass component plus an SC energy-recovery term,
+\begin{align}
+\tau_b\dot P_{b,f} &= P^*-P_{b,f},\label{eq:lpf}\\
+P_{rec} &= \mathrm{sat}_{P_{rec,\max}}\!\Big(k_E\,\tfrac{1}{2}C_{sc}\big(v_{sc,ref}^2-v_{sc}^2\big)\Big),\label{eq:prec}
+\end{align}
+followed by saturation of the battery share, assignment of the remainder to the SC within its limits, and re-assignment of any SC shortfall to the battery. Re-assignment is necessary: in the reproduction of~\cite{ha2026gtsd} the literal allocation (SC reference computed from the unsaturated battery reference) caused bus collapse for every outer-loop controller when the battery limit became active.
+
+\subsection{Problem statement}
+The supervisory parameters $\theta=(\tau_b, v_{sc,ref}, \lambda)$, where $\lambda$ is the disturbance-observer gain introduced below, determine how transient power is shared and how much energy the SC holds in reserve. The best $\theta$ depends on the driving situation (Section~\ref{sec:results}). The problem is to adapt $\theta$ online in order to reduce battery stress and power-deficit events, while guaranteeing that the fast voltage loop keeps its stability certificate for \emph{every} admissible $\theta$ trajectory.

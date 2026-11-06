@@ -1,0 +1,9 @@
+{
+ "PI (tier-1 update, us)": 0.15391037999961554,
+ "DO-SMC (paper) (tier-1 update, us)": 0.14888986500409374,
+ "Robust MPC (tier-1 update, us)": 0.7037332800018703,
+ "A-DO-SMC (tier-1 update, us)": 0.13191711000217765,
+ "TD3 actor + safety filter (tier-2 decision, us, NumPy/Python)": 20.894958800090535,
+ "n_actor_parameters": 5123,
+ "note": "x86_64 server CPU; tier-1 = compiled numba loop; tier-2 = interpreted Python. Relative indicator only."
+}

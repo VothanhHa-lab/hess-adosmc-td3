@@ -1,0 +1,51 @@
+{
+ "chunk_kernel_matches_original_ctrl0": {
+  "pass": true,
+  "original": 45.9431052571062,
+  "chunked": 45.94309316093586
+ },
+ "chunk_kernel_matches_original_ctrl1": {
+  "pass": true,
+  "original": 43.16443577613728,
+  "chunked": 43.1644241506479
+ },
+ "chunk_kernel_matches_original_ctrl2": {
+  "pass": true,
+  "original": 3.61513773710476,
+  "chunked": 3.619575685071595
+ },
+ "energy_balance_chunk_kernel_us06_60s": {
+  "pass": true,
+  "rel_residual": 4.318244670281119e-12
+ },
+ "bumpless_lambda_switch": {
+  "pass": true,
+  "before": -1171.8113040680764,
+  "after": -1171.8113040680764
+ },
+ "safety_filter_box_rate_and_discretisation_bounds": {
+  "pass": true
+ },
+ "adaptive_gain_satisfies_eq38_fraction_of_time": {
+  "pass": true,
+  "fraction": 1.0,
+  "min_ratio": 1.4507237871202499,
+  "max_Dtilde": 4955.19829702346,
+  "max_ks": 7536.941975515216
+ },
+ "determinism_episode": {
+  "pass": true
+ },
+ "timestep_convergence_nsub5_vs_20": {
+  "pass": true,
+  "rel_change": 1.5550909926837169e-12,
+  "maxdev": [
+   1.3524652304859615,
+   1.3524652304880647
+  ]
+ },
+ "mlp_backprop_finite_difference": {
+  "pass": true,
+  "max_abs_err": 1.813456329546881e-11
+ }
+}

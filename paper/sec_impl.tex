@@ -1,0 +1,149 @@
+\subsection{Digital implementation of the control structure}\label{sec:impl}
+
+This section gives the complete digital control structure in the form used by the simulation. Every equation below corresponds one-to-one to the code in the supplementary archive (\texttt{src/hess/kernel\_sup.py}), and the numerical gains are listed in Table~\ref{tab:ctrl}. The structure is summarised in Fig.~\ref{fig:ctrl}. Three rates are involved:
+\begin{itemize}
+\item the plant, integrated with fixed-step RK4 at $T_s/5$ or $T_s/10$;
+\item the digital controller (tier 1), executed once per switching period $T_s=\SI{50}{\micro s}$;
+\item the supervisor (tier 2), executed every $\Delta_a=2000\,T_s=\SI{0.1}{s}$.
+\end{itemize}
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small, >={Latex[length=2mm]},
+  blk/.style={draw, rounded corners=2pt, align=center, minimum height=14mm, text width=27mm, inner sep=3pt},
+  arr/.style={->, thick}, dsh/.style={->, thick, dashed}]
+% ---------------- tier 1 row (one execution per Ts)
+\node[blk, fill=gray!10, text width=22mm] (adc) at (0,0) {Sampling at $t_k$\\(+ noise)};
+\node[draw, circle, minimum size=5mm, inner sep=0pt] (sum) at (2.6,0) {};
+\node at (2.3,0.3) {\scriptsize $+$}; \node at (2.6,-0.5) {\scriptsize $-$};
+\node[blk, fill=green!10] (ndo)   at (5.2,0)  {NDO + error envelope \eqref{eq:zdisc}--\eqref{eq:envdisc}\\$\hat D_k,\ \varepsilon_k$};
+\node[blk, fill=green!10] (smc)   at (9.0,0)  {A-DO-SMC \eqref{eq:law}\\$k_s=k_{\min}+\beta\varepsilon_k$\\cond.\ integrator $\xi_k$};
+\node[blk, fill=green!5]  (lim)   at (12.8,0) {Capability limit \eqref{eq:ulim}\\$u_k\in[u_{\min},u_{\max}]$};
+\node[blk, fill=yellow!15](alloc) at (16.6,0) {Allocation \eqref{eq:alloc1}--\eqref{eq:alloc3}\\LPF $\tau_b$, $P_{rec}$, re-assignment};
+\node[blk, fill=orange!12, minimum height=10mm, text width=25mm] (pib)  at (21.0,1.0)  {Battery PI + FF \eqref{eq:duty}};
+\node[blk, fill=orange!12, minimum height=10mm, text width=25mm] (pisc) at (21.0,-1.0) {SC PI + FF \eqref{eq:duty}};
+\node[blk, fill=gray!10, text width=10mm] (dly) at (24.6,0) {$z^{-1}$};
+% ---------------- plant row
+\node[blk, fill=gray!20, text width=200mm, minimum height=10mm] (plant) at (12.3,-3.4)
+  {Averaged plant \eqref{eq:ib}--\eqref{eq:soc}, integrated with RK4 over each $[t_k,t_{k+1}]$: battery, SC, two boost legs, $C_{dc}$, traction load $P_L(t)$};
+% ---------------- tier 2 row (every 0.1 s)
+\node[blk, fill=blue!8]   (agent) at (2.6,3.4) {TD3 actor $\pi(o_j)$};
+\node[blk, fill=orange!20, text width=34mm] (filt) at (9.0,3.4) {Safety filter $\Pi_\mathcal{S}$ (v2)\\box, rate, reserve \eqref{eq:vlo}};
+% ---------------- wires tier 1
+\node (vref) at (2.6,1.4) {$v^*_{dc}$};
+\draw[arr] (vref) -- (sum);
+\draw[arr] (adc) -- node[above]{$v_{dc,k}$} (sum);
+\draw[arr] (sum) -- node[above]{$e_k$} (ndo);
+\draw[arr] (ndo) -- (smc);
+\draw[arr] (smc) -- node[above]{$u^{un}_k$} (lim);
+\draw[arr] (lim) -- node[above]{$u_k$} (alloc);
+\draw[arr] (alloc.east) -- ++(0.6,0) |- node[pos=0.78,above]{$i^*_{b,k}$} (pib.west);
+\draw[arr] (alloc.east) -- ++(0.6,0) |- node[pos=0.78,below]{$i^*_{sc,k}$} (pisc.west);
+\draw[arr] (pib.east) -| node[pos=0.3,above]{$d_{b,k}$} ([xshift=-2mm]dly.north);
+\draw[arr] (pisc.east) -| node[pos=0.3,below]{$d_{sc,k}$} ([xshift=-2mm]dly.south);
+\draw[arr] (dly.east) -- ++(0.5,0) |- node[pos=0.25,right]{$d_{b,k-1},\,d_{sc,k-1}$} (plant.east);
+\draw[arr] (plant.west) -| node[pos=0.75,left]{$v_{dc},i_b,i_{sc},v_b,v_{sc}$} (adc.south);
+\draw[dsh] (lim.south) -- ++(0,-0.9) -| node[pos=0.25,below]{\scriptsize applied (saturated) $u_k$ fed to the observer} (ndo.south);
+% ---------------- wires tier 2
+\draw[dsh] (adc.north) |- node[pos=0.75,above]{\scriptsize observation $o_j$} (agent.west);
+\draw[arr] (agent) -- node[above]{$a_j$} (filt);
+\draw[arr] ([xshift=-10mm]filt.south) -- ++(0,-1.0) -| node[pos=0.75,left]{$\lambda$ (bumpless)} (ndo.north);
+\draw[arr] (filt.east) -| node[pos=0.2,above]{$\tau_b,\ v_{sc,ref}$} (alloc.north);
+% ---------------- groups
+\begin{scope}[on background layer]
+\node[draw=green!50!black, dashed, rounded corners, fit=(ndo)(smc)(lim), inner sep=4pt,
+      label={[green!40!black,font=\scriptsize]above:outer voltage loop}] {};
+\node[draw=orange!60!black, dashed, rounded corners, fit=(pib)(pisc), inner sep=4pt,
+      label={[orange!50!black,font=\scriptsize]above:inner current loops}] {};
+\node[draw=blue!50!black, dashed, rounded corners, fit=(agent)(filt), inner sep=5pt,
+      label={[blue!40!black,font=\scriptsize]above:tier 2: one decision every $\Delta_a=2000\,T_s=\SI{0.1}{s}$}] {};
+\end{scope}
+\end{tikzpicture}}
+\caption{Complete control structure as implemented. The middle row (tier 1) is executed once per sampling period $T_s=\SI{50}{\micro s}$ (Algorithm~\ref{alg:tier1}); all measured signals of the sampling block are available to every tier-1 block. The duty ratios computed at $t_k$ are applied one period later ($z^{-1}$). The observer uses the applied (saturated) command $u_k$, and the integral state $\xi_k$ is frozen outside the boundary layer and during saturation. The supervisor (top) acts only through $\lambda$, $\tau_b$ and $v_{sc,ref}$. For the PI and robust-MPC baselines, the A-DO-SMC block is replaced by the corresponding law; all other blocks are unchanged.}
+\label{fig:ctrl}
+\end{figure*}
+
+\subsubsection{Discrete-time tier-1 equations}
+At sample $k$ the controller reads $v_{dc,k}$, $i_{b,k}$, $i_{sc,k}$ and the terminal voltages $v_{b,k}$, $v_{sc,k}$ (true values plus white noise). It then evaluates, in this order:
+
+\paragraph{Capability limits} With the SC limits disabled at the SC voltage bounds ($I^{dis}_{sc}=0$ if $v_{sc,k}\le v_{sc,\min}$, $I^{ch}_{sc}=0$ if $v_{sc,k}\ge v_{sc,\max}$, otherwise $I_{sc,\max}$):
+\begin{align}
+u_{\max}&=\frac{v_{b,k}I_{b,\max}+v_{sc,k}I^{dis}_{sc}}{v_{dc,k}},\nonumber\\
+u_{\min}&=-\frac{v_{b,k}I_{b,\max}+v_{sc,k}I^{ch}_{sc}}{v_{dc,k}}.\label{eq:ulim}
+\end{align}
+
+\paragraph{Observer and error envelope} Forward-Euler discretisation of \eqref{eq:ndo} and \eqref{eq:env}:
+\begin{align}
+\hat D_k&=z_k+\lambda e_k,\nonumber\\
+z_{k+1}&=z_k+T_s\big[-\lambda z_k-\lambda(u_k/C_{dc,n}+\lambda e_k)\big],\label{eq:zdisc}\\
+\eta_k&=\eta_{k-1}+\tfrac{T_s}{\tau_f}\Big(\tfrac{\hat D_k-\hat D_{k-1}}{T_s}-\eta_{k-1}\Big),\nonumber\\
+\varepsilon_k&=\max\!\big(|\eta_k|/\lambda,\ \varepsilon_{k-1}e^{-T_s/\tau_{env}}\big).\label{eq:envdisc}
+\end{align}
+Because $\lambda T_s\le0.04$ (Section~\ref{sec:tier2}), the Euler observer keeps its pole at $1-\lambda T_s\in[0.96,0.995]$.
+
+\paragraph{Outer law and anti-windup} $u^{un}_k$ follows from \eqref{eq:law} with $k_s=k_{\min}+\beta\varepsilon_k$ and $\phi_s=k_s/k'$. The applied command is $u_k=\mathrm{sat}_{[u_{\min},u_{\max}]}(u^{un}_k)$. The integral state is updated as $\xi_{k+1}=\xi_k+T_se_k$ only if two conditions hold:
+\begin{itemize}
+\item $|s_k|\le\phi_s$ (conditional integrator);
+\item $u_k=u^{un}_k$ or $(u^{un}_k-u_k)e_k>0$ (integration that drives the command back into range).
+\end{itemize}
+The same saturation and anti-windup rule is applied to the PI and MPC baselines.
+
+\paragraph{Allocation} With $P^*_k=v_{dc,k}u_k$ and $P_{b,\max}=v_{b,k}I_{b,\max}$:
+\begin{align}
+P_{b,f,k}&=P_{b,f,k-1}+\tfrac{T_s}{\tau_b}\big(P^*_k-P_{b,f,k-1}\big),\label{eq:alloc1}\\
+P_{b1,k}&=\mathrm{sat}_{\pm P_{b,\max}}\big(P_{b,f,k}+P_{rec,k}\big),\nonumber\\
+P_{sc,k}&=\mathrm{sat}_{[-v_{sc,k}I^{ch}_{sc},\,v_{sc,k}I^{dis}_{sc}]}\big(P^*_k-P_{b1,k}\big),\label{eq:alloc2}\\
+P_{b,k}&=\mathrm{sat}_{\pm P_{b,\max}}\big(P^*_k-P_{sc,k}\big),\nonumber\\
+i^*_{b,k}&=P_{b,k}/v_{b,k},\qquad i^*_{sc,k}=P_{sc,k}/v_{sc,k},\label{eq:alloc3}
+\end{align}
+with $P_{rec,k}$ from \eqref{eq:prec} evaluated at $v_{sc,k}$. The low-pass state is updated before it is used. The second line of \eqref{eq:alloc3} re-assigns to the battery any power the SC cannot supply.
+
+\paragraph{Inner current loops} For each source $x\in\{b,sc\}$, a PI acting on the inductor-voltage demand with source-voltage feed-forward gives
+\begin{align}
+d^{un}_{x,k}&=1-\frac{v_{x,k}-\big(K_{p,x}(i^*_{x,k}-i_{x,k})+I_{x,k}\big)}{v_{dc,k}},\nonumber\\
+d_{x,k}&=\mathrm{sat}_{[0,d_{\max}]}(d^{un}_{x,k}).\label{eq:duty}
+\end{align}
+The integrator is updated as $I_{x,k+1}=I_{x,k}+T_sK_{i,x}(i^*_{x,k}-i_{x,k})$ only when $d_{x,k}=d^{un}_{x,k}$. The duty ratios computed at $t_k$ are held on $[t_{k+1},t_{k+2})$ (one-sample computation delay), and the averaged plant is integrated over each period with these values held constant.
+
+\input{tab_ctrl.tex}
+
+\begin{algorithm}[t]
+\caption{Tier-1 controller step at sample $k$ (executed every $T_s$)}\label{alg:tier1}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\Input{$v_{dc,k},i_{b,k},i_{sc,k},v_{b,k},v_{sc,k}$; parameters $\theta=(\tau_b,v_{sc,ref},\lambda)$}
+\Output{$d_{b,k},d_{sc,k}$ (applied at $k+1$)}
+$e_k\leftarrow v_{dc,k}-v^*_{dc}$; compute $u_{\min},u_{\max}$ by \eqref{eq:ulim}\;
+$\hat D_k\leftarrow z_k+\lambda e_k$; update $\eta_k,\varepsilon_k$ by \eqref{eq:envdisc}\;
+$k_s\leftarrow k_{\min}+\beta\varepsilon_k$; $\phi_s\leftarrow k_s/k'$; $s_k\leftarrow e_k+c_v\xi_k$\;
+$u^{un}_k\leftarrow C_{dc,n}\big(-\hat D_k-c_ve_k-k_s\,\mathrm{sat}(s_k/\phi_s)\big)$; $u_k\leftarrow\mathrm{sat}_{[u_{\min},u_{\max}]}(u^{un}_k)$\;
+\lIf{$|s_k|\le\phi_s$ \textbf{and} ($u_k=u^{un}_k$ \textbf{or} $(u^{un}_k-u_k)e_k>0$)}{$\xi_{k+1}\leftarrow\xi_k+T_se_k$}
+$z_{k+1}\leftarrow z_k+T_s[-\lambda z_k-\lambda(u_k/C_{dc,n}+\lambda e_k)]$\;
+compute $i^*_{b,k},i^*_{sc,k}$ by \eqref{eq:alloc1}--\eqref{eq:alloc3}\;
+\ForEach{$x\in\{b,sc\}$}{compute $d_{x,k}$ by \eqref{eq:duty}; \lIf{not clipped}{$I_{x,k+1}\leftarrow I_{x,k}+T_sK_{i,x}(i^*_{x,k}-i_{x,k})$}}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Closed-loop simulation with the tier-2 supervisor}\label{alg:sim}
+initialise plant state, $v_{dc}=v^*_{dc}$, duties at their steady-state values, controller memories to zero, $\theta_0=(0.2\,\mathrm{s},\SI{250}{V},\SI{250}{s^{-1}})$\;
+\For{$j=0,1,\dots$ (decision instants $t=j\Delta_a$)}{
+build observation $o_j$ (Section~\ref{sec:tier2}); $a_j\leftarrow\pi(o_j)$\;
+$\theta_j\leftarrow\Pi_\mathcal{S}(\theta_{j-1},\theta(a_j))$ \tcp*{box, rate, reserve}
+\If{$\lambda$ changes}{$z\leftarrow\hat D-\lambda_{new}e$ \tcp*{bumpless: keeps $\hat D$ continuous}}
+\For{$k=2000j,\dots,2000j+1999$}{
+sample measurements with noise; run Algorithm~\ref{alg:tier1}\;
+apply $d_{\cdot,k-1}$ and integrate the plant over $[t_k,t_{k+1}]$ with RK4 (5 or 10 sub-steps)\;
+accumulate the indices of Section~\ref{sec:setup} from the true signals\;
+\lIf{$v_{dc}\notin[0.5,1.5]\,v^*_{dc}$}{stop and mark the run as failed}
+}
+compute reward \eqref{eq:reward} (training only)\;
+}
+\end{algorithm}
+
+\paragraph{Verification of the implementation} The implementation was checked in four ways, with the results stored in the archive:
+\begin{itemize}
+\item \emph{Energy balance.} The change in stored energy equals the source energy minus the losses and the load energy, with a relative residual of $\EnergyResidual$.
+\item \emph{Switching model.} A switched-PWM version of the plant reproduces the analytic inductor ripple $v\,d\,T_s/L$ within 3\,\%.
+\item \emph{Step size.} Reducing the RK4 step by a factor of four changes the reported indices by a relative amount below \TimestepRelPct.
+\item \emph{Chunked execution.} Running the simulation in supervisor-length chunks reproduces the uninterrupted run within 1\,\% for every outer loop.
+\end{itemize}

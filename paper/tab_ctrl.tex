@@ -1,0 +1,30 @@
+\begin{table*}[t]
+\centering\footnotesize\setlength{\tabcolsep}{5pt}
+\caption{Controller structure parameters as implemented. D: derived from other parameters by the stated formula; P: from~\cite{ha2026gtsd}; A: assumed.}
+\label{tab:ctrl}
+\begin{tabular}{@{}p{0.42\textwidth}p{0.45\textwidth}c@{}}
+\toprule
+Quantity & Value & Src.\\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Timing}}\\
+Controller sampling $T_s$ (= PWM period) & \SI{50}{\micro s} (\SI{20}{kHz}) & A\\
+Computation delay & one sample ($d_k$ applied on $[t_{k+1},t_{k+2})$) & A\\
+Plant integration (RK4) step & $T_s/5$ (cycles), $T_s/10$ (GTSD profiles) & A\\
+Supervisor period $\Delta_a$ & \SI{0.1}{s} $=2000\,T_s$ & A\\
+\multicolumn{3}{@{}l}{\emph{Inner current loops}}\\
+Bandwidth $\omega_{ci}$ & 5026.5\,rad/s ($2\pi\cdot800$\,Hz) & A\\
+$K_{p,b}=L_{b,n}\omega_{ci}$, $K_{i,b}=K_{p,b}\omega_{ci}/5$ & 7.540\,V/A, 7580\,V/(A\,s) & D\\
+$K_{p,sc}=L_{sc,n}\omega_{ci}$, $K_{i,sc}=K_{p,sc}\omega_{ci}/5$ & 5.027\,V/A, 5053\,V/(A\,s) & D\\
+Duty limits & $0\le d\le 0.95$ & A\\
+\multicolumn{3}{@{}l}{\emph{Outer voltage loop (all variants share poles $\{-c_v,-k'\}$)}}\\
+A-DO-SMC: $c_v$, $k'$, $k_{\min}$, $\beta$ & 100\,s$^{-1}$, 240\,s$^{-1}$, 120\,V/s, 1.5 & P/A\\
+A-DO-SMC: $\tau_f$, $\tau_{env}$ & 2\,ms, 50\,ms & A\\
+PI: $K_P=C_{dc,n}(c_v+k')$, $K_I=C_{dc,n}c_vk'$ & 0.748\,A/V, 52.8\,A/(V\,s) & D\\
+MPC: $N$, $Q$, $R$ & 20, diag$(6.76\times10^{4}, 5.76\times10^{8})$, 1 & D\\
+MPC: LQR gain $K$ on $(e,\xi)$ & [338.3, 23797] & D\\
+MPC: tightening at stage $N$ & 571\,V/s ($1.26$\,A) & D\\
+\multicolumn{3}{@{}l}{\emph{Allocation}}\\
+$k_E$, $P_{rec,\max}$ & 0.02\,s$^{-1}$, 5\,kW & A\\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,8 @@
+# Versions used to produce the published results (CPython 3.13.18, Linux x86_64).
+# numba 0.68.1 pulls in llvmlite 0.50.0.  PyTorch is NOT needed (TD3 is implemented in NumPy).
+numpy==2.5.3
+scipy==1.18.1
+numba==0.68.1
+llvmlite==0.50.0
+PyYAML==6.0.3
+matplotlib==3.11.2

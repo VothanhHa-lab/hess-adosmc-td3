@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software or the trained agents, please cite it using the metadata below (and the associated manuscript once published)."
+type: software
+title: "Code, trained agents and processed results for: Certificate-Enforcing Adaptive Disturbance-Observer Sliding-Mode Control with Safety-Filtered Reinforcement-Learning Supervision for Battery-Supercapacitor Electric Vehicles"
+abstract: >-
+  Python simulation of a battery-supercapacitor hybrid energy storage system with a two-tier
+  controller: an adaptive disturbance-observer sliding-mode controller that enforces its reaching
+  condition online (tier 1) and a safety-filtered TD3 supervisor (tier 2). The repository contains
+  the simulator, the NumPy TD3 implementation, trained actors, processed results and the scripts
+  that regenerate every table and figure of the manuscript.
+authors:
+  - family-names: "Ha"
+    given-names: "Vo Thanh"
+  - family-names: "Minh"
+    given-names: "Vu Duc"
+  - family-names: "Hai"
+    given-names: "Nguyen Van"
+  - family-names: "Huy"
+    given-names: "Nguyen Minh"
+repository-code: "https://github.com/VothanhHa-lab/hess-adosmc-td3"
+license: MIT
+version: 1.0.0
+date-released: "2026-11-06"
+keywords:
+  - hybrid energy storage system
+  - battery-supercapacitor
+  - sliding mode control
+  - disturbance observer
+  - reinforcement learning
+  - TD3
+  - safety filter
+  - electric vehicle

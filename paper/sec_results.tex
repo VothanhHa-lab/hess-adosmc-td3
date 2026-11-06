@@ -1,0 +1,36 @@
+All results are from offline simulation. Each value is computed by the scripts in the supplementary archive from stored raw logs; no value was entered by hand.
+
+\subsection{Why the fixed-gain DO-SMC fails: reproduction of~\cite{ha2026gtsd}}\label{sec:repro}
+We first reproduced the DO-SMC design of~\cite{ha2026gtsd} with its Table~1 parameters ($\lambda=\SI{250}{s^{-1}}$, $k_s=\SI{120}{V/s}$, $\phi_s=\SI{0.5}{V}$).
+
+\paragraph{Fixed $k_s$ violates the paper's own condition}
+Under the acceleration transient of its Fig.~2, the observer error reaches $|\Dt|_{\max}=\GtsdDtildeMax$\,V/s. Condition~(38) of~\cite{ha2026gtsd} requires $k_s>|\Dt|_{\max}$, but $k_s=120$\,V/s is about forty times smaller.
+
+\paragraph{Consequence for regulation}
+Outside the boundary layer, the switching term contributes at most $C_{dc}k_s\approx\SI{0.26}{A}$. The loop therefore reduces to observer compensation plus the $c_ve$ term, and the bus deviation is \GtsdDevDOSMC\,V. This is close to a PI controller with identical small-signal poles (\GtsdDevPI\,V) and far from a robust MPC with the same poles that uses the same observer (\GtsdDevMPC\,V). Over \GtsdMCnTr\ paired Monte Carlo plant perturbations, DO-SMC lowers the maximum deviation relative to PI by only \GtsdPairedTrAbs\,V on average (paired comparison).
+
+\paragraph{Satisfying the condition restores performance}
+Raising $k_s$ to \SI{5000}{V/s}, which satisfies the condition ($|\Dt|_{\max}=\GtsdKsFiveKDtilde$\,V/s), with $\phi_s=k_s/240$ to keep the small-signal poles, gives \GtsdKsFiveKDev\,V. The theory of~\cite{ha2026gtsd} is therefore sound; the issue is that a \emph{constant} gain cannot track an error that varies by orders of magnitude between steady state and transients. This observation motivates tier 1.
+
+\subsection{Tier 1: A-DO-SMC}\label{sec:res_tier1}
+\input{tab_tier1.tex}
+
+Table~\ref{tab:tier1} compares the four outer loops on the two GTSD profiles.
+
+\paragraph{Transient profile}
+A-DO-SMC reduces the maximum deviation from \R{pt:dosmc:maxdev}\,V (DO-SMC) to \R{pt:afix:maxdev}\,V. This matches the robust MPC (\R{pt:mpc:maxdev}\,V), whose QP constraints were never active in these runs, so the MPC acts as an observer-compensated LQR. The urban profile gives the same ranking: \R{pu:afix:maxdev}\,V versus \R{pu:dosmc:maxdev}\,V.
+
+\paragraph{Mechanism}
+Fig.~\ref{fig:tier1} shows how this is achieved. In the noise-free run of the same profile, the envelope raises $k_s(t)$ to $\KsMaxAdapt$\,V/s during the transients, above the true observer error ($|\Dt|_{\max}=\DtildeMaxAdapt$\,V/s). Assumption~\ref{as:est} holds during \AssumptionHoldPct\ of the run, with a minimum ratio $k_s/|\Dt|$ of \MinKsRatio. In steady state the gain decays towards $k_{\min}$, and the boundary layer $\phi_s=k_s/k'$ shrinks with it. The control law is therefore never high-gain inside the layer: its slope stays at $k'=\SI{240}{s^{-1}}$ throughout.
+
+\paragraph{Cost}
+One A-DO-SMC update costs \TimeADOSMC\,\si{\micro s}, essentially the same as the fixed DO-SMC (\TimeDOSMC\,\si{\micro s}). The robust MPC costs \TimeMPC\,\si{\micro s} when its constraints are inactive and \TimeMPCActive\,\si{\micro s} when they are active.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{../results/figures/F2_tier1_gtsd_transient.pdf}
+\caption{GTSD transient profile, fixed supervisor. Top: bus voltage for DO-SMC~\cite{ha2026gtsd}, robust MPC and A-DO-SMC (right: zoom on the acceleration step). Bottom left: adaptive switching gain $k_s(t)$ and true observer error $|\Dt(t)|$, computed from the plant (log scale; condition~(38) of~\cite{ha2026gtsd} is $k_s>|\Dt|$). Bottom right: boundary-layer width $\phi_s(t)=k_s(t)/k'$.}
+\label{fig:tier1}
+\end{figure*}
+
+\input{sec_results_tier2.tex}

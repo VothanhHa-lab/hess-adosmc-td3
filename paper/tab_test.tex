@@ -1,0 +1,41 @@
+\begin{table*}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\caption{Held-out test cycles. Tier~1 is A-DO-SMC in every row. Learned supervisors: mean $\pm$ standard deviation over three training seeds, each value averaged over three noise seeds. Non-learning supervisors: mean over the same three noise seeds. All indices are computed from true plant signals.}
+\label{tab:test}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrrrrc@{}}
+\toprule
+Cycle & Supervisor (tier 1 = A-DO-SMC) & max$|e|$ (V) & RMS $i_b$ (A) & RMS $\dot\imath_b$ (A/s) & Sat. (\%) & min $v_{sc}$ (V) & Failed runs\\
+\midrule
+US06 & Fixed $\theta$ & \R{us06a:afix:maxdev} & \R{us06a:afix:ibrms} & \R{us06a:afix:slew} & \R{us06a:afix:sat} & \R{us06a:afix:vmin} & 0\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{us06a:arule:maxdev} & \R{us06a:arule:ibrms} & \R{us06a:arule:slew} & \R{us06a:arule:sat} & \R{us06a:arule:vmin} & 0\\
+ & TD3, no filter & \R{us06a:nof:maxdev:mean}\,{\scriptsize$\pm$\R{us06a:nof:maxdev:std}} & \R{us06a:nof:ibrms:mean}\,{\scriptsize$\pm$\R{us06a:nof:ibrms:std}} & \R{us06a:nof:slew:mean}\,{\scriptsize$\pm$\R{us06a:nof:slew:std}} & \R{us06a:nof:sat:mean}\,{\scriptsize$\pm$\R{us06a:nof:sat:std}} & \R{us06a:nof:vmin:mean}\,{\scriptsize$\pm$\R{us06a:nof:vmin:std}} & \R{us06a:nof:fails}/\R{us06a:nof:runs}\\
+ & TD3 + filter v1 & \R{us06a:v1:maxdev:mean}\,{\scriptsize$\pm$\R{us06a:v1:maxdev:std}} & \R{us06a:v1:ibrms:mean}\,{\scriptsize$\pm$\R{us06a:v1:ibrms:std}} & \R{us06a:v1:slew:mean}\,{\scriptsize$\pm$\R{us06a:v1:slew:std}} & \R{us06a:v1:sat:mean}\,{\scriptsize$\pm$\R{us06a:v1:sat:std}} & \R{us06a:v1:vmin:mean}\,{\scriptsize$\pm$\R{us06a:v1:vmin:std}} & \R{us06a:v1:fails}/\R{us06a:v1:runs}\\
+ & TD3 + filter v2 (prop.) & \R{us06a:v2:maxdev:mean}\,{\scriptsize$\pm$\R{us06a:v2:maxdev:std}} & \R{us06a:v2:ibrms:mean}\,{\scriptsize$\pm$\R{us06a:v2:ibrms:std}} & \R{us06a:v2:slew:mean}\,{\scriptsize$\pm$\R{us06a:v2:slew:std}} & \R{us06a:v2:sat:mean}\,{\scriptsize$\pm$\R{us06a:v2:sat:std}} & \R{us06a:v2:vmin:mean}\,{\scriptsize$\pm$\R{us06a:v2:vmin:std}} & \R{us06a:v2:fails}/\R{us06a:v2:runs}\\
+\midrule
+WLTC high & Fixed $\theta$ & \R{wh:afix:maxdev} & \R{wh:afix:ibrms} & \R{wh:afix:slew} & \R{wh:afix:sat} & \R{wh:afix:vmin} & 0\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{wh:arule:maxdev} & \R{wh:arule:ibrms} & \R{wh:arule:slew} & \R{wh:arule:sat} & \R{wh:arule:vmin} & 0\\
+ & TD3, no filter & \R{wh:nof:maxdev:mean}\,{\scriptsize$\pm$\R{wh:nof:maxdev:std}} & \R{wh:nof:ibrms:mean}\,{\scriptsize$\pm$\R{wh:nof:ibrms:std}} & \R{wh:nof:slew:mean}\,{\scriptsize$\pm$\R{wh:nof:slew:std}} & \R{wh:nof:sat:mean}\,{\scriptsize$\pm$\R{wh:nof:sat:std}} & \R{wh:nof:vmin:mean}\,{\scriptsize$\pm$\R{wh:nof:vmin:std}} & \R{wh:nof:fails}/\R{wh:nof:runs}\\
+ & TD3 + filter v1 & \R{wh:v1:maxdev:mean}\,{\scriptsize$\pm$\R{wh:v1:maxdev:std}} & \R{wh:v1:ibrms:mean}\,{\scriptsize$\pm$\R{wh:v1:ibrms:std}} & \R{wh:v1:slew:mean}\,{\scriptsize$\pm$\R{wh:v1:slew:std}} & \R{wh:v1:sat:mean}\,{\scriptsize$\pm$\R{wh:v1:sat:std}} & \R{wh:v1:vmin:mean}\,{\scriptsize$\pm$\R{wh:v1:vmin:std}} & \R{wh:v1:fails}/\R{wh:v1:runs}\\
+ & TD3 + filter v2 (prop.) & \R{wh:v2:maxdev:mean}\,{\scriptsize$\pm$\R{wh:v2:maxdev:std}} & \R{wh:v2:ibrms:mean}\,{\scriptsize$\pm$\R{wh:v2:ibrms:std}} & \R{wh:v2:slew:mean}\,{\scriptsize$\pm$\R{wh:v2:slew:std}} & \R{wh:v2:sat:mean}\,{\scriptsize$\pm$\R{wh:v2:sat:std}} & \R{wh:v2:vmin:mean}\,{\scriptsize$\pm$\R{wh:v2:vmin:std}} & \R{wh:v2:fails}/\R{wh:v2:runs}\\
+\midrule
+WLTC extra-high & Fixed $\theta$ & \R{wxa:afix:maxdev} & \R{wxa:afix:ibrms} & \R{wxa:afix:slew} & \R{wxa:afix:sat} & \R{wxa:afix:vmin} & 0\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{wxa:arule:maxdev} & \R{wxa:arule:ibrms} & \R{wxa:arule:slew} & \R{wxa:arule:sat} & \R{wxa:arule:vmin} & 0\\
+ & TD3, no filter & \R{wxa:nof:maxdev:mean}\,{\scriptsize$\pm$\R{wxa:nof:maxdev:std}} & \R{wxa:nof:ibrms:mean}\,{\scriptsize$\pm$\R{wxa:nof:ibrms:std}} & \R{wxa:nof:slew:mean}\,{\scriptsize$\pm$\R{wxa:nof:slew:std}} & \R{wxa:nof:sat:mean}\,{\scriptsize$\pm$\R{wxa:nof:sat:std}} & \R{wxa:nof:vmin:mean}\,{\scriptsize$\pm$\R{wxa:nof:vmin:std}} & \R{wxa:nof:fails}/\R{wxa:nof:runs}\\
+ & TD3 + filter v1 & \R{wxa:v1:maxdev:mean}\,{\scriptsize$\pm$\R{wxa:v1:maxdev:std}} & \R{wxa:v1:ibrms:mean}\,{\scriptsize$\pm$\R{wxa:v1:ibrms:std}} & \R{wxa:v1:slew:mean}\,{\scriptsize$\pm$\R{wxa:v1:slew:std}} & \R{wxa:v1:sat:mean}\,{\scriptsize$\pm$\R{wxa:v1:sat:std}} & \R{wxa:v1:vmin:mean}\,{\scriptsize$\pm$\R{wxa:v1:vmin:std}} & \R{wxa:v1:fails}/\R{wxa:v1:runs}\\
+ & TD3 + filter v2 (prop.) & \R{wxa:v2:maxdev:mean}\,{\scriptsize$\pm$\R{wxa:v2:maxdev:std}} & \R{wxa:v2:ibrms:mean}\,{\scriptsize$\pm$\R{wxa:v2:ibrms:std}} & \R{wxa:v2:slew:mean}\,{\scriptsize$\pm$\R{wxa:v2:slew:std}} & \R{wxa:v2:sat:mean}\,{\scriptsize$\pm$\R{wxa:v2:sat:std}} & \R{wxa:v2:vmin:mean}\,{\scriptsize$\pm$\R{wxa:v2:vmin:std}} & \R{wxa:v2:fails}/\R{wxa:v2:runs}\\
+\midrule
+WLTC extra-high $\times1.2$ & Fixed $\theta$ & \R{wxb:afix:maxdev} & \R{wxb:afix:ibrms} & \R{wxb:afix:slew} & \R{wxb:afix:sat} & \R{wxb:afix:vmin} & 0\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{wxb:arule:maxdev} & \R{wxb:arule:ibrms} & \R{wxb:arule:slew} & \R{wxb:arule:sat} & \R{wxb:arule:vmin} & 0\\
+ & TD3, no filter & \R{wxb:nof:maxdev:mean}\,{\scriptsize$\pm$\R{wxb:nof:maxdev:std}} & \R{wxb:nof:ibrms:mean}\,{\scriptsize$\pm$\R{wxb:nof:ibrms:std}} & \R{wxb:nof:slew:mean}\,{\scriptsize$\pm$\R{wxb:nof:slew:std}} & \R{wxb:nof:sat:mean}\,{\scriptsize$\pm$\R{wxb:nof:sat:std}} & \R{wxb:nof:vmin:mean}\,{\scriptsize$\pm$\R{wxb:nof:vmin:std}} & \R{wxb:nof:fails}/\R{wxb:nof:runs}\\
+ & TD3 + filter v1 & \R{wxb:v1:maxdev:mean}\,{\scriptsize$\pm$\R{wxb:v1:maxdev:std}} & \R{wxb:v1:ibrms:mean}\,{\scriptsize$\pm$\R{wxb:v1:ibrms:std}} & \R{wxb:v1:slew:mean}\,{\scriptsize$\pm$\R{wxb:v1:slew:std}} & \R{wxb:v1:sat:mean}\,{\scriptsize$\pm$\R{wxb:v1:sat:std}} & \R{wxb:v1:vmin:mean}\,{\scriptsize$\pm$\R{wxb:v1:vmin:std}} & \R{wxb:v1:fails}/\R{wxb:v1:runs}\\
+ & TD3 + filter v2 (prop.) & \R{wxb:v2:maxdev:mean}\,{\scriptsize$\pm$\R{wxb:v2:maxdev:std}} & \R{wxb:v2:ibrms:mean}\,{\scriptsize$\pm$\R{wxb:v2:ibrms:std}} & \R{wxb:v2:slew:mean}\,{\scriptsize$\pm$\R{wxb:v2:slew:std}} & \R{wxb:v2:sat:mean}\,{\scriptsize$\pm$\R{wxb:v2:sat:std}} & \R{wxb:v2:vmin:mean}\,{\scriptsize$\pm$\R{wxb:v2:vmin:std}} & \R{wxb:v2:fails}/\R{wxb:v2:runs}\\
+\midrule
+US06 $\times1.1$ & Fixed $\theta$ & \R{us06b:afix:maxdev} & \R{us06b:afix:ibrms} & \R{us06b:afix:slew} & \R{us06b:afix:sat} & \R{us06b:afix:vmin} & 0\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{us06b:arule:maxdev} & \R{us06b:arule:ibrms} & \R{us06b:arule:slew} & \R{us06b:arule:sat} & \R{us06b:arule:vmin} & 0\\
+ & TD3, no filter & \R{us06b:nof:maxdev:mean}\,{\scriptsize$\pm$\R{us06b:nof:maxdev:std}} & \R{us06b:nof:ibrms:mean}\,{\scriptsize$\pm$\R{us06b:nof:ibrms:std}} & \R{us06b:nof:slew:mean}\,{\scriptsize$\pm$\R{us06b:nof:slew:std}} & \R{us06b:nof:sat:mean}\,{\scriptsize$\pm$\R{us06b:nof:sat:std}} & \R{us06b:nof:vmin:mean}\,{\scriptsize$\pm$\R{us06b:nof:vmin:std}} & \R{us06b:nof:fails}/\R{us06b:nof:runs}\\
+ & TD3 + filter v1 & \R{us06b:v1:maxdev:mean}\,{\scriptsize$\pm$\R{us06b:v1:maxdev:std}} & \R{us06b:v1:ibrms:mean}\,{\scriptsize$\pm$\R{us06b:v1:ibrms:std}} & \R{us06b:v1:slew:mean}\,{\scriptsize$\pm$\R{us06b:v1:slew:std}} & \R{us06b:v1:sat:mean}\,{\scriptsize$\pm$\R{us06b:v1:sat:std}} & \R{us06b:v1:vmin:mean}\,{\scriptsize$\pm$\R{us06b:v1:vmin:std}} & \R{us06b:v1:fails}/\R{us06b:v1:runs}\\
+ & TD3 + filter v2 (prop.) & \R{us06b:v2:maxdev:mean}\,{\scriptsize$\pm$\R{us06b:v2:maxdev:std}} & \R{us06b:v2:ibrms:mean}\,{\scriptsize$\pm$\R{us06b:v2:ibrms:std}} & \R{us06b:v2:slew:mean}\,{\scriptsize$\pm$\R{us06b:v2:slew:std}} & \R{us06b:v2:sat:mean}\,{\scriptsize$\pm$\R{us06b:v2:sat:std}} & \R{us06b:v2:vmin:mean}\,{\scriptsize$\pm$\R{us06b:v2:vmin:std}} & \R{us06b:v2:fails}/\R{us06b:v2:runs}\\
+\bottomrule
+\end{tabular}}
+\end{table*}
