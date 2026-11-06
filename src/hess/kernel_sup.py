@@ -5,15 +5,17 @@ Same plant as kernel.py, but:
   * simulation advances in chunks so a supervisory agent can change
     (taub, vsc_ref, lam) between chunks while all states persist,
   * allocation includes an SC energy-recovery term,
-  * controller 3 = A-DO-SMC (adaptive switching gain + conditional integrator).
+  * controller 3 = A-DO-SMC (adaptive switching gain + conditional integrator),
+  * controller 4 = DO-ASMC baseline (same NDO and integrator, gain adapted from |s|, fixed layer).
 
 Controller memory layout (mem):
   0 xi, 1 z, 2 Pb_f, 3 ib_int, 4 isc_int, 5 Dhat_prev, 6 dD_filt, 7 env, 8 e_last,
-  9 ks_last, 10 phi_last
+  9 ks_last, 10 phi_last, 11 K (DO-ASMC adaptive gain), 12 u_prev
 Aux statistics (stats) accumulated per chunk (reset by caller):
   0 n, 1 sum e^2, 2 max|e|, 3 sum ib^2, 4 max|ib|, 5 sum slew^2, 6 max|slew|, 7 n_slew,
   8 n_sat, 9 min vsc, 10 max vsc, 11 sum |ib|*Ts, 12 sum ks, 13 sum isc^2,
-  14 sum P* (measured v_dc * u; controller-internal load estimate for the MPC-EMS baseline)
+  14 sum P* (measured v_dc * u; controller-internal load estimate for the MPC-EMS baseline),
+  15 sum |du| (applied command increment per sample), 16 sum du^2
 Block state for the 1 ms battery-current slew (blk): 0 sum, 1 count, 2 prev mean, 3 have prev
 """
 import numpy as np
@@ -24,11 +26,12 @@ from .params import (CDC, LB, LSC, RB, RSC, R0B, OCV_NOM, OCV_SLOPE, SOC_REF, QB
                      CSC, RESR, IBMAX, ISCMAX, VSCMIN, VSCMAX, DMAX, VREF, LAM, KS, PHI,
                      CV, TAUB, WCI, KI_RATIO, ALLOC_MODE, KP_PI, KI_PI, CDC_NOM, LB_NOM, LSC_NOM,
                      TS, N_SUB, DELAY, CTRL, LOAD_SCALE, SIG_V, SIG_I,
-                     VSC_REF, KE, PREC_MAX, K_MIN, BETA, TAU_F, TAU_ENV)
+                     VSC_REF, KE, PREC_MAX, K_MIN, BETA, TAU_F, TAU_ENV,
+                     PHI0, GAMMA_A, EPS_S, PHI_FIX)
 
 NX = 9
-NMEM = 11
-NSTAT = 15
+NMEM = 13
+NSTAT = 17
 LOG_COLS = ["t", "vdc", "iLb", "iLsc", "vb_t", "vC_sc", "soc_b", "P_L", "u", "u_un", "Dhat",
             "Dtrue", "ks", "phi", "taub", "vsc_ref", "lam", "iLb_ref", "iLsc_ref"]
 NLOG = len(LOG_COLS)
@@ -127,6 +130,24 @@ def ctrl_step2(p, mem, vdc_m, iLb_m, iLsc_m, vb_m, vsc_m, H, Hinv, F, margin, dw
         for j in range(N):
             d_unc -= Hinv[0, j] * g[j]
         u_un = C * (d_unc - Dhat)
+    elif ctrl == 4:
+        # DO-ASMC baseline: same NDO, sliding variable and conditional integrator; switching gain
+        # adapted by the increase-decrease law dK/dt = gamma*|s|*sgn(|s| - eps_s), projected onto
+        # K >= K_min; fixed boundary layer phi0.
+        Dhat = mem[1] + lam * e
+        K = mem[11] if mem[11] > 0.0 else p[K_MIN]
+        phi = p[PHI0]
+        ks = K
+        s = e + p[CV] * xi
+        u_un = C * (-Dhat - p[CV] * e - K * sat1(s / phi))
+        if abs(s) > phi:
+            integrate_ok = False
+        a = abs(s)
+        sg = 1.0 if a > p[EPS_S] else (-1.0 if a < p[EPS_S] else 0.0)
+        K = K + Ts * p[GAMMA_A] * a * sg
+        if K < p[K_MIN]:
+            K = p[K_MIN]
+        mem[11] = K
     else:
         # A-DO-SMC: |D~| estimated from the NDO itself (dDhat/dt = lam*D~), envelope,
         # ks = k_min + beta*env enforces Eq.(38) online; phi = ks/k' keeps the small-signal
@@ -139,7 +160,7 @@ def ctrl_step2(p, mem, vdc_m, iLb_m, iLsc_m, vb_m, vsc_m, H, Hinv, F, margin, dw
         envd = mem[7] * np.exp(-Ts / p[TAU_ENV])
         mem[7] = dtil if dtil > envd else envd
         ks = p[K_MIN] + p[BETA] * mem[7]
-        phi = ks / kprime
+        phi = ks / kprime if p[PHI_FIX] <= 0.0 else p[PHI_FIX]
         s = e + p[CV] * xi
         u_un = C * (-Dhat - p[CV] * e - ks * sat1(s / phi))
         if abs(s) > phi:
@@ -237,6 +258,11 @@ def run_chunk(p, x, mem, pend, blk, stats, k0, nsteps, t0tab, dtab, Ptab,
         stats[12] += ks
         stats[13] += iLsc * iLsc
         stats[14] += vdc_m * u
+        if k > 0:
+            du = u - mem[12]
+            stats[15] += abs(du)
+            stats[16] += du * du
+        mem[12] = u
         blk[0] += iLb
         blk[1] += 1.0
         if blk[1] >= blkn:

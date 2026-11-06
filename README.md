@@ -91,8 +91,9 @@ Wall-clock times are those logged on the 2-core machine used for the paper.
 | 8 | `python scripts/mechanism.py` | Diagnoses how the supervisors use the supercapacitor energy-recovery term (needs the raw logs) | seconds |
 | 9 | `python scripts/tier1_m3.py` | Tier 1 on the Model 3 plant: worst-case sizing of the high-gain DO-SMC on the train cycles, test runs, 1 ms US06 logs (`data/raw/tier1_m3/`) | about 10 min |
 | 10 | `python scripts/lambda_robustness.py` | High-gain DO-SMC vs A-DO-SMC on US06 with constant lambda (100/250/800 1/s) and with the replayed agent schedules | about 15 min |
+| 10b | `python scripts/asmc_tune.py` then `python scripts/asmc_compare.py` | DO-ASMC baseline: tuning on the training cycles, then comparison with A-DO-SMC on US06 (constant and replayed lambda) | about 15 + 35 min |
 | 11 | `python scripts/mass_sensitivity.py` | SC-mass sensitivity (needs the shipped agents) | minutes |
-| 12 | `python scripts/make_numbers.py`, `make_extra_checks.py`, `make_sizing_table.py`, `make_tier1_m3.py`, `make_lambda_table.py` | Write `paper/numbers*.tex`, `paper/tab_*.tex` and figure F2 from the saved results | seconds |
+| 12 | `python scripts/make_numbers.py`, `make_extra_checks.py`, `make_sizing_table.py`, `make_tier1_m3.py`, `make_lambda_table.py`, `make_asmc_table.py` | Write `paper/numbers*.tex`, `paper/tab_*.tex` and figure F2 from the saved results | seconds |
 | 13 | `cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main` | Builds the manuscript in the IEEE Access template (copy the template files first, see `paper/README.md`) | seconds |
 | 14 | `python tests/verify_agent.py` | Self-checks | about a minute |
 
@@ -121,6 +122,7 @@ Table and figure numbers can change as the paper is edited, so this map uses LaT
 | `tab:lambda` (tier 1 vs observer gain) | `paper/tab_lambda.tex`, `data/processed/lambda_robustness.json` | `lambda_robustness.py`, `make_lambda_table.py` |
 | `tab:loss` (resistive losses), mass sensitivity | `paper/tab_loss.tex`, `data/processed/mass_sensitivity.json` | `mass_sensitivity.py`, `make_extra_checks.py` |
 | `tab:sizing` (storage sizing) | `paper/tab_sizing.tex`, `archive_reduced_storage/processed/eval_results.json`, `configs/reduced_storage.yaml` | `make_sizing_table.py` |
+| `tab:asmc`, `fig:asmc` (DO-ASMC baseline vs A-DO-SMC) | `paper/tab_asmc.tex`, `data/processed/asmc_tune.json`, `data/processed/asmc_compare.json` | `asmc_tune.py`, `asmc_compare.py`, `make_asmc_table.py` |
 | `tab:test` (held-out test cycles) | `paper/tab_test.tex`, `results/tables/T3_*`, paired tests `T4_*`, filter ablation `T5_*` | `make_numbers.py`, `report.py` |
 | `tab:extra` (WMTC, FTP-MC1b, long-haul) | `paper/tab_extra.tex`, `results/tables/T8_*` | `make_numbers.py`, `report.py` |
 | Training summary, timing | `results/tables/T6_training.*`, `T7_timing.*` | `report.py` |

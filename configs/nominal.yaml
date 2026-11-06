@@ -88,6 +88,11 @@ supervision:                 # defaults (= fixed supervisor); the agent changes 
   tau_f:    {value: 0.002,  unit: s,   source: ASSUMED}   # filter on dD_hat/dt
   tau_env:  {value: 0.05,   unit: s,   source: ASSUMED}   # envelope decay of |D~| estimate
 
+do_asmc:                     # DO-ASMC baseline: dK/dt = gamma_a*|s|*sgn(|s|-eps_s), K >= k_min, K(0) = k_min
+  phi0:     {value: 0.5,    unit: V,      source: ASSUMED}  # fixed boundary layer (= low-gain DO-SMC layer)
+  gamma_a:  {value: 1.0e4,  unit: 1/s^2,  source: ASSUMED}  # adaptation rate
+  eps_s:    {value: 0.25,   unit: V,      source: ASSUMED}  # increase/decrease threshold on |s|
+
 vehicle:                     # Tesla Model 3 (speed -> traction power at the DC bus)
   mass:     {value: 1830.0, unit: kg,  source: M3-TUM}    # measured empty mass 1755 kg + 75 kg driver
   rot_factor: {value: 1.06, unit: "1", source: M3-TUM}    # rotational inertia factor

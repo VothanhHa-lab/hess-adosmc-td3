@@ -1,0 +1,41 @@
+\begin{table*}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\caption{A-DO-SMC versus the DO-ASMC baseline on US06 (Tesla Model 3 plant). All variants share the NDO, sliding variable, conditional integrator, saturation and sampling. DO-ASMC: $\dot K=\gamma|s|\,\mathrm{sgn}(|s|-\epsilon_s)$, $K\ge K_{\min}=K(0)=\SI{120}{V/s}$, fixed layer $\phi_0=\SI{0.5}{V}$; start: $\epsilon_s=\SI{0.25}{V}$, $\gamma=10^4$\,s$^{-2}$; tuned on the training cycles: $\epsilon_s=\AsmcEps$\,V, $\gamma=\AsmcGam$\,s$^{-2}$. A-DO-SMC, fixed $\phi_0$: gain law of A-DO-SMC with the DO-ASMC layer. Agent rows replay the $(\tau_b,v_{sc,ref},\lambda)$ schedule of each filter-v2 agent. max$|e|$, RMS $e$, RMS $\Delta u$ (applied command increment per sample) and saturation: mean over noise seeds 101--103; $k_{s,\max}$ and $r_{\min}=\min_t k_s/|\Dt|$: seed 101, $t>0.2$\,s.}
+\label{tab:asmc}
+\begin{tabular}{@{}llccccccc@{}}
+\toprule
+ & & \multicolumn{6}{c}{US06} & US06$\times1.1$\\
+$\lambda$ schedule & Tier 1 & max$|e|$ (V) & RMS $e$ (V) & RMS $\Delta u$ (A) & Sat. (\%) & $k_{s,\max}$ (V/s) & $r_{\min}$ & max$|e|$ (V)\\
+\midrule
+$\lambda=100$ & A-DO-SMC & 2.71 & 0.067 & 0.583 & 0.00 & 3688 & 1.32 & 2.98\\
+ & A-DO-SMC, fixed $\phi_0$ & 0.59 & 0.045 & 1.953 & 0.00 & 3717 & 0.57 & 0.66\\
+ & DO-ASMC, tuned & 35.17 & 8.000 & 217.659 & 37.24 & $2.6{\times}10^{6}$ & 0.30 & 35.97\\
+ & DO-ASMC, start & 178.16 & 12.819 & 330.301 & 94.83 & $5.9{\times}10^{7}$ & 0.33 & 189.03\\
+\midrule
+$\lambda=250$ & A-DO-SMC & 1.48 & 0.043 & 0.781 & 0.00 & 1873 & 1.25 & 1.63\\
+ & A-DO-SMC, fixed $\phi_0$ & 0.34 & 0.046 & 1.961 & 0.00 & 1818 & 0.53 & 0.35\\
+ & DO-ASMC, tuned & 1.37 & 0.047 & 1.872 & 0.00 & 953 & 0.34 & 1.50\\
+ & DO-ASMC, start & 129.72 & 10.143 & 260.386 & 57.52 & $3.1{\times}10^{7}$ & 0.31 & 188.31\\
+\midrule
+$\lambda=800$ & A-DO-SMC & 0.59 & 0.041 & 1.506 & 0.00 & 1003 & 1.03 & 0.64\\
+ & A-DO-SMC, fixed $\phi_0$ & 0.31 & 0.057 & 2.616 & 0.00 & 1018 & 0.43 & 0.32\\
+ & DO-ASMC, tuned & 0.53 & 0.043 & 1.619 & 0.00 & 408 & 0.24 & 0.58\\
+ & DO-ASMC, start & 0.50 & 0.043 & 1.674 & 0.00 & 846 & 0.24 & 12.35\\
+\midrule
+agent 11 & A-DO-SMC & 1.58 & 0.041 & 1.119 & 0.00 & 1823 & 1.09 & 1.96\\
+ & A-DO-SMC, fixed $\phi_0$ & 0.37 & 0.052 & 2.246 & 0.00 & 1858 & 0.48 & 0.42\\
+ & DO-ASMC, tuned & 1.70 & 0.054 & 1.831 & 0.00 & 822 & 0.26 & 1.81\\
+ & DO-ASMC, start & 130.27 & 10.091 & 260.175 & 58.35 & $3.0{\times}10^{7}$ & 0.27 & 187.67\\
+\midrule
+agent 22 & A-DO-SMC & 0.90 & 0.040 & 1.055 & 0.00 & 1246 & 1.15 & 0.97\\
+ & A-DO-SMC, fixed $\phi_0$ & 0.32 & 0.050 & 2.185 & 0.00 & 1287 & 0.48 & 0.34\\
+ & DO-ASMC, tuned & 0.51 & 0.044 & 1.568 & 0.00 & 572 & 0.27 & 0.64\\
+ & DO-ASMC, start & 12.05 & 2.795 & 76.996 & 14.13 & 1130 & 0.27 & 36.02\\
+\midrule
+agent 33 & A-DO-SMC & 1.03 & 0.040 & 1.249 & 0.00 & 1358 & 1.03 & 167.85\\
+ & A-DO-SMC, fixed $\phi_0$ & 0.33 & 0.054 & 2.362 & 0.00 & 1387 & 0.45 & 167.91\\
+ & DO-ASMC, tuned & 0.93 & 0.044 & 1.529 & 0.00 & 482 & 0.25 & 162.25\\
+ & DO-ASMC, start & 177.96 & 10.835 & 272.129 & 64.52 & $4.0{\times}10^{7}$ & 0.25 & 87.09\\
+\bottomrule
+\end{tabular}
+\end{table*}

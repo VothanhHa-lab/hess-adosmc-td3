@@ -16,12 +16,12 @@
  },
  "energy_balance_chunk_kernel_us06_60s": {
   "pass": true,
-  "rel_residual": 4.318244670281119e-12
+  "rel_residual": 3.2122043862948238e-12
  },
  "bumpless_lambda_switch": {
   "pass": true,
-  "before": -1171.8113040680764,
-  "after": -1171.8113040680764
+  "before": -143.591341114187,
+  "after": -143.591341114187
  },
  "safety_filter_box_rate_and_discretisation_bounds": {
   "pass": true
@@ -38,10 +38,10 @@
  },
  "timestep_convergence_nsub5_vs_20": {
   "pass": true,
-  "rel_change": 1.5550909926837169e-12,
+  "rel_change": 3.0999181068940226e-11,
   "maxdev": [
-   1.3524652304859615,
-   1.3524652304880647
+   0.5281076489089287,
+   0.5281076488925578
   ]
  },
  "mlp_backprop_finite_difference": {

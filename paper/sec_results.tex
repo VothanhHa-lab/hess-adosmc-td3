@@ -37,4 +37,31 @@ One A-DO-SMC update costs \TimeADOSMC\,\si{\micro s}, essentially the same as a 
 \label{fig:tier1}
 \end{figure*}
 
+\subsection{Comparison with a Sliding-Variable Adaptive DO-SMC}\label{sec:res_asmc}
+\input{tab_asmc.tex}
+To assess the gain law itself, A-DO-SMC is compared with a DO-SMC whose switching gain is adapted from the sliding variable (DO-ASMC) by the increase--decrease law of~\cite{plestan2010adaptive},
+\begin{equation}
+\dot K=\gamma\,|s|\,\mathrm{sgn}\big(|s|-\epsilon_s\big),\qquad K\ge K_{\min},\label{eq:asmc}
+\end{equation}
+with $K(0)=K_{\min}=\SI{120}{V/s}$, used in \eqref{eq:law} with $k_s=K$ and a fixed boundary layer $\phi_0=\SI{0.5}{V}$. Both controllers use the same NDO, sliding variable, conditional integrator, input saturation and sampling (Section~\ref{sec:impl}). The guarantees of~\cite{plestan2010adaptive} were derived for a different setting and are not assumed to carry over to this saturated, sampled implementation with conditional integration. Two parameter sets are reported: the starting values $\epsilon_s=\SI{0.25}{V}$, $\gamma=10^4$\,s$^{-2}$, and a set tuned on the four training cycles only (grid $\epsilon_s\in\{0.25,0.5,1,2\}$\,V, $\gamma\in\{10^3,10^4\}$\,s$^{-2}$; criterion: smallest worst-case maximum deviation without failure and with less than 1\,\% input saturation), which gave $\epsilon_s=\AsmcEps$\,V and $\gamma=\AsmcGam$\,s$^{-2}$. A third variant, A-DO-SMC with the same fixed layer $\phi_0$, separates the effect of the gain law from that of the gain-scaled layer. Table~\ref{tab:asmc} and Fig.~\ref{fig:asmc} report US06 with the fixed supervisor at $\lambda=100$, 250 and \SI{800}{s^{-1}}, and with the $\lambda$ schedules of the three agents replayed open-loop, so that all variants see the same $\lambda(t)$.
+
+\paragraph{Starting values}
+With measurement noise, the threshold $\epsilon_s=\SI{0.25}{V}$ is of the order of the noise on $s$ ($\sigma_v=\SI{0.2}{V}$), so $|s|$ exceeds $\epsilon_s$ also in steady state and $K$ grows almost monotonically (Fig.~\ref{fig:asmc}). At the nominal $\lambda$ it reached \CmpAzNKs\,V/s, the input was saturated \CmpAzNSat\,\% of the time, and the maximum deviation was \CmpAzNMax\,V. Only at $\lambda=\SI{800}{s^{-1}}$ did these values work on US06 (\CmpAzHMax\,V), and even there US06$\times1.1$ gave \CmpAzHMaxB\,V. In the tuning grid the same rate also diverged on the training cycle NREL13 (\TuneBadMax\,V, \TuneBadSat\,\% saturation), which is why the tuned set has a ten times smaller $\gamma$.
+
+\paragraph{Tuned DO-ASMC}
+At the nominal and the upper observer gain and with the agents' schedules, the tuned DO-ASMC regulates as well as A-DO-SMC: \CmpAsNMax\,V against \CmpANMax\,V at the nominal $\lambda$, and \CmpAsAgMaxLo--\CmpAsAgMaxHi\,V against \CmpAAgMaxLo--\CmpAAgMaxHi\,V with the agent schedules. Its command increments are larger (RMS $\Delta u$ \CmpAsNDu\,A against \CmpANDu\,A at the nominal $\lambda$). It regulates well although $k_s<|\Dt|$ for part of the time ($r_{\min}=\CmpAsNRatio$): with a thin fixed layer the in-layer slope $K/\phi_0$ is large, so the reaching condition is not necessary for good regulation in these runs. At the lower bound $\lambda=\SI{100}{s^{-1}}$, the tuned DO-ASMC diverged: $K$ rose to \CmpAsLKs\,V/s, the input was saturated \CmpAsLSat\,\% of the time, and the maximum deviation was \CmpAsLMax\,V, against \CmpALMax\,V for A-DO-SMC, which kept $k_s\ge|\Dt|$ ($r_{\min}=\CmpALRatio$). The sliding-variable law raises $K$ whenever $|s|$ is large, whatever the cause; with a fixed thin layer a larger $K$ raises the in-layer slope, which amplifies noise and the effect of the sampling delay and enlarges $|s|$ further.
+
+\paragraph{Fixed boundary layer}
+A-DO-SMC with the fixed layer $\phi_0$ gave the smallest maximum deviation in every case (\CmpFixNMax\,V at the nominal $\lambda$, \CmpFixLMax\,V at $\lambda=\SI{100}{s^{-1}}$) and did not diverge at the lower bound, but it produced the largest command increments (RMS $\Delta u$ \CmpFixNDu\,A against \CmpANDu\,A at the nominal $\lambda$) and let $k_s$ fall below $|\Dt|$ at times ($r_{\min}=\CmpFixNRatio$). In this comparison, the robustness at the lower observer gain therefore comes from the gain law driven by the observer-error estimate, not from the gain-scaled layer. The scaled layer trades a larger peak bus deviation (below \SI{3}{V} on US06) for smoother commands and fixed small-signal poles.
+
+\paragraph{Scope of the comparison}
+Only US06 on one plant was tested, the DO-ASMC was tuned on an eight-point grid, and other adaptive laws (for example with an upper gain bound or a filtered sliding variable) were not tested. RMS $\Delta u$ includes increments caused by measurement noise. The comparison evaluates the benefit of the gain law in this implementation; it does not replace a theoretical comparison with adaptive sliding-mode designs.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{../results/figures/F7_asmc_gain.pdf}
+\caption{A-DO-SMC versus DO-ASMC on US06 (Tesla Model 3 plant, fixed supervisor, noise seed 101) at $\lambda=\SI{100}{s^{-1}}$ (left) and $\lambda=\SI{250}{s^{-1}}$ (right). Top: switching gain $k_s(t)$ of A-DO-SMC (with the scaled and with the fixed layer; the two curves nearly coincide) and adaptive gain $K(t)$ of DO-ASMC with the starting and the tuned parameters (log scale). Bottom: bus-voltage error of the variants that did not diverge at the nominal gain; DO-ASMC with the starting values is omitted (maximum deviation in Table~\ref{tab:asmc}).}
+\label{fig:asmc}
+\end{figure*}
+
 \input{sec_results_tier2.tex}

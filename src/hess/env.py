@@ -161,7 +161,7 @@ class Episode:
         self.last_stats = st
         self.Dhist.append(self.dhat())
         # accumulate totals
-        for i in (0, 1, 3, 5, 7, 8, 11, 12, 13, 14):
+        for i in (0, 1, 3, 5, 7, 8, 11, 12, 13, 14, 15, 16):
             self.tot[i] += st[i]
         for i in (2, 4, 6, 10):
             self.tot[i] = max(self.tot[i], st[i])
@@ -186,6 +186,7 @@ class Episode:
             "sat_frac": float(T[8] / n), "vsc_min_V": float(T[9]), "vsc_max_V": float(T[10]),
             "vsc_final_V": float(self.x[3]), "soc_b_final": float(self.x[4]),
             "ks_mean_Vps": float(T[12] / n),
+            "du_rms_A": float(np.sqrt(T[16] / n)), "du_tv_A": float(T[15]),
             "constraint_violation": bool(T[4] > 1.01 * self.p[IDX["Ibmax"]]),
         }
 
