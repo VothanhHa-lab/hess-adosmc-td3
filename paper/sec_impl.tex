@@ -1,4 +1,4 @@
-\subsection{Digital implementation of the control structure}\label{sec:impl}
+\subsection{Digital Implementation of the Control Structure}\label{sec:impl}
 
 This section gives the complete digital control structure in the form used by the simulation. Every equation below corresponds one-to-one to the code in the supplementary archive (\texttt{src/hess/kernel\_sup.py}), and the numerical gains are listed in Table~\ref{tab:ctrl}. The structure is summarized in Fig.~\ref{fig:ctrl}. Three rates are involved:
 \begin{itemize}
@@ -64,7 +64,7 @@ This section gives the complete digital control structure in the form used by th
 \label{fig:ctrl}
 \end{figure*}
 
-\subsubsection{Discrete-time tier-1 equations}
+\subsubsection{Discrete-Time Tier-1 Equations}
 At sample $k$, the controller reads $v_{dc,k}$, $i_{b,k}$, $i_{sc,k}$ and the terminal voltages $v_{b,k}$, $v_{sc,k}$ (true values plus white noise). It then evaluates, in this order:
 
 \paragraph{Capability limits} With the SC limits disabled at the SC voltage bounds ($I^{dis}_{sc}=0$ if $v_{sc,k}\le v_{sc,\min}$, $I^{ch}_{sc}=0$ if $v_{sc,k}\ge v_{sc,\max}$, otherwise $I_{sc,\max}$):
@@ -125,7 +125,7 @@ compute $i^*_{b,k},i^*_{sc,k}$ by \eqref{eq:alloc1}--\eqref{eq:alloc3}\;
 
 \begin{algorithm}[t]
 \caption{Closed-loop simulation with the tier-2 supervisor}\label{alg:sim}
-initialize plant state, $v_{dc}=v^*_{dc}$, duties at their steady-state values, controller memories to zero, $\theta_0=(0.2\,\mathrm{s},\SI{250}{V},\SI{250}{s^{-1}})$\;
+initialize plant state, $v_{dc}=v^*_{dc}$, duties at their steady-state values, controller memories to zero, $\theta_0=(0.2\,\mathrm{s},\SI{312.5}{V},\SI{250}{s^{-1}})$\;
 \For{$j=0,1,\dots$ (decision instants $t=j\Delta_a$)}{
 build observation $o_j$ (Section~\ref{sec:tier2}); $a_j\leftarrow\pi(o_j)$\;
 $\theta_j\leftarrow\Pi_\mathcal{S}(\theta_{j-1},\theta(a_j))$ \tcp*{box, rate, reserve}
@@ -140,10 +140,10 @@ compute reward \eqref{eq:reward} (training only)\;
 }
 \end{algorithm}
 
-\paragraph{Verification of the implementation} The implementation was checked in four ways, with the results stored in the archive:
+\paragraph{Implementation verification} The implementation was checked in four ways, with the results stored in the archive:
 \begin{itemize}
 \item \emph{Energy balance.} The change in stored energy matched the source energy minus the losses and the load energy, with a relative residual of $\EnergyResidual$.
 \item \emph{Switching model.} A switched-PWM version of the plant reproduced the analytic inductor ripple $v\,d\,T_s/L$ within 3\,\%.
 \item \emph{Step size.} Reducing the RK4 step by a factor of four changed the reported indices by a relative amount below \TimestepRelPct.
-\item \emph{Chunked execution.} Running the simulation in supervisor-length chunks reproduced the uninterrupted run within 1\,\% for every outer loop.
+\item \emph{Chunked execution.} Running the simulation in chunks of one supervisor period reproduced the uninterrupted run within 1\,\% for every outer loop.
 \end{itemize}

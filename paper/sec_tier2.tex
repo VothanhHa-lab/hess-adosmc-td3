@@ -1,6 +1,6 @@
-\subsection{Tier 2: safety-filtered TD3 supervisor}\label{sec:tier2}
+\subsection{Tier 2: Safety-Filtered TD3 Supervisor}\label{sec:tier2}
 
-\subsubsection{Decision process}
+\subsubsection{Markov Decision Process Formulation}
 Every $\Delta_a=\SI{0.1}{\second}$ the supervisor observes an 11-dimensional vector built only from signals that the controller already has:
 \begin{itemize}
 \item the RMS bus-voltage error over the last decision interval;
@@ -15,21 +15,21 @@ The actor outputs $a\in[-1,1]^3$, mapped to $\theta$ (logarithmically for $\tau_
 r=-\min\!\Big(w_v\tfrac{\overline{e^2}}{e_{\rm ref}^2}+w_b\tfrac{\overline{i_b^2}}{I_{b,\max}^2}+w_s\tfrac{\overline{(\Delta i_b/\Delta t)^2}}{\dot\imath_{\rm ref}^2}\\
 +w_{sat}\,\sigma+w_{sc}\,\Pi_{sc},\ r_{\max}\Big),\label{eq:reward}
 \end{multline}
-where overbars are averages over the decision interval, $\Delta i_b/\Delta t$ is computed from \SI{1}{\milli\second} block means, $\sigma$ is the saturated fraction, and $\Pi_{sc}$ is a quadratic penalty outside $[190,295]$\,V. Weights are listed in Table~\ref{tab:params}. The policy is trained with TD3~\cite{fujimoto2018td3}: twin critics, target-policy smoothing, and delayed actor updates, using $2\times64$ ReLU networks. The implementation uses NumPy with manually derived gradients, which were checked against finite differences.
+where overbars are averages over the decision interval, $\Delta i_b/\Delta t$ is computed from \SI{1}{\milli\second} block means, $\sigma$ is the saturated fraction, and $\Pi_{sc}$ is a quadratic penalty outside $[237.5,368.75]$\,V, a band placed in the SC window as $[190,295]$\,V is in the 150--\SI{300}{V} window of the reduced-storage plant (Section~\ref{sec:res_sizing}). Weights are listed in Table~\ref{tab:params}. The policy is trained with TD3~\cite{fujimoto2018td3}: twin critics, target-policy smoothing, and delayed actor updates, using $2\times64$ ReLU networks. The implementation uses NumPy with manually derived gradients, which were checked against finite differences.
 
-\subsubsection{Safety filter}
+\subsubsection{Safety Filter Design}
 Before it is applied, every action passes through the projection
 \begin{equation}
 \theta_k=\Pi_{\mathcal{S}}\big(\theta_{k-1},\theta(a_k)\big),\label{eq:filter}
 \end{equation}
 which enforces three sets of constraints.
 \begin{enumerate}
-\item \emph{Box constraints:} $\tau_b\in[0.05,5]$\,s, $v_{sc,ref}\in[200,290]$\,V and $\lambda\in[100,800]$\,s$^{-1}$, so that $\lambda T_s\le0.04$ keeps the discretized observer well inside its stability region.
+\item \emph{Box constraints:} $\tau_b\in[0.05,5]$\,s, $v_{sc,ref}\in[250,362.5]$\,V and $\lambda\in[100,800]$\,s$^{-1}$, so that $\lambda T_s\le0.04$ keeps the discretized observer well inside its stability region.
 \item \emph{Rate limits:} $|\Delta\ln\tau_b|\le0.2$, $|\Delta v_{sc,ref}|\le\SI{5}{\volt}$ and $|\Delta\lambda|\le\SI{50}{\per\second}$ per decision. These keep the parameters slowly varying, as required by the piecewise argument of Proposition~\ref{prop:uub}.
 \item \emph{Reserve bounds on $v_{sc,ref}$,} described next.
 \end{enumerate}
 
-\paragraph{Reserve bound}
+\paragraph{Power-capability reserve bound}
 The SC can deliver at most $v_{sc}I_{sc,\max}$, and the battery at most $P_{b,\max}=v_bI_{b,\max}$. Hence the rated traction power $P_{trac,\max}$ can be met only while
 \begin{equation}
 v_{sc}\ \ge\ v_{pow}=\frac{P_{trac,\max}-P_{b,\max}}{I_{sc,\max}}.\label{eq:vpow}
@@ -38,11 +38,14 @@ Condition \eqref{eq:vpow} is a \emph{power-capability} condition. It is independ
 \begin{equation}
 v_{sc,ref}\ \ge\ \underline v_{sc}=\sqrt{v_{pow}^2+2E_{res}/C_{sc}}.\label{eq:vlo}
 \end{equation}
-Here $E_{res}=\max\int(P_L-P_{b,\max})^+\,dt$ over contiguous intervals of the \emph{training} cycles. Its value is $E_{res}=\EresKJ$\,kJ, which gives $\underline v_{sc}\approx\VloVtwo$\,V. Every quantity in \eqref{eq:vlo} is either a rating or a training-set statistic.
+Here $E_{res}=\max\int(P_L-P_{b,\max})^+\,dt$ over contiguous intervals of the \emph{training} cycles. For the Tesla Model 3 plant, $v_{pow}=\MVpow$\,V and $E_{res}=\MEresKJ$\,kJ (on NREL13), which gives $\sqrt{v_{pow}^2+2E_{res}/C_{sc}}\approx\SI{257}{V}$; for the reduced-storage plant the values are \GVpow\,V, \GEresKJ\,kJ and \GVloVtwo\,V. Every quantity in \eqref{eq:vlo} is either a rating or a training-set statistic. As implemented, filter v2 applies the larger of \eqref{eq:vlo} and the v1 bound below.
 
-\paragraph{Design history}
-A first filter (v1) used only an energy reserve of \SI{2}{\second} at the battery-limited deficit, $\underline v_{sc}=\sqrt{v_{sc,\min}^2+2\cdot 2\,(P_{trac,\max}-P_{b,\max})/C_{sc}}\approx\VloVone$\,V. This bound lies below the \SI{200}{V} box limit and was therefore never active. On the held-out test cycles, the v1 agents lowered the SC reserve and caused power deficits that the fixed supervisor did not have (Section~\ref{sec:results}). Filter v2 was derived \emph{after} this observation. Its agents were retrained from scratch with the same seeds and hyperparameters. Because the v2 design was motivated by test results, we report v1 as an ablation and evaluate all agents on three further cycles that played no role in any design decision.
+\paragraph{Filter versions and evaluation protocol}
+A first filter (v1) used only an energy reserve of \SI{2}{\second} at the battery-limited deficit,
+\[
+\underline v_{sc}=\sqrt{v_{sc,\min}^2+2\cdot 2\,(P_{trac,\max}-P_{b,\max})/C_{sc}}.
+\] Filter v2 was derived on the reduced-storage plant of the sizing study (Section~\ref{sec:res_sizing}), on which the study was first carried out. There the v1 bound (\GVloVone\,V) lay below the \GBoxLo\,V box limit and was never active, and where the v1 agents lowered the SC reserve and caused power deficits on held-out cycles. Because v2 was motivated by test results, v1 is reported as an ablation and all agents are evaluated on three further cycles that played no role in any design decision. With the Tesla Model 3 plant the v1 bound is \MVloVone\,V, above both the \MBoxLo\,V box limit and the power-capability term of \eqref{eq:vlo}; v1 and v2 are therefore the same filter on this plant, and their agents, trained with the same seeds, are identical.
 The tier-1 certificate does not depend on the filter, because \eqref{eq:ks} adapts $k_s$ to whatever $\lambda$ is applied. The filter keeps the \emph{operating assumptions} of the certificate valid, namely slow variation and the bounds on $\lambda$. It also keeps the energy states in a region where the power references remain feasible. This division of responsibility differs from safety filters that act only on the power split~\cite{xu2025safe,wabersich2021psf}. The filter is a projection onto a fixed set (a box with rate limits). Unlike a predictive safety filter~\cite{wabersich2021psf}, it needs no model rollout. Its computational cost is reported in Section~\ref{sec:res_cost}.
 
-\subsubsection{Training protocol}
-Training uses random \SI{30}{\second} windows of four cycles (UDDS, HWFET, NREL13, a TSDC trip) with randomized initial SC voltage (210--285\,V), battery SOC (0.5--0.9), and load scale (0.9--1.4). Each agent is trained for 240 episodes (72\,000 transitions). The checkpoint is selected \emph{only} on the validation set (WLTC low; WLTC medium at $\times1.0$ and $\times1.6$). Three training seeds (11, 22, 33) are run for each variant: filter v2 (proposed), filter v1, and no filter. The \emph{no-filter} ablation uses the same reward and network, a wider action box ($\tau_b\in[0.01,20]$\,s, $v_{sc,ref}\in[160,299]$\,V, $\lambda\in[20,2000]$\,s$^{-1}$), and no rate or reserve constraints.
+\subsubsection{Training and Model-Selection Protocol}
+Training uses random \SI{30}{\second} windows of four cycles (UDDS, HWFET, NREL13, a TSDC trip) with randomized initial SC voltage (262.5--356.25\,V), battery SOC (0.5--0.9), and load scale (0.9--1.4). Each agent is trained for 240 episodes (72\,000 transitions). The checkpoint is selected \emph{only} on the validation set (WLTC low; WLTC medium at $\times1.0$ and $\times1.6$). Three training seeds (11, 22, 33) are run for each variant: filter v2 (proposed), filter v1, and no filter. The \emph{no-filter} ablation uses the same reward and network, a wider action box ($\tau_b\in[0.01,20]$\,s, $v_{sc,ref}\in[200,373.75]$\,V, $\lambda\in[20,2000]$\,s$^{-1}$), and no rate or reserve constraints.

@@ -1,47 +1,48 @@
-\subsection{Simulation setup}\label{sec:setup}
+\subsection{Simulation Setup}\label{sec:setup}
 
 
 
-\begin{table}[t]
-\centering\footnotesize\setlength{\tabcolsep}{3pt}
-\caption{Main parameters. P: from~\cite{ha2026gtsd}; A: assumed in this work.}
+\begin{table*}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\caption{Plant and controller parameters. All results use the Tesla Model 3 plant except the storage-sizing sensitivity study (Section~\ref{sec:res_sizing}), which uses the reduced-storage plant. Sources: M3 measured on a Tesla Model 3 SR+ (2020, LFP)~\cite{rosenberger2024m3}; F FASTSim Model 3 file~\cite{fastsimrepo}; MX ultracapacitor datasheet~\cite{maxwell125v}; D sized in this work by the stated rule (the production Model 3 has no SC and no battery DC--DC stage); A assumed.}
 \label{tab:params}
-\begin{tabular}{@{}p{0.40\columnwidth}p{0.47\columnwidth}c@{}}
+\begin{tabular}{@{}p{0.20\textwidth}p{0.24\textwidth}p{0.41\textwidth}l@{}}
 \toprule
-Quantity & Value & Src.\\\midrule
-$v^*_{dc}$, $C_{dc}$ & \SI{400}{V}, \SI{2.2}{mF} & P\\
-Battery OCV, $Q_b$, $R_0$ & \SI{300}{V}, \SI{40}{Ah}, \SI{80}{m\ohm} & P/P/A\\
-$C_{sc}$, $v_{sc}$ range & \SI{120}{F}, 150--\SI{300}{V} & P\\
-$L_b$, $L_{sc}$ & \SI{1.5}{mH}, \SI{1.0}{mH} & P\\
-$I_{b,\max}$, $I_{sc,\max}$ & \SI{80}{A}, \SI{180}{A} & P\\
-$\lambda$ (nominal), $k_{\min}$, $k'$ & \SI{250}{s^{-1}}, \SI{120}{V/s}, \SI{240}{s^{-1}} & P\\
-$c_v$, $\beta$, $\tau_f$, $\tau_{env}$ & \SI{100}{s^{-1}}, 1.5, \SI{2}{ms}, \SI{50}{ms} & A\\
-$\tau_b$, $v_{sc,ref}$ (fixed sup.) & \SI{0.2}{s}, \SI{250}{V} & A\\
-$k_E$, $P_{rec,\max}$ & \SI{0.02}{s^{-1}}, \SI{5}{kW} & A\\
-$T_s$, plant step & \SI{50}{\micro s}, \SI{10}{\micro s} (RK4) & A\\
-Noise $\sigma_v$, $\sigma_i$ & \SI{0.2}{V}, \SI{0.2}{A} & A\\
-Vehicle $m$, $C_dA$, $C_{rr}$ & \SI{1600}{kg}, \SI{0.644}{m^2}, 0.009 & A\\
-$P_{trac,\max}$, $P_{regen,\max}$ & \SI{60}{kW}, \SI{30}{kW} & A\\
-Reward $w_v,w_b,w_s,w_{sat},w_{sc}$ & 0.5, 1, 0.5, 5, 2 & A\\
-$e_{\rm ref}$, $\dot\imath_{\rm ref}$, $r_{\max}$ & \SI{5}{V}, \SI{500}{A/s}, 10 & A\\
-TD3: $\gamma$, $\tau$, lr, batch & 0.98, 0.005, $3{\times}10^{-4}$, 128 & A\\\bottomrule
+Quantity & Reduced-storage plant (A) & Tesla Model 3 plant & Src.\\\midrule
+Vehicle mass, rotational factor & \SI{1600}{kg}, 1.05 & \SI{1830}{kg} (\SI{1755}{kg} measured + \SI{75}{kg} driver), 1.06 & M3\\
+Road load & $C_dA=\SI{0.644}{m^2}$, $C_{rr}=0.009$ & coast-down $F=177.2+5.743v+0.2538v^2$\,N ($v$ in m/s) & M3\\
+Peak traction / regenerative power & \SI{60}{kW} / \SI{30}{kW} & \SI{239}{kW} / \SI{66.9}{kW} & M3\\
+Drive-unit efficiency, auxiliary load & 0.9 / $0.7\times0.8$, \SI{1}{kW} & 0.9 motoring and generating, all braking regenerative; \SI{0.25}{kW} & A; F\\
+Battery & \SI{300}{V}, \SI{40}{Ah}, $R_0=\SI{80}{m\ohm}$ & LFP 106s1p, \SI{161}{Ah}, OCV 327.4--\SI{364.3}{V} (linear), $R_0=106\times\SI{0.79}{m\ohm}=\SI{83.7}{m\ohm}$ & M3\\
+Supercapacitor & \SI{120}{F}, 150--\SI{300}{V}, $R_{esr}=\SI{10}{m\ohm}$ & 3 modules in series: \SI{21}{F}, 187.5--\SI{375}{V}, $R_{esr}=\SI{54}{m\ohm}$ & MX; D\\
+Current limits $I_{b,\max}$, $I_{sc,\max}$ & \SI{80}{A}, \SI{180}{A} & \SI{161}{A} (1C), \SI{800}{A} (module abs.\ max.\ \SI{1900}{A}) & D\\
+$v^*_{dc}$, $C_{dc}$, $L_b$, $L_{sc}$ & \SI{400}{V}, \SI{2.2}{mF}, \SI{1.5}{mH}, \SI{1.0}{mH} & \SI{500}{V}, \SI{4.7}{mF}, \SI{0.2}{mH}, \SI{0.05}{mH} (ripple $\le20\,\%$ of the limit at \SI{20}{kHz}) & D\\
+Converter resistances $r_b$, $r_{sc}$ & \SI{30}{m\ohm}, \SI{20}{m\ohm} & \SI{10}{m\ohm}, \SI{5}{m\ohm} & A\\
+Fixed supervisor $\tau_b$, $v_{sc,ref}$; $k_E$, $P_{rec,\max}$ & \SI{0.2}{s}, \SI{250}{V}; \SI{0.02}{s^{-1}}, \SI{5}{kW} & \SI{0.2}{s}, \SI{312.5}{V}; \SI{0.02}{s^{-1}}, \SI{12}{kW} (same relative values) & A\\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Common to both plants}}\\
+$\lambda$ (nominal), $k_{\min}$, $k'$ & \multicolumn{2}{l}{\SI{250}{s^{-1}}, \SI{120}{V/s}, \SI{240}{s^{-1}} (A)} & \\
+$c_v$, $\beta$, $\tau_f$, $\tau_{env}$ & \multicolumn{2}{l}{\SI{100}{s^{-1}}, 1.5, \SI{2}{ms}, \SI{50}{ms} (A)} & \\
+$T_s$, plant step; noise $\sigma_v$, $\sigma_i$ & \multicolumn{2}{l}{\SI{50}{\micro s}, $T_s/5$, RK4; \SI{0.2}{V}, \SI{0.2}{A} (A)} & \\
+Reward $w_v,w_b,w_s,w_{sat},w_{sc}$; $e_{\rm ref}$, $\dot\imath_{\rm ref}$, $r_{\max}$ & \multicolumn{2}{l}{0.5, 1, 0.5, 5, 2; \SI{5}{V}, \SI{500}{A/s}, 10 (A)} & \\
+TD3: $\gamma$, $\tau$, lr, batch & \multicolumn{2}{l}{0.98, 0.005, $3{\times}10^{-4}$, 128 (A)} & \\\bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \paragraph{Plant and solver}
-Equations \eqref{eq:ib}--\eqref{eq:soc} are integrated with fixed-step RK4. The step is \SI{10}{\micro\second} for the drive cycles and \SI{5}{\micro\second} for the short GTSD profiles; reducing the step to \SI{2.5}{\micro\second} changed the reported indices by a relative amount below \TimestepRelPct. Measurements carry white noise. The controller is digital with a one-sample delay.
+Equations \eqref{eq:ib}--\eqref{eq:soc} are integrated with fixed-step RK4. The step is \SI{10}{\micro\second}; reducing the step to \SI{2.5}{\micro\second} changed the reported indices by a relative amount below \TimestepRelPct. Measurements carry white noise. The controller is digital with a one-sample delay.
 
 \paragraph{Load profiles}
-Speed traces of standard cycles are taken from the FASTSim repository at a pinned commit~\cite{brooker2015fastsim,fastsimrepo}. They are interpolated with a shape-preserving spline and converted to bus power with a road-load model ($P_{\rm aux}=\SI{1}{kW}$, motoring efficiency 0.9, regenerative share $0.7\times0.8$, clipped to the motor rating). The test set contains five items that were never used for training or checkpoint selection: US06 ($\times1.0$, $\times1.1$), WLTC high, and WLTC extra-high ($\times1.0$, $\times1.2$). Three further cycles (WMTC, FTP-MC1b, and the first \SI{1200}{s} of a long-haul trace) were added only after filter v2 had been fixed; no design decision depends on them. The two load profiles of~\cite{ha2026gtsd} (hereafter the GTSD profiles, after the conference at which that study was presented), reconstructed from its figures, are used to evaluate tier 1.
+Speed traces of standard cycles are taken from the FASTSim repository at a pinned commit~\cite{brooker2015fastsim,fastsimrepo}. They are interpolated with a shape-preserving spline and converted to bus power with the measured coast-down road load, mass and rotational-inertia factor of a Tesla Model 3~\cite{rosenberger2024m3} (Table~\ref{tab:params}), a constant drive-unit efficiency, and clipping to the measured peak traction and regenerative powers. The production Model 3 connects its LFP pack directly to the inverter. Here the same pack feeds the bus through a bidirectional converter limited to 1C (\SI{161}{A}), and a three-module ultracapacitor bank~\cite{maxwell125v} supplies the remainder; this HESS is a design study on the Model 3 vehicle and battery, not a description of the production car. The mass of the SC bank is not added to the vehicle mass; its effect is evaluated in Section~\ref{sec:res_loss}. The test set contains five items that were never used for training or checkpoint selection: US06 ($\times1.0$, $\times1.1$), WLTC high, and WLTC extra-high ($\times1.0$, $\times1.2$). Three further cycles (WMTC, FTP-MC1b, and the first \SI{1200}{s} of a long-haul trace) were added only after filter v2 had been fixed; no design decision depends on them.
 
 \paragraph{Compared configurations}
 All configurations use the same plant, allocation structure, current loops, limits, and noise realizations (seeds 101--103).
 \begin{itemize}
-\item \emph{Outer loops:} PI tuned to the same small-signal poles $\{-c_v,-k'\}$; the DO-SMC of~\cite{ha2026gtsd} with fixed $k_s=\SI{120}{V/s}$; an offset-free robust MPC (horizon 20, constraint tightening after~\cite{chisci2001}, LQR terminal cost with the same poles); and the proposed A-DO-SMC.
+\item \emph{Outer loops:} PI tuned to the same small-signal poles $\{-c_v,-k'\}$; a conventional DO-SMC with the same observer and a fixed switching gain, in two tunings: a low gain $k_s=k_{\min}=\SI{120}{V/s}$ ($\phi_s=\SI{0.5}{V}$), and a high gain $k_s=\KsHi$\,V/s ($\phi_s=k_s/k'=\PhiHi$\,V) sized for the worst case of the training cycles, i.e.\ $1.1$ times the largest observer error logged with A-DO-SMC on the four training cycles, rounded up; an offset-free robust MPC (horizon 20, constraint tightening after~\cite{chisci2001}, LQR terminal cost with the same poles); and the proposed A-DO-SMC.
 \item \emph{Supervisors (with A-DO-SMC):} fixed $\theta$; an SOC-adaptive split with $\tau_b$ interpolated between 0.2 and \SI{5}{s} according to the SC SOC, in the spirit of~\cite{nguyen2021adaptive}; a model-predictive energy-management supervisor (MPC-EMS, described below) with two load forecasts; TD3 without a filter; TD3 with filter v1; and TD3 with filter v2 (proposed).
 \end{itemize}
 
-\paragraph{Model-predictive EMS baseline}
+\paragraph{Model-predictive energy-management baseline}
 To test whether learning is needed at all, we add a non-learning, optimization-based supervisor in the spirit of predictive HESS energy management~\cite{ha2026hmpc,ha2026agsp}. It acts on the same variables as the agent, at the same period $\Delta_a=\SI{0.1}{s}$, and every candidate decision is passed through the same safety filter v2. The observer gain is held at its nominal value, because the energy model below does not depend on it. The prediction model has the structure of the allocation layer \eqref{eq:lpf}--\eqref{eq:prec} and assumes that tier~1 tracks $P^*=P_L$:
 \begin{align}
 P_{b,f,j+1}&=P_{b,f,j}+\big(1-e^{-\Delta_a/\tau_b}\big)\big(\hat P_{L,j}-P_{b,f,j}\big),\nonumber\\
@@ -55,7 +56,7 @@ where $\mathcal{A}$ denotes the saturation and re-assignment steps of Section~\r
 \end{itemize}
 The horizon was chosen on the validation set from $\{2,5,10\}$\,s with the same protocol as TD3 checkpoint selection. The validation return per decision was \ValMPCPTwo, \ValMPCPFive\ and \ValMPCPTen\ (persistence) and \ValMPCVTwo, \ValMPCVFive\ and \ValMPCVTen\ (preview). A horizon of \HorMPCP\,s was therefore used for both forecasts. No terminal cost on the SC energy is used, so that the MPC-EMS optimizes the same objective that the agent is trained on.
 
-\paragraph{Indices}
+\paragraph{Performance indices}
 \begin{itemize}
 \item Bus voltage: maximum and RMS deviation.
 \item Battery current: RMS value and RMS rate of change computed on \SI{1}{ms} block means.

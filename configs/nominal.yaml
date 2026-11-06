@@ -1,39 +1,44 @@
-# HESS DO-SMC reproduction — nominal configuration
-# Every value carries a unit and a source tag:
-#   PAPER-T1  : Table 1 of the manuscript
-#   PAPER-EQ  : equation in the manuscript
-#   ASSUMED   : not given in the manuscript; chosen here and documented in README
-#   DESIGN    : derived by this code from other values (see src/hess/design.py)
+# HESS two-tier study — NOMINAL configuration: Tesla Model 3 vehicle and battery pack.
+# Source tags:
+#   M3-TUM   : Rosenberger et al., "Quantifying the State of the Art of Electric Powertrains in Battery
+#              Electric Vehicles: Comprehensive Analysis of the Tesla Model 3 on the Vehicle Level",
+#              World Electr. Veh. J. 15(6):268, 2024, doi:10.3390/wevj15060268 (Model 3 SR+, 2020, LFP)
+#   FASTSIM  : NREL FASTSim vehicle file 2022_Tesla_Model_3_RWD.csv at the pinned commit
+#   MAXWELL  : Maxwell BMOD0063 P125 B08 ultracapacitor module datasheet, doc. 1014696.7
+#   ASSUMED  : design choice of this work
+#   DESIGN   : sized in this work by the rule stated next to the value (Model 3 has no SC / DC-DC stage)
+#   ASSUMED  : not available from a source; chosen here
+# configs/reduced_storage.yaml keeps the reduced-storage plant of the sizing sensitivity study.
 
-plant:                     # "true" plant (Monte Carlo perturbs these)
-  Cdc:      {value: 2.2e-3, unit: F,   source: PAPER-T1}
-  Lb:       {value: 1.5e-3, unit: H,   source: PAPER-T1}
-  Lsc:      {value: 1.0e-3, unit: H,   source: PAPER-T1}
-  rb:       {value: 0.03,   unit: Ohm, source: ASSUMED}   # inductor + switch resistance, battery leg
-  rsc:      {value: 0.02,   unit: Ohm, source: ASSUMED}   # inductor + switch resistance, SC leg
-  R0b:      {value: 0.08,   unit: Ohm, source: ASSUMED}   # battery pack internal resistance
-  ocv_nom:  {value: 300.0,  unit: V,   source: PAPER-T1}  # OCV at soc_ref
-  ocv_slope: {value: 25.0,   unit: V/1, source: ASSUMED}   # dOCV/dSOC (linear OCV)
+plant:                     # "true" plant
+  Cdc:      {value: 4.7e-3, unit: F,   source: DESIGN}    # standard value below the 5.6 mF from scaling 2.2 mF/400 V/60 kW (reduced-storage plant) to 500 V/239 kW
+  Lb:       {value: 2.0e-4, unit: H,   source: DESIGN}    # battery-leg ripple <= 20 % of Ibmax at 20 kHz
+  Lsc:      {value: 5.0e-5, unit: H,   source: DESIGN}    # SC-leg ripple <= 20 % of Iscmax at 20 kHz
+  rb:       {value: 0.010,  unit: Ohm, source: ASSUMED}   # inductor + switch resistance, battery leg
+  rsc:      {value: 0.005,  unit: Ohm, source: ASSUMED}   # inductor + switch resistance, SC leg
+  R0b:      {value: 0.0837, unit: Ohm, source: M3-TUM}    # 106 series cells x 0.79 mOhm (cell, 50 % SOC, 20 C, 1C 10 s pulse); excludes busbars/contactors
+  ocv_nom:  {value: 353.23, unit: V,   source: M3-TUM}    # linear OCV between 327.4 V (SOC 0) and 364.3 V (SOC 1), evaluated at soc_ref
+  ocv_slope: {value: 36.9,  unit: V/1, source: M3-TUM}    # 364.3 - 327.4 V (pOCV charge-curve end points; linear fit of the LFP plateau is a simplification)
   soc_ref:  {value: 0.7,    unit: "1", source: ASSUMED}
   soc0:     {value: 0.7,    unit: "1", source: ASSUMED}
-  Qb:       {value: 40.0,   unit: Ah,  source: PAPER-T1}
-  eta_b:    {value: 1.0,    unit: "1", source: ASSUMED}   # coulombic efficiency in Eq.(7)
-  Csc:      {value: 120.0,  unit: F,   source: PAPER-T1}
-  Resr:     {value: 0.01,   unit: Ohm, source: ASSUMED}   # SC ESR
-  vsc0:     {value: 250.0,  unit: V,   source: ASSUMED}   # inside PAPER-T1 range 150-300 V
+  Qb:       {value: 161.0,  unit: Ah,  source: M3-TUM}    # 106s1p LFP prismatic cells, 161 Ah nominal
+  eta_b:    {value: 1.0,    unit: "1", source: ASSUMED}
+  Csc:      {value: 21.0,   unit: F,   source: MAXWELL}   # 3 x BMOD0063 (63 F, 125 V) in series
+  Resr:     {value: 0.054,  unit: Ohm, source: MAXWELL}   # 3 x 18 mOhm maximum initial DC ESR
+  vsc0:     {value: 312.5,  unit: V,   source: ASSUMED}   # same relative SOC as the reduced-storage study
 
 limits:
-  Ibmax:    {value: 80.0,   unit: A,   source: PAPER-T1}  # applied to battery inductor current, Eq.(5)
-  Iscmax:   {value: 180.0,  unit: A,   source: PAPER-T1}  # applied to SC inductor current, Eq.(5)
-  vscmin:   {value: 150.0,  unit: V,   source: PAPER-T1}
-  vscmax:   {value: 300.0,  unit: V,   source: PAPER-T1}
-  dmax:     {value: 0.95,   unit: "1", source: ASSUMED}   # duty upper bound, Eq.(6)
+  Ibmax:    {value: 161.0,  unit: A,   source: DESIGN}    # battery-side converter limited to 1C of the 161 Ah pack (battery-stress limit of the HESS)
+  Iscmax:   {value: 800.0,  unit: A,   source: DESIGN}    # SC-side converter rating; module absolute maximum 1900 A (MAXWELL)
+  vscmin:   {value: 187.5,  unit: V,   source: DESIGN}    # half of the bank rating (75 % of the energy usable)
+  vscmax:   {value: 375.0,  unit: V,   source: MAXWELL}   # 3 x 125 V rated
+  dmax:     {value: 0.95,   unit: "1", source: ASSUMED}
 
 control:
-  vref:     {value: 400.0,  unit: V,   source: PAPER-T1}
-  lam:      {value: 250.0,  unit: 1/s, source: PAPER-T1}  # NDO gain lambda
-  ks:       {value: 120.0,  unit: V/s, source: PAPER-T1}  # switching gain (units of de/dt)
-  phi:      {value: 0.5,    unit: V,   source: PAPER-T1}  # boundary layer on s
+  vref:     {value: 500.0,  unit: V,   source: DESIGN}    # above the pack (<= 364.3 V) and the SC bank (<= 375 V)
+  lam:      {value: 250.0,  unit: 1/s, source: ASSUMED}  # NDO gain lambda
+  ks:       {value: 120.0,  unit: V/s, source: ASSUMED}  # switching gain (units of de/dt)
+  phi:      {value: 0.5,    unit: V,   source: ASSUMED}  # boundary layer on s
   cv:       {value: 100.0,  unit: 1/s, source: ASSUMED}   # integral sliding-surface gain, not given in paper
   taub:     {value: 0.2,    unit: s,   source: ASSUMED}   # battery LPF time constant, Eq.(24), not given
   wci:      {value: 5026.5, unit: rad/s, source: ASSUMED} # inner current-loop bandwidth (2*pi*800 Hz)
@@ -75,50 +80,50 @@ sweep:
 
 # ---------------------------------------------------------------- two-tier study
 supervision:                 # defaults (= fixed supervisor); the agent changes taub, vsc_ref, lam
-  vsc_ref:  {value: 250.0,  unit: V,   source: ASSUMED}   # SC voltage target for energy recovery
+  vsc_ref:  {value: 312.5,  unit: V,   source: ASSUMED}   # SC voltage target (same relative SOC as before)
   kE:       {value: 0.02,   unit: 1/s, source: ASSUMED}   # P_rec = kE * 0.5*Csc*(vsc_ref^2 - vsc^2)
-  Prec_max: {value: 5000.0, unit: W,   source: ASSUMED}   # recovery power cap
-  k_min:    {value: 120.0,  unit: V/s, source: PAPER-T1}  # floor = paper ks
+  Prec_max: {value: 12000.0, unit: W,  source: DESIGN}    # recovery cap scaled with vb*Ibmax (5 kW of 24 kW before)
+  k_min:    {value: 120.0,  unit: V/s, source: ASSUMED}  # floor = paper ks
   beta:     {value: 1.5,    unit: "1", source: ASSUMED}   # margin over estimated |D~| (Eq. 38)
   tau_f:    {value: 0.002,  unit: s,   source: ASSUMED}   # filter on dD_hat/dt
   tau_env:  {value: 0.05,   unit: s,   source: ASSUMED}   # envelope decay of |D~| estimate
 
-vehicle:                     # speed -> traction power (all ASSUMED, mid-size BEV)
-  mass:     {value: 1600.0, unit: kg}
-  rot_frac: {value: 0.05,   unit: "1"}    # rotating-inertia equivalent mass fraction
-  Cd:       {value: 0.28,   unit: "1"}
-  Af:       {value: 2.3,    unit: m2}
-  Crr:      {value: 0.009,  unit: "1"}
-  rho_air:  {value: 1.2,    unit: kg/m3}
-  eta_trac: {value: 0.90,   unit: "1"}    # motor+inverter, motoring
-  eta_regen: {value: 0.80,   unit: "1"}    # motor+inverter, generating
-  regen_frac: {value: 0.70, unit: "1"}    # share of braking power recovered electrically
-  P_aux:    {value: 1000.0, unit: W}
-  P_trac_max: {value: 60000.0, unit: W}   # motor rating (consistent with Fig. 2 scale)
-  P_regen_max: {value: 30000.0, unit: W}
+vehicle:                     # Tesla Model 3 (speed -> traction power at the DC bus)
+  mass:     {value: 1830.0, unit: kg,  source: M3-TUM}    # measured empty mass 1755 kg + 75 kg driver
+  rot_factor: {value: 1.06, unit: "1", source: M3-TUM}    # rotational inertia factor
+  f0:       {value: 177.2,  unit: N,   source: M3-TUM}    # coast-down fit (test track): F = f0 + f1 v + f2 v^2
+  f1:       {value: 5.743,  unit: N/(m/s), source: M3-TUM}
+  f2:       {value: 0.2538, unit: N/(m/s)^2, source: M3-TUM}
+  eta_trac: {value: 0.90,   unit: "1", source: ASSUMED}   # mean drive-unit efficiency, motoring (peak measured: 0.97, M3-TUM)
+  eta_regen: {value: 0.90,  unit: "1", source: ASSUMED}   # mean drive-unit efficiency, generating
+  regen_frac: {value: 1.0,  unit: "1", source: ASSUMED}   # all braking regenerative up to P_regen_max (one-pedal driving)
+  P_aux:    {value: 250.0,  unit: W,   source: FASTSIM}   # auxKw = 0.25
+  P_trac_max: {value: 239000.0, unit: W, source: M3-TUM}  # peak power unit rating (certificate of conformity)
+  P_regen_max: {value: 66900.0, unit: W, source: M3-TUM}  # maximum measured regenerative power into the battery
 
 agent:
   dt_agent: 0.1              # s, supervisory decision period
   tau_range: [0.05, 5.0]     # s  (filtered, log-scale)
-  vsc_range: [200.0, 290.0]  # V
+  vsc_range: [250.0, 362.5]  # V (same relative position in the SC window as [200, 290] V of the reduced-storage study)
   lam_range: [100.0, 800.0]  # 1/s
   rate_log_tau: 0.2          # max |d log(tau)| per decision (safety filter)
-  rate_vsc: 5.0              # V per decision
+  rate_vsc: 6.25             # V per decision (5 V scaled by the SC window)
   rate_lam: 50.0             # 1/s per decision
   unfiltered_tau_range: [0.01, 20.0]
-  unfiltered_vsc_range: [160.0, 299.0]
+  unfiltered_vsc_range: [200.0, 373.75]
   unfiltered_lam_range: [20.0, 2000.0]
   reserve_s: 2.0             # v1 filter: energy-reserve horizon for vsc_ref lower bound (found non-binding on test, kept as ablation)
   # v2 filter: power-capability reserve. vsc_ref >= sqrt(v_pow^2 + 2*E_res/Csc), v_pow = (P_trac_max - vb*Ib_max)/Isc_max.
   # E_res = largest contiguous energy deficit (P_L > vb*Ib_max) found in the TRAIN cycles (scripts/reserve_stat.py).
-  reserve_energy_J: 234751.0   # output of scripts/reserve_stat.py
+  reserve_energy_J: 147673.0   # output of scripts/reserve_stat.py for this configuration (NREL13, P_b,max = 56.9 kW)
   extra_test_set: [[wmtc_all, 1.0, 0.0, 0.0], [ftpmc1b, 1.0, 0.0, 0.0], [longHaulDriveCycle, 1.0, 0.0, 1200.0]]  # cycle, scale, t_start, duration (0 = full); never used before filter v2
-  reward: {w_v: 0.5, w_rms: 1.0, w_slew: 0.5, w_sat: 5.0, w_soc: 2.0, e_ref: 5.0, slew_ref: 500.0, clip: 10.0}
+  reward: {w_v: 0.5, w_rms: 1.0, w_slew: 0.5, w_sat: 5.0, w_soc: 2.0, e_ref: 5.0, slew_ref: 500.0, clip: 10.0,
+           sc_pen_lo: 237.5, sc_pen_hi: 368.75, sc_pen_lo_scale: 12.5, sc_pen_hi_scale: 2.5, dhat_norm: 7.0e4}   # SC band scaled from [190, 295] V
   td3: {hidden: 64, gamma: 0.98, tau: 0.005, lr_actor: 0.0003, lr_critic: 0.0003, batch: 128,
         buffer: 200000, warmup: 2000, expl_noise: 0.2, policy_noise: 0.2, noise_clip: 0.5,
         policy_delay: 2, episodes: 240, episode_s: 30.0, eval_every: 40}
   train_seeds: [11, 22, 33]
-  train_randomization: {vsc0: [210.0, 285.0], soc0: [0.5, 0.9], load_scale: [0.9, 1.4]}
+  train_randomization: {vsc0: [262.5, 356.25], soc0: [0.5, 0.9], load_scale: [0.9, 1.4]}
   validation_set: [[wltc_low_3, 1.0], [wltc_medium_3b, 1.0], [wltc_medium_3b, 1.6]]
   test_set: [[us06, 1.0], [wltc_high_3b, 1.0], [wltc_extrahigh_3, 1.0], [wltc_extrahigh_3, 1.2], [us06, 1.1]]
   rule_tau_range: [0.2, 5.0]

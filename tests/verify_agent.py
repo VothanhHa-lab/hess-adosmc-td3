@@ -20,7 +20,8 @@ from hess.sim import run as run_old  # noqa: E402
 from hess.supervisors import FixedSupervisor, SafetyFilter  # noqa: E402
 from hess.td3 import MLP  # noqa: E402
 
-cfg = yaml.safe_load(open(os.path.join(ROOT, "configs", "nominal.yaml")))
+cfg = yaml.safe_load(open(os.path.join(ROOT, "configs", "nominal.yaml")))      # Tesla Model 3 study
+cfg_g = yaml.safe_load(open(os.path.join(ROOT, "configs", "reduced_storage.yaml")))  # reduced-storage plant
 R = {}
 
 
@@ -34,9 +35,9 @@ def check(name, ok, **info):
 sc = transient()
 prof = scenario_profile(sc, dt=1e-4)
 for c in (CTRL_PI, CTRL_DOSMC, CTRL_MPC):
-    d_old, _ = run_old(load_config(os.path.join(ROOT, "configs", "nominal.yaml")), c, sc, noise=False)
+    d_old, _ = run_old(load_config(os.path.join(ROOT, "configs", "reduced_storage.yaml")), c, sc, noise=False)
     old = float(np.max(np.abs(d_old["vdc"][d_old["t"] > 0.5] - 400)))
-    _, s = run_episode(cfg, c, prof, FixedSupervisor(cfg), seed=1, n_sub=10,
+    _, s = run_episode(cfg_g, c, prof, FixedSupervisor(cfg_g), seed=1, n_sub=10,
                        overrides={"sig_v": 0.0, "sig_i": 0.0})
     # chunk kernel max over t>=0 (idle part has |e|~0) ; table interpolation of the load (0.1 ms)
     check(f"chunk_kernel_matches_original_ctrl{c}", abs(s["max_dev_V"] - old) / old < 0.01,
@@ -48,7 +49,7 @@ while ep.dec < ep.ndec:
     ep.step(None)
 x = ep.x
 C, Lb, Lsc = cfg["plant"]["Cdc"]["value"], cfg["plant"]["Lb"]["value"], cfg["plant"]["Lsc"]["value"]
-dE = 0.5 * C * x[0] ** 2 + 0.5 * Lb * x[1] ** 2 + 0.5 * Lsc * x[2] ** 2 - 0.5 * C * 400 ** 2
+dE = 0.5 * C * x[0] ** 2 + 0.5 * Lb * x[1] ** 2 + 0.5 * Lsc * x[2] ** 2 - 0.5 * C * cfg["control"]["vref"]["value"] ** 2
 net = x[5] + x[6] - x[7] - x[8]
 rel = abs(dE - net) / (abs(x[5]) + abs(x[6]) + abs(x[8]))
 check("energy_balance_chunk_kernel_us06_60s", rel < 1e-6, rel_residual=rel)
@@ -58,7 +59,7 @@ ep = Episode(cfg, CTRL_ADOSMC, cycle_profile("us06", cfg, ROOT), seed=4, duratio
 for _ in range(20):
     ep.step(None)
 D_before = ep.dhat()
-ep.apply_theta(np.array([0.2, 250.0, 700.0]))
+ep.apply_theta(np.array([0.2, cfg["supervision"]["vsc_ref"]["value"], 700.0]))
 D_after = ep.dhat()
 check("bumpless_lambda_switch", abs(D_after - D_before) < 1e-9 * (1 + abs(D_before)),
       before=D_before, after=D_after)
@@ -66,11 +67,12 @@ check("bumpless_lambda_switch", abs(D_after - D_before) < 1e-9 * (1 + abs(D_befo
 # 4. safety filter properties on random actions
 f = SafetyFilter(cfg, True)
 rng = np.random.default_rng(0)
-prev = np.array([0.2, 250.0, 250.0])
+prev = np.array([0.2, cfg["supervision"]["vsc_ref"]["value"], 250.0])
+vb_test = cfg["plant"]["ocv_nom"]["value"]
 ok = True
 A = cfg["agent"]
 for _ in range(5000):
-    th = f(prev, rng.uniform(-1, 1, 3), 296.0)
+    th = f(prev, rng.uniform(-1, 1, 3), vb_test)
     ok &= abs(np.log(th[0]) - np.log(prev[0])) <= A["rate_log_tau"] + 1e-12
     ok &= abs(th[1] - prev[1]) <= A["rate_vsc"] + 1e-9 or th[1] in (A["vsc_range"][0], A["vsc_range"][1])
     ok &= abs(th[2] - prev[2]) <= A["rate_lam"] + 1e-9
@@ -82,7 +84,7 @@ for _ in range(5000):
 check("safety_filter_box_rate_and_discretisation_bounds", ok)
 
 # 5. A-DO-SMC enforces Eq.(38) approximately: ks(t) >= |D~(t)| (noise-free transient)
-ep, s = run_episode(cfg, CTRL_ADOSMC, prof, FixedSupervisor(cfg), seed=1, n_sub=10, log_every=1,
+ep, s = run_episode(cfg_g, CTRL_ADOSMC, prof, FixedSupervisor(cfg_g), seed=1, n_sub=10, log_every=1,
                     overrides={"sig_v": 0.0, "sig_i": 0.0})
 d = ep.log_dict()
 w = d["t"] > 0.2

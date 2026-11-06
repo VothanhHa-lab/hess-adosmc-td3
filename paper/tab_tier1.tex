@@ -1,16 +1,17 @@
 \begin{table*}[t]
-\centering\footnotesize\setlength{\tabcolsep}{6pt}
-\caption{Tier-1 comparison on the two GTSD load profiles (fixed supervisor, mean over three noise seeds). The last column is the median time of one controller update on the simulation host.}
+\centering\footnotesize\setlength{\tabcolsep}{5pt}
+\caption{Tier-1 comparison on held-out drive cycles of the Tesla Model 3 plant (fixed supervisor, mean over noise seeds 101--103). The last column is the median time of one controller update on the simulation host.}
 \label{tab:tier1}
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lccccccc@{}}
 \toprule
- & \multicolumn{2}{c}{Fig.~2 profile} & \multicolumn{2}{c}{Fig.~7 profile} & Update\\
-Outer loop & max$|e|$ (V) & RMS $e$ (V) & max$|e|$ (V) & RMS $e$ (V) & (\si{\micro s})\\
+ & \multicolumn{2}{c}{US06} & \multicolumn{2}{c}{US06$\times1.1$} & \multicolumn{2}{c}{WLTC x-high$\times1.2$} & Update\\
+Outer loop & max$|e|$ (V) & RMS $e$ (V) & max$|e|$ (V) & RMS $e$ (V) & max$|e|$ (V) & RMS $e$ (V) & (\si{\micro s})\\
 \midrule
-PI (same small-signal poles) & \R{pt:pi:maxdev} & \R{pt:pi:rmse} & \R{pu:pi:maxdev} & \R{pu:pi:rmse} & \TimePI\\
-DO-SMC~\cite{ha2026gtsd}, $k_s=120$\,V/s & \R{pt:dosmc:maxdev} & \R{pt:dosmc:rmse} & \R{pu:dosmc:maxdev} & \R{pu:dosmc:rmse} & \TimeDOSMC\\
-Robust MPC (offset-free, $N=20$) & \R{pt:mpc:maxdev} & \R{pt:mpc:rmse} & \R{pu:mpc:maxdev} & \R{pu:mpc:rmse} & \TimeMPC\\
-A-DO-SMC (proposed tier 1) & \R{pt:afix:maxdev} & \R{pt:afix:rmse} & \R{pu:afix:maxdev} & \R{pu:afix:rmse} & \TimeADOSMC\\
+PI (same small-signal poles) & 8.47 & 0.628 & 9.30 & 0.690 & 0.63 & 0.090 & \TimePI\\
+DO-SMC, low gain ($k_s=120$\,V/s) & 6.95 & 0.367 & 7.75 & 0.421 & 0.18 & 0.033 & \TimeDOSMC\\
+DO-SMC, high gain ($k_s=\KsHi$\,V/s) & 1.48 & 0.043 & 1.63 & 0.045 & 0.18 & 0.033 & \TimeDOSMC\\
+Robust MPC (offset-free, $N=20$) & 1.48 & 0.044 & 1.63 & 0.045 & 0.18 & 0.034 & \TimeMPC\\
+A-DO-SMC (proposed tier 1) & 1.48 & 0.043 & 1.63 & 0.045 & 0.18 & 0.033 & \TimeADOSMC\\
 \bottomrule
 \end{tabular}
 \end{table*}

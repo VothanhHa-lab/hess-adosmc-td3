@@ -26,7 +26,9 @@ from hess.scenarios import transient, urban  # noqa: E402
 from hess.supervisors import AgentSupervisor, FixedSupervisor, MPCEMSSupervisor, RuleSupervisor  # noqa: E402
 from hess.td3 import MLP  # noqa: E402
 
-CFG = os.path.join(ROOT, "configs", "nominal.yaml")
+CFG = os.path.join(ROOT, "configs", "nominal.yaml")          # Tesla Model 3 study (drive cycles)
+CFG_REDUCED = os.path.join(ROOT, "configs", "reduced_storage.yaml")  # reduced-storage plant (legacy short profiles; not used in the paper)
+TIER1_ON_PAPER = ("PI + fixed", "DO-SMC (paper) + fixed", "Robust MPC + fixed", "A-DO-SMC + fixed")
 AG = os.path.join(ROOT, "data", "agents")
 PROC = os.path.join(ROOT, "data", "processed")
 RAW = os.path.join(ROOT, "data", "raw", "eval")
@@ -79,7 +81,7 @@ def job(args):
     name, ctrl, kind, tag, item, scale, seed = args[:7]
     t_start, dur = (args[7], args[8]) if len(args) > 7 else (0.0, 0.0)
     label = item if len(args) <= 7 else f"xtra:{item}"
-    cfg = yaml.safe_load(open(CFG))
+    cfg = yaml.safe_load(open(CFG_REDUCED if item.startswith("paper_") else CFG))
     if item.startswith("paper_"):
         prof = scenario_profile(transient() if item == "paper_transient" else urban())
         n_sub = 10
@@ -119,10 +121,10 @@ def _key(j):
 def main():
     cfg = yaml.safe_load(open(CFG))
     items = [(c, float(sc)) for c, sc in cfg["agent"]["test_set"]]
-    items_paper = [("paper_transient", 1.0), ("paper_urban", 1.0)]
+    items_paper = []  # legacy short load profiles; not part of the paper
     jobs = []
     for name, ctrl, kind, tag in configs(cfg):
-        for it, sc in items + items_paper:
+        for it, sc in items + (items_paper if name in TIER1_ON_PAPER else []):
             for sd in NOISE_SEEDS:
                 jobs.append((name, ctrl, kind, tag, it, sc, sd))
     # extra held-out cycles (introduced together with filter v2; never used for any design choice)

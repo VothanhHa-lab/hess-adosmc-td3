@@ -2,9 +2,9 @@
 
 Code, trained agents and processed results for the manuscript
 
-> **Certificate-Enforcing Adaptive Disturbance-Observer Sliding-Mode Control with Safety-Filtered
-> Reinforcement-Learning Supervision for Battery–Supercapacitor Electric Vehicles: Benefits and Failure Modes**
-> V. T. Ha, V. D. Minh, N. V. Hai, N. M. Huy (manuscript in preparation; the title may change).
+> **Certificate-Enforcing Adaptive Disturbance-Observer Sliding-Mode Control for Battery–Supercapacitor
+> Electric Vehicles and a Held-Out Benchmark of Learned and Model-Predictive Supervisors**
+> V. T. Ha (manuscript submitted; the title may change).
 
 Archived release (DOI): *to be added after Zenodo archiving.*
 
@@ -13,20 +13,23 @@ Archived release (DOI): *to be added after Zenodo archiving.*
 A simulation study of a battery–supercapacitor hybrid energy storage system (HESS) with a two-tier controller:
 
 * **Tier 1**: adaptive disturbance-observer sliding-mode controller (A-DO-SMC), which schedules its switching
-  gain so that the reaching condition holds online. Compared with PI, the original DO-SMC and a robust MPC.
+  gain so that the reaching condition holds online. Compared with PI, a fixed-gain DO-SMC (low and worst-case-sized high gain) and a robust MPC, including robustness to the observer gain.
 * **Tier 2**: a TD3 supervisor that sets three supervisory parameters (filter time constant, supercapacitor
   energy target, observer gain), with and without a safety filter (filter v1, filter v2). Compared with a
   fixed-parameter supervisor, a SOC-adaptive rule and an MPC-based energy-management baseline (MPC-EMS).
 
-Everything is an offline, averaged-model simulation with assumed vehicle and battery parameters
-(`configs/nominal.yaml`, every value tagged `PAPER-T1` or `ASSUMED`). There is no hardware-in-the-loop or
-experimental data. The agent's gains are conditional: they hold on cycles resembling the training data and
-the manuscript reports the failures (US06, steady long-haul cruising) in full.
+Everything is an offline, averaged-model simulation. The main plant uses measured Tesla Model 3 vehicle and
+battery data (Rosenberger et al., WEVJ 15(6):268, 2024) plus documented design choices (`configs/nominal.yaml`,
+every value carries a source tag); a reduced-storage plant (`configs/reduced_storage.yaml`) is used only for the
+storage-sizing sensitivity study. There is no hardware-in-the-loop or experimental data. The manuscript reports
+the failures in full (power deficits with tightly sized storage; one agent on US06 x1.1).
 
 ## Repository layout
 
 ```
-configs/nominal.yaml        all parameters, with units and source tags
+configs/nominal.yaml        Tesla Model 3 plant: all parameters, with units and source tags
+configs/reduced_storage.yaml reduced-storage plant (storage-sizing study only)
+archive_reduced_storage/    processed results and agents of the reduced-storage study
 src/hess/                   simulator, tier-1 kernels (numba), RL environment, NumPy TD3, supervisors, safety filters
 scripts/                    pipeline scripts (see "Reproduce" below)
 tests/verify_agent.py       10 self-checks of the simulator, filter and TD3 code
@@ -77,7 +80,7 @@ Wall-clock times are those logged on the 2-core machine used for the paper.
 
 | # | Command | What it does | Time (2 cores) |
 |---|---|---|---|
-| 1 | `python scripts/reserve_stat.py` | Largest contiguous energy deficit on the **train** cycles; should print about 234 751 J, the value stored as `agent.reserve_energy_J` in the config (used by filter v2) | seconds |
+| 1 | `python scripts/reserve_stat.py` | Largest contiguous energy deficit on the **train** cycles; should print about 147 673 J, the value stored as `agent.reserve_energy_J` in the config (used by filter v2) | seconds |
 | 2 | `python scripts/train.py --filter both` | TD3 with filter v1 and with no filter, seeds 11/22/33 (6 agents, 240 episodes each; checkpoint chosen on the validation cycles only) | about 40 min |
 | 3 | `python scripts/train.py --filter v2` | TD3 with filter v2 (the proposed variant), seeds 11/22/33 | about 25 min |
 | 4 | `python scripts/validation_baselines.py` | Validation return of the fixed and rule supervisors | not logged |
@@ -85,9 +88,12 @@ Wall-clock times are those logged on the 2-core machine used for the paper.
 | 6 | `python scripts/evaluate.py` | All controller/supervisor configurations on the held-out test cycles and the additional cycles (resumable; also writes the raw decimated logs to `data/raw/eval/`, about 0.4 GB) | about 48 min for the first 324 runs; the 48 MPC-EMS runs took a further 821 s (2 processes) |
 | 7 | `python scripts/report.py` | Tables `results/tables/T*.csv/.md`, figures `results/figures/F*.pdf/.png`, `data/processed/timing_two_tier.json` (needs the raw logs from step 6) | not logged |
 | 8 | `python scripts/mechanism.py` | Diagnoses how the supervisors use the supercapacitor energy-recovery term (needs the raw logs) | seconds |
-| 9 | `python scripts/make_numbers.py` | Writes `paper/numbers.tex` and `paper/tab_*.tex` from the saved results | seconds |
-| 10 | `cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main` | Builds the manuscript | seconds |
-| 11 | `python tests/verify_agent.py` | Self-checks | about a minute |
+| 9 | `python scripts/tier1_m3.py` | Tier 1 on the Model 3 plant: worst-case sizing of the high-gain DO-SMC on the train cycles, test runs, 1 ms US06 logs (`data/raw/tier1_m3/`) | about 10 min |
+| 10 | `python scripts/lambda_robustness.py` | High-gain DO-SMC vs A-DO-SMC on US06 with constant lambda (100/250/800 1/s) and with the replayed agent schedules | about 15 min |
+| 11 | `python scripts/mass_sensitivity.py` | SC-mass sensitivity (needs the shipped agents) | minutes |
+| 12 | `python scripts/make_numbers.py`, `make_extra_checks.py`, `make_sizing_table.py`, `make_tier1_m3.py`, `make_lambda_table.py` | Write `paper/numbers*.tex`, `paper/tab_*.tex` and figure F2 from the saved results | seconds |
+| 13 | `cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main` | Builds the manuscript | seconds |
+| 14 | `python tests/verify_agent.py` | Self-checks | about a minute |
 
 Notes.
 
@@ -95,7 +101,7 @@ Notes.
   `data/processed/eval_partial.jsonl`; that file is deliberately not shipped (and is git-ignored), so a
   fresh run recomputes everything.
 * **Retraining overwrites** the shipped agents in `data/agents/`. To keep them, work in a copy of the repository.
-* **Reproducing without retraining.** Steps 4, 9 and 10 use only shipped files. Steps 6 to 8 can be run with the shipped
+* **Reproducing without retraining.** Steps 4, 12 (except `make_extra_checks.py` and `make_tier1_m3.py`, which read raw logs) and 13 use only shipped files. Steps 6 to 8 can be run with the shipped
   agents by skipping steps 2 and 3. Step 9 needs `eval_results.json`, `timing_two_tier.json`, `validation_baselines.json`,
   `mechanism_diagnostics.json` and `mpc_ems_selection.json`, all of which are in `data/processed/`.
 * **Bit-for-bit equality across machines is not guaranteed** (different BLAS, CPU and numba builds). Repeated runs
@@ -110,18 +116,21 @@ Table and figure numbers can change as the paper is edited, so this map uses LaT
 |---|---|---|
 | `tab:params` (parameters) | `configs/nominal.yaml` | typed in the paper from the config |
 | `tab:ctrl` (controller structure) | `paper/tab_ctrl.tex` | `make_numbers.py` |
-| `tab:tier1` (tier 1 on the two GTSD profiles) | `paper/tab_tier1.tex`, `results/tables/T2_*` | `make_numbers.py`, `report.py` |
+| `tab:tier1` (tier 1 on the Tesla Model 3 test cycles) | `paper/tab_tier1.tex`, `data/processed/tier1_m3.json` | `tier1_m3.py`, `make_tier1_m3.py` |
+| `tab:lambda` (tier 1 vs observer gain) | `paper/tab_lambda.tex`, `data/processed/lambda_robustness.json` | `lambda_robustness.py`, `make_lambda_table.py` |
+| `tab:loss` (resistive losses), mass sensitivity | `paper/tab_loss.tex`, `data/processed/mass_sensitivity.json` | `mass_sensitivity.py`, `make_extra_checks.py` |
+| `tab:sizing` (storage sizing) | `paper/tab_sizing.tex`, `archive_reduced_storage/processed/eval_results.json`, `configs/reduced_storage.yaml` | `make_sizing_table.py` |
 | `tab:test` (held-out test cycles) | `paper/tab_test.tex`, `results/tables/T3_*`, paired tests `T4_*`, filter ablation `T5_*` | `make_numbers.py`, `report.py` |
 | `tab:extra` (WMTC, FTP-MC1b, long-haul) | `paper/tab_extra.tex`, `results/tables/T8_*` | `make_numbers.py`, `report.py` |
 | Training summary, timing | `results/tables/T6_training.*`, `T7_timing.*` | `report.py` |
 | In-text numbers (`\R{...}` macros) | `paper/numbers.tex` | `make_numbers.py` |
-| `fig:tier1` | `results/figures/F2_tier1_gtsd_transient.pdf` | `report.py` |
+| `fig:tier1` | `results/figures/F2_tier1_m3_us06.pdf` | `make_tier1_m3.py` |
 | `fig:val` | `results/figures/F3_validation_curves.pdf` | `report.py` |
 | `fig:us06` | `results/figures/F4_us06_supervision.pdf` (`F4_us06x1.1_*` is the US06 x1.1 counterpart) | `report.py` |
 | `fig:testbars` | `results/figures/F5_test_battery_rms_saturation.pdf` | `report.py` |
 | `fig:arch`, `fig:ctrl` (block diagrams) | TikZ in `paper/sec_model.tex`, `paper/sec_impl.tex` | LaTeX |
-| Reproduction of the original GTSD controller | `data/processed/gtsd_reproduction/*.json` | produced earlier by a separate project; copied here as read-only inputs |
-| Cause of the US06 and cruising failures | `data/processed/mechanism_diagnostics.json` | `mechanism.py` |
+| Controller-update timing | `data/processed/timing_controllers.json` | produced by an earlier timing benchmark; read-only input |
+| Use of the SC energy-recovery term by the supervisors | `data/processed/mechanism_diagnostics.json` | `mechanism.py` |
 
 ## Data protocol (no test-set leakage by design)
 
@@ -141,8 +150,8 @@ and retrained with the same command and seed; no run was discarded.
 ## What is not in this repository
 
 * **Raw evaluation logs** (`data/raw/eval/*.npz`, about 0.4 GB, one decimated time series per run). They are not
-  shipped. They can be regenerated with `python scripts/evaluate.py`, or requested from the authors.
-  Without them, `report.py` (figures F2 and F4) and `mechanism.py` cannot run, but every number and table of the paper can
+  shipped. They can be regenerated with `python scripts/evaluate.py`, or requested from the author.
+  Without them, `report.py` (figure F4), `make_tier1_m3.py` (figure F2), `make_extra_checks.py` and `mechanism.py` cannot run, but every number and table of the paper can
   be rebuilt from the shipped `data/processed/` files with `make_numbers.py`.
 * Training console logs, the resumable evaluation checkpoint, and internal planning documents.
 * The compiled manuscript PDF.
@@ -155,7 +164,7 @@ and retrained with the same command and seed; no run was discarded.
   (`data/cycles/SOURCE_COMMIT.txt`). They keep their own terms and are **not** covered by the licences above. FASTSim
   lists Apache-2.0 on its repository page, but the individual cycle files were not checked one by one. Details and
   how to substitute them are in `data/cycles/README.md`.
-* **Manuscript sources** in `paper/`: all rights reserved by the authors until publication.
+* **Manuscript sources** in `paper/`: all rights reserved by the author until publication.
 
 ## How to cite
 

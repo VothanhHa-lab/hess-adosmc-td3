@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{2pt}
+\caption{Storage-sizing sensitivity. R: reduced-storage plant (\SI{24}{kW} battery limit, \SI{60}{kW} rating, \SI{120}{F} SC); M3: Tesla Model 3 plant (\SI{57}{kW} battery limit, \SI{21}{F} SC). $\Delta i_b$: change of RMS battery current of TD3 + filter v2 relative to the fixed supervisor; Sat.: saturated time (\%); MPC: MPC-EMS with persistence forecast.}
+\label{tab:sizing}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & \multicolumn{2}{c}{$\Delta i_b$ (\%)} & \multicolumn{2}{c}{Sat.\ TD3 (\%)} & \multicolumn{2}{c}{Sat.\ MPC (\%)}\\
+Cycle & R & M3 & R & M3 & R & M3\\
+\midrule
+US06 & \G{g:us06a:dv2fix} & \G{m:us06a:dv2fix} & \G{g:us06a:v2sat} & \G{m:us06a:v2sat} & \G{g:us06a:mpcpsat} & \G{m:us06a:mpcpsat}\\
+US06$\times1.1$ & \G{g:us06b:dv2fix} & \G{m:us06b:dv2fix} & \G{g:us06b:v2sat} & \G{m:us06b:v2sat} & \G{g:us06b:mpcpsat} & \G{m:us06b:mpcpsat}\\
+WLTC high & \G{g:wh:dv2fix} & \G{m:wh:dv2fix} & \G{g:wh:v2sat} & \G{m:wh:v2sat} & \G{g:wh:mpcpsat} & \G{m:wh:mpcpsat}\\
+WLTC x-high$\times1.2$ & \G{g:wxb:dv2fix} & \G{m:wxb:dv2fix} & \G{g:wxb:v2sat} & \G{m:wxb:v2sat} & \G{g:wxb:mpcpsat} & \G{m:wxb:mpcpsat}\\
+WMTC & \G{g:wmtc:dv2fix} & \G{m:wmtc:dv2fix} & \G{g:wmtc:v2sat} & \G{m:wmtc:v2sat} & \G{g:wmtc:mpcpsat} & \G{m:wmtc:mpcpsat}\\
+Long-haul & \G{g:lh:dv2fix} & \G{m:lh:dv2fix} & \G{g:lh:v2sat} & \G{m:lh:v2sat} & \G{g:lh:mpcpsat} & \G{m:lh:mpcpsat}\\
+\bottomrule
+\end{tabular}
+\end{table}

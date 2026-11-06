@@ -1,86 +1,79 @@
-\subsection{Tier 2: training and validation}\label{sec:res_train}
+\subsection{Supervisor Training and Validation}\label{sec:res_train}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{../results/figures/F3_validation_curves.pdf}
-\caption{Validation return per decision during training (three seeds per variant; evaluated every 40 episodes on WLTC low, WLTC medium, and WLTC medium$\times1.6$). For reference, the fixed and SOC-rule supervisors score \ValFixed\ and \ValRule. Two evaluations fall below the plotted range (no-filter seed 33 at episode 40; filter-v2 seed 33 at episode 160).}
+\caption{Validation return per decision during training (Tesla Model 3 plant; three seeds per variant, evaluated every 40 episodes on WLTC low, WLTC medium and WLTC medium$\times1.6$). Horizontal lines: fixed supervisor (\ValFixed), SOC rule (\ValRule) and persistence MPC-EMS (\ValMPCPTwo). Filter v1 and v2 curves coincide. All unfiltered evaluations except seed 22 at episode 240 lie below the plotted range (between $-3.9$ and $-8.5$).}
 \label{fig:val}
 \end{figure}
 
-Fig.~\ref{fig:val} shows the validation return during training. With checkpoint selection on validation only, the selected agents score:
+All drive-cycle results in this and the following subsections use the Tesla Model 3 plant (Table~\ref{tab:params}). Fig.~\ref{fig:val} shows the validation return during training. With checkpoint selection on validation only, the selected agents score:
 \begin{itemize}
-\item filter v2: \ValVtwoSA, \ValVtwoSB, \ValVtwoSC\ (seeds 11, 22, 33);
-\item filter v1: \ValVoneSA, \ValVoneSB, \ValVoneSC;
+\item filter v2: \ValVtwoSA, \ValVtwoSB, \ValVtwoSC\ (seeds 11, 22, 33); filter v1 gives identical agents on this plant;
 \item no filter: \ValNofSA, \ValNofSB, \ValNofSC.
 \end{itemize}
-For comparison, the SOC rule scores \ValRule\ and the fixed supervisor \ValFixed. The curves are not monotonic, and one seed of each of the no-filter and v2 variants has a transient collapse. Validation alone would therefore suggest that every filtered agent beats the fixed and rule-based supervisors. The same validation protocol, however, ranks the non-learning MPC-EMS above every agent: \ValMPCPTwo\ with the causal persistence forecast and \ValMPCVTwo\ with preview (Section~\ref{sec:setup}). The test results below show that neither ranking transfers to all unseen cycles.
+The fixed supervisor scores \ValFixed, the SOC rule \ValRule, and the MPC-EMS \ValMPCPTwo\ (persistence) and \ValMPCVTwo\ (preview). On validation the filtered agents are therefore better than fixed parameters, comparable to the SOC rule, and worse than the model-based supervisor. Two of the three unfiltered agents did not learn a usable policy within the training budget.
 
-\subsection{Tier 2: held-out test cycles}\label{sec:res_test}
+\subsection{Supervisor Performance on Held-Out Test Cycles}\label{sec:res_test}
 \input{tab_test.tex}
 
-Table~\ref{tab:test} and Fig.~\ref{fig:testbars} summarize the five test items. All rows share tier 1 (A-DO-SMC). Bus-voltage regulation therefore differs only where the supervisor causes a power deficit.
-
-\begin{figure*}[t]
+\begin{figure*}[!tp]
 \centering
 \includegraphics[width=0.9\textwidth]{../results/figures/F5_test_battery_rms_saturation.pdf}
 \caption{Held-out test cycles: RMS battery current (left) and fraction of time with the total-current command saturated, i.e., a power deficit (right). Learned supervisors: bar = mean over three training seeds, whisker = min--max.}
 \label{fig:testbars}
 \end{figure*}
 
-\paragraph{Cycles inside the training power envelope}
-On WLTC high and WLTC extra-high, the proposed supervisor (TD3 + filter v2) lowers the RMS battery current in all nine seed pairs, with no saturation:
-\begin{itemize}
-\item WLTC high: from \R{wh:afix:ibrms}\,A (fixed) and \R{wh:arule:ibrms}\,A (SOC rule) to \R{wh:v2:ibrms:mean}\,A, i.e., \R{wh:v2vsafix:dibrmsabs}\,\% lower than fixed and \R{wh:v2vsarule:dibrmsabs}\,\% lower than the rule;
-\item WLTC extra-high: \R{wxa:v2vsafix:dibrmsabs}\,\% lower than fixed.
-\end{itemize}
-The bus voltage is unaffected: \R{wh:v2:maxdev:mean}\,V versus \R{wh:afix:maxdev}\,V on WLTC high. The price is a higher RMS rate of change of the battery current: \R{wxa:v2vsafix:dslew}\,\% versus fixed on WLTC extra-high.
+Table~\ref{tab:test} and Fig.~\ref{fig:testbars} summarize the five test items. All rows share tier~1 (A-DO-SMC), so the bus voltage differs only where a supervisor causes a power deficit.
 
-\paragraph{How the agent achieves this}
-The raw logs show that the agents do not use $v_{sc,ref}$ as a slowly varying reserve setpoint, which is how it was intended to be used. Instead, they move it quickly: its standard deviation within a run is \VrefStdMin--\VrefStdMax\,V. As a result, the recovery term \eqref{eq:prec} is at its $\pm\PrecMax$\,kW limit in \CapFracMin--\CapFracMax\,\% of the samples. With the fixed supervisor, the mean $|P_{rec}|$ is only \PrecWHfixedAbs\,kW on WLTC high. In effect, the agent turns the bounded recovery term into a bang-bang actuator for battery power. On transient cycles it switches this power against the load and so lowers the RMS battery current. The agent also keeps $\tau_b$ near its lower bound for most of the run (Fig.~\ref{fig:us06}), which explains the faster battery-current changes.
+\paragraph{Comparison with fixed parameters}
+The filtered agent lowers the RMS battery current on every test cycle: by \R{us06a:v2vsafix:dibrmsabs}\,\% on US06, \R{wh:v2vsafix:dibrmsabs}\,\% on WLTC high, \R{wxa:v2vsafix:dibrmsabs}\,\% on WLTC extra-high, and \R{wxb:v2vsafix:dibrmsabs}\,\% on WLTC extra-high$\times1.2$ (paired over nine seed pairs; on WLTC high the paired changes range from \R{wh:v2vsafix:dibrmsmin} to \R{wh:v2vsafix:dibrmsmax}\,\%). The RMS rate of change of the battery current rises only slightly (\R{wh:v2vsafix:dslew}\,\% on WLTC high). No filtered agent saturates the command on the rated-load cycles, and the bus deviation stays at the tier-1 level (\R{us06a:v2:maxdev:mean}\,V on US06).
 
-\paragraph{US06: out of the training envelope}
-On US06, the same behavior is harmful. The SC is depleted by long acceleration phases and needs sustained recharging. Here, the switching policy delivers a mean recovery power of only \PrecUSvtwoMin--\PrecUSvtwoMax\,kW (seeds 11, 22, 33), compared with \PrecUSfixed\,kW for the fixed supervisor, which simply recharges at its limit. The SC voltage therefore falls to \R{us06a:v2:vmin:mean}\,V (fixed: \R{us06a:afix:vmin}\,V), below the power-capability level \eqref{eq:vpow}. The command is saturated \R{us06a:v2:sat:mean}\,\% of the time, whereas the fixed supervisor never saturates, and the bus-voltage excursion reaches \R{us06a:v2:maxdev:mean}\,V. This is not a loss of tier-1 stability, since the loop recovers once the demand falls, but it is an operating failure. The \R{us06a:v2vsafix:dibrmsabs}\,\% lower RMS battery current does not compensate for it.
+\paragraph{Comparison with the SOC rule}
+The learned supervisor is not clearly better than the non-learning rule. It is \R{wxa:v2vsarule:dibrmsabs}\,\% lower than the rule on WLTC extra-high and \R{wh:v2vsarule:dibrmsabs}\,\% lower on WLTC high, but \R{us06a:v2vsarule:dibrms}\,\% higher on US06, where it wins \R{us06a:v2vsarule:wins} seed pairs on the training objective. The rule, which lengthens $\tau_b$ when the SC is well charged, already captures most of the benefit available on this plant.
 
-The reserve bound \eqref{eq:vlo} constrains the \emph{reference} $v_{sc,ref}$, not the SC voltage itself, and it is sized using the largest deficit of the training cycles ($E_{res}=\EresKJ$\,kJ). Neither property protects against a policy that keeps the reference high on average while withholding recharge power.
+\paragraph{Comparison with the MPC-EMS}
+The MPC-EMS optimizes the same objective over the same actions behind the same filter. With the causal persistence forecast its RMS battery current is lower than the agent's mean on every test cycle; the agent's value is \R{us06a:v2vsmpcp:dibrms}\,\% higher on US06, \R{wh:v2vsmpcp:dibrms}\,\% on WLTC high and \R{wxa:v2vsmpcp:dibrms}\,\% on WLTC extra-high. The MPC-EMS obtains this by drawing the SC deeper: its minimum SC voltage is \R{us06a:mpcp:vmin}\,V on US06 and \R{wxb:mpcp:vmin}\,V on WLTC extra-high$\times1.2$, inside the penalized band below \SI{237.5}{V}. Measured by the full training objective, which penalizes that band, the agent wins \R{wxa:v2vsmpcp:wins} seed pairs on WLTC extra-high and \R{us06a:v2vsmpcp:wins} on US06, but \R{wh:v2vsmpcp:wins} on WLTC high. Neither supervisor dominates: the model-based one is better on battery current, the learned one keeps more SC energy on the longer high-power cycles.
 
-\paragraph{Loads beyond the rating}
-With the load scaled by 1.1 (US06) or 1.2 (WLTC extra-high), the peak demand exceeds the vehicle rating used in \eqref{eq:vpow}. On US06$\times1.1$, every configuration saturates: fixed \R{us06b:afix:sat}\,\%, SOC rule \R{us06b:arule:sat}\,\%, v2 \R{us06b:v2:sat:mean}\,\%. On WLTC extra-high$\times1.2$, v2 avoids saturation, as do the fixed and rule supervisors. It still lowers the RMS battery current by \R{wxb:v2vsafix:dibrmsabs}\,\%, but the SC voltage drops to \R{wxb:v2:vmin:mean}\,V, inside the penalized band of \eqref{eq:reward}.
+\paragraph{Supervisory behavior}
+The fixed and rule supervisors hold $v_{sc,ref}=\SI{312.5}{V}$. The agents lower the SC energy target instead (mean $v_{sc,ref}$ between \MVrefMeanVtwoMin\ and \MVrefMeanVtwoMax\,V across runs), and on US06 they keep it at the filter's lower bound (\MVloVtwo\,V) for \MAtBoundMin--\MAtBoundMax\,\% of the time (Fig.~\ref{fig:us06}). They also lengthen or switch $\tau_b$, and the agent shown in Fig.~\ref{fig:us06} uses observer gains well above the nominal value. Unlike on the reduced-storage plant (Section~\ref{sec:res_sizing}), the agents do not drive the recovery term to its limit: $|P_{rec}|$ never reaches $\PrecMax$\,kW in the logged runs. The MPC-EMS also lowers $v_{sc,ref}$ (mean \MPCVrefMeanMin--\MPCVrefMeanMax\,V) but varies it more strongly within a run (standard deviation up to \MPCVrefStdMax\,V).
 
-\paragraph{Comparison with the MPC-EMS baseline}
-The optimization-based supervisor solves the same problem as the agent, with the same objective, actions and safety filter, but uses a model instead of learning. It changes the picture in three ways.
-\begin{itemize}
-\item \emph{Battery stress on transient cycles.} Even with the causal persistence forecast, MPC-EMS lowers the RMS battery current more than the agent on every test cycle. On WLTC high, the agent's RMS current is \R{wh:v2vsmpcp:dibrms}\,\% higher (range \R{wh:v2vsmpcp:dibrmsmin}--\R{wh:v2vsmpcp:dibrmsmax}\,\% over the nine seed pairs). On WLTC extra-high the difference is \R{wxa:v2vsmpcp:dibrms}\,\%, and on US06 \R{us06a:v2vsmpcp:dibrms}\,\%. MPC-EMS also has the lower RMS rate of change of the battery current on WLTC high (\R{wh:mpcp:slew}\,A/s against \R{wh:v2:slew:mean}\,A/s). The reduction in battery stress achieved by the agent is therefore not a benefit of learning: a simple model-based search over the same actions does better.
-\item \emph{Power deficits.} MPC-EMS keeps the SC at the lowest reference that the filter allows. Its mean $v_{sc,ref}$ is \MPCVrefMeanMin--\MPCVrefMeanMax\,V with a standard deviation of only \MPCVrefStdMin--\MPCVrefStdMax\,V within a run, against a mean of \VtwoVrefMeanMin--\VtwoVrefMeanMax\,V for the agents. With a \HorMPCP\,s horizon and no terminal value on the SC energy, a low reserve costs nothing in the prediction until a deficit is already inside the horizon. On US06 the SC voltage therefore falls to \R{us06a:mpcp:vmin}\,V, and the command is saturated \R{us06a:mpcp:sat}\,\% of the time (agent: \R{us06a:v2:sat:mean}\,\%; fixed: \R{us06a:afix:sat}\,\%). Perfect load preview does not help, because the horizon is too short to see a long acceleration phase coming: saturation is \R{us06a:mpcv:sat}\,\%. On WLTC extra-high$\times1.2$, persistence MPC-EMS saturates \R{wxb:mpcp:sat}\,\% of the time, whereas the agent and both simple supervisors do not saturate. Preview MPC-EMS drove the bus out of its admissible range in \R{wxb:mpcv:fails} of \R{wxb:mpcv:runs} runs on this cycle.
-\item \emph{Overall return.} Measured by the training objective, the agent beats persistence MPC-EMS in \R{us06a:v2vsmpcp:wins} seed pairs on US06 (power deficits) and \R{wxa:v2vsmpcp:wins} on WLTC extra-high (SC voltage down to \R{wxa:mpcp:vmin}\,V, inside the penalized band), but in \R{wh:v2vsmpcp:wins} pairs on WLTC high.
-\end{itemize}
-The comparison sharpens the diagnosis of Section~\ref{sec:discussion}. Two different optimizers, one learned and one model-based, both converge to depleting the SC when the objective does not value the stored energy beyond a short window. The deficits are therefore a property of the problem formulation (objective, horizon and filter), not only of the learning algorithm.
+\paragraph{Operation beyond the rated load}
+With the US06 load scaled by 1.1, the fixed, rule and persistence MPC-EMS supervisors still do not saturate. One of the three filtered agents (seed 33) does, for \R{us06b:v2:sat:max}\,\% of the time, with a bus excursion of \R{us06b:v2:maxdev:max}\,V; preview MPC-EMS shows a similar event (\R{us06b:mpcv:sat}\,\%, \R{us06b:mpcv:maxdev}\,V). On WLTC extra-high$\times1.2$ no filtered supervisor saturates.
 
-\begin{figure*}[t]
+\begin{figure*}[!tp]
 \centering
 \includegraphics[width=\textwidth]{../results/figures/F4_us06_supervision.pdf}
-\caption{US06 (held-out): load power, SC voltage (solid) with its reference (dotted), supervisory parameters $\tau_b$ and $\lambda$, and battery current for the fixed and SOC-rule supervisors and the median-validation agents of filter v1 and v2. The learned agents switch $v_{sc,ref}$ rapidly, so the recovery power is mostly at its $\pm\PrecMax$\,kW limit, and they keep $\tau_b$ near its lower bound. Filter v2 keeps $v_{sc,ref}\ge\VloVtwo$\,V, yet the net recharge is lower than with the fixed supervisor and the SC voltage falls below the level needed to supply the demand.}
+\caption{US06 (held-out, Tesla Model 3 plant): load power, SC voltage (solid) with its reference (dotted), supervisory parameters $\tau_b$ and $\lambda$, and battery current for the fixed, SOC-rule and persistence MPC-EMS supervisors and the median-validation agent (the v1 agent is identical and not shown). Annotations mark the peak load, the filter bounds, the start of the SC penalty band, the nominal observer gain and the RMS battery current of each run. The agent keeps $v_{sc,ref}$ at the filter's lower bound (\MVloVtwo\,V) for most of the cycle and switches $\tau_b$ between its bounds; the SC voltage stays above the level at which the demand could no longer be met.}
 \label{fig:us06}
 \end{figure*}
 
-\subsection{Effect of the safety filter}\label{sec:res_filter}
-The filter changes the failure behavior more than the average performance.
-\begin{itemize}
-\item \emph{No filter.} One of the three seeds drove the bus out of its admissible range (simulation terminated) on US06, US06$\times1.1$, and WLTC extra-high$\times1.2$. This gives \R{us06a:nof:fails}/9, \R{us06b:nof:fails}/9 and \R{wxb:nof:fails}/9 failed runs. The mean saturation on US06 was \R{us06a:nof:sat:mean}\,\%.
-\item \emph{Filter v1.} No run failed; saturation on US06 was \R{us06a:v1:sat:mean}\,\%.
-\item \emph{Filter v2.} No agent run failed; saturation on US06 was \R{us06a:v2:sat:mean}\,\%. On WLTC extra-high$\times1.2$, saturation dropped from \R{wxb:v1:sat:mean}\,\% (v1) to \R{wxb:v2:sat:mean}\,\%.
-\item \emph{Filter v2 with MPC-EMS.} The same filter did not prevent bus collapse for preview MPC-EMS on WLTC extra-high$\times1.2$ (\R{wxb:mpcv:fails}/\R{wxb:mpcv:runs} runs). The absence of failures in the agent runs is therefore an empirical result for these policies, not a guarantee provided by the filter.
-\end{itemize}
-The filter also narrows the spread between seeds (Table~\ref{tab:test}). On the main test cycles, the filter modified the $v_{sc,ref}$ component of the action in \FiltVscMin--\FiltVscMax\,\% of the decisions, through the rate limit or the bounds, which reflects the fast switching described above.
+\subsection{Ablation of the Safety Filter}\label{sec:res_filter}
+Without the filter, the agents push the SC to its lower voltage limit and cause power deficits even at rated load. On US06 the unfiltered agents saturate the command \R{us06a:nof:sat:mean}\,\% of the time on average, with bus excursions of up to \R{us06a:nof:maxdev:max}\,V; on US06$\times1.1$ and WLTC extra-high$\times1.2$ the excursions reach \R{us06b:nof:maxdev:max}\,V and \R{wxb:nof:maxdev:max}\,V. No run left the simulated admissible range on this plant. With the filter, the bus deviation on the rated-load cycles stays at the tier-1 level. On this plant filter v1 and v2 coincide, so the filter-version ablation is informative only on the reduced-storage plant (Section~\ref{sec:res_sizing}). The filter modified the $v_{sc,ref}$ component of the action in \FiltVscMin--\FiltVscMax\,\% of the decisions on the main test cycles, depending on the seed.
 
-\subsection{Additional held-out cycles}\label{sec:res_extra}
+\subsection{Generalization to Additional Held-Out Cycles}\label{sec:res_extra}
 \input{tab_extra.tex}
 
 Table~\ref{tab:extra} reports three cycles that were introduced after filter v2 was fixed and influenced no design choice.
 \begin{itemize}
-\item \emph{WMTC.} v2 lowers the RMS battery current by \R{wmtc:v2vsafix:dibrmsabs}\,\% (fixed) and \R{wmtc:v2vsarule:dibrmsabs}\,\% (rule) without saturation, whereas v1 saturated \R{wmtc:v1:sat:mean}\,\% of the time.
-\item \emph{FTP-MC1b} (mild). The reduction is \R{ftp:v2vsafix:dibrmsabs}\,\% (fixed) and \R{ftp:v2vsarule:dibrmsabs}\,\% (rule).
-\item \emph{Long-haul segment} (mostly steady cruising). The agent \emph{increases} the RMS battery current from \R{lh:afix:ibrms}\,A to \R{lh:v2:ibrms:mean}\,A (+\R{lh:v2vsafix:dibrms}\,\%). The same switching of $P_{rec}$ between $\pm\PrecMax$\,kW now has no transient to cancel. It therefore adds a square-wave component of about $\PrecMax\,\mathrm{kW}/\SI{300}{V}\approx\SI{17}{A}$ to an otherwise nearly constant battery current; with the fixed supervisor, the mean $|P_{rec}|$ is \PrecLHfixedAbs\,kW.
+\item \emph{WMTC and FTP-MC1b.} The agent lowers the RMS battery current by \R{wmtc:v2vsafix:dibrmsabs}\,\% and \R{ftp:v2vsafix:dibrmsabs}\,\% relative to fixed parameters and by \R{wmtc:v2vsarule:dibrmsabs}\,\% and \R{ftp:v2vsarule:dibrmsabs}\,\% relative to the rule, without saturation. Persistence MPC-EMS is lower still (the agent is \R{wmtc:v2vsmpcp:dibrms}\,\% and \R{ftp:v2vsmpcp:dibrms}\,\% higher).
+\item \emph{Long-haul segment} (mostly steady cruising). The agent lowers the RMS battery current from \R{lh:afix:ibrms}\,A to \R{lh:v2:ibrms:mean}\,A; persistence MPC-EMS reaches \R{lh:mpcp:ibrms}\,A. The failure seen on the reduced-storage plant, where the agent tripled the battery current on this segment, does not occur.
 \end{itemize}
-This is a second, different failure mode outside the training distribution. MPC-EMS does not show it: on the long-haul segment its RMS battery current is \R{lh:mpcp:ibrms}\,A (persistence), below the \R{lh:afix:ibrms}\,A of the fixed supervisor, because switching $P_{rec}$ brings no predicted benefit when the load is nearly constant. Among the causal supervisors, persistence MPC-EMS also gives the lowest RMS battery current on FTP-MC1b (\R{ftp:mpcp:ibrms}\,A) and WMTC (\R{wmtc:mpcp:ibrms}\,A). On WMTC, however, it saturates \R{wmtc:mpcp:sat}\,\% of the time with a bus excursion of \R{wmtc:mpcp:maxdev}\,V, whereas the agent does not saturate.
 
-\subsection{Computational cost}\label{sec:res_cost}
+\subsection{Resistive Losses and Sensitivity to Vehicle Mass}\label{sec:res_loss}
+\input{tab_loss.tex}
+The RMS battery current is a proxy for battery stress, not for efficiency. Table~\ref{tab:loss} therefore reports the resistive losses in the battery and SC branches. Moving current from the battery to the SC lowers the battery loss but raises the SC loss, because the bank resistance ($R_{esr}+r_{sc}=\SI{59}{m\ohm}$) is of the same order as that of the battery branch. On average over the three seeds, the agent lowers the total resistive loss relative to fixed parameters on every cycle in Table~\ref{tab:loss} (by \LossTDMin\ to \LossTDMax\,\%), but one seed raises it by \LossTDUSSeedMax\,\% on US06; the SOC rule changes it by a few per cent in either direction, and the MPC-EMS lowers it most (by \LossMPCMin\ to \LossMPCMax\,\%). Switching, magnetic and drive-unit losses are not modelled, so these values do not give the drivetrain efficiency.
+
+The vehicle mass of the main study (\SI{1830}{kg}) does not include the SC bank. Adding the mass of the three modules (\MassAddKg\,kg~\cite{maxwell125v}) and re-evaluating the fixed, rule, MPC-EMS and filter-v2 supervisors on US06 and WLTC high, without retraining, raised the RMS battery current of every supervisor by \MassIbIncMin--\MassIbIncMax\,\% and caused no saturation. The relative change of the agent with respect to fixed parameters was \MassDvtwoFixUS\,\% on US06 and \MassDvtwoFixWH\,\% on WLTC high, against \MassDvtwoFixRefUS\,\% and \MassDvtwoFixRefWH\,\% without the added mass (noise seed 101), so the comparisons above are not sensitive to this omission. Converter mass was not estimated.
+
+\subsection{Sensitivity to Storage Sizing}\label{sec:res_sizing}
+\input{tab_sizing.tex}
+The same study was first carried out on a reduced-storage plant (Table~\ref{tab:params}): a lighter vehicle with a \SI{60}{kW} traction rating, a \SI{24}{kW} battery converter limit and a \SI{120}{F} SC, evaluated on the same drive cycles with the same training, selection and test protocol. Table~\ref{tab:sizing} compares the two plants.
+\begin{itemize}
+\item On the reduced-storage plant, the filtered agent caused power deficits on US06 (\G{g:us06a:v2sat}\,\% saturated time against \G{g:us06a:fixsat}\,\% for fixed parameters) and raised the RMS battery current on the long-haul segment by \G{g:lh:dv2fix}\,\%. There the agents switched $v_{sc,ref}$ rapidly and drove the recovery term to its $\pm\SI{5}{kW}$ limit, so that the recovery term acted as a bang-bang battery-power actuator. Unfiltered agents collapsed the bus in \G{g:us06a:noffails} runs on US06, and preview MPC-EMS collapsed it in \G{g:wxb:mpcvfails} of 3 runs on WLTC extra-high$\times1.2$.
+\item On the Model 3 plant, with a battery limit of \SI{57}{kW} and a \SI{21}{F} SC, none of these failures appears on the rated-load cycles, and the agent lowers the battery current on every cycle.
+\item On both plants the MPC-EMS achieves a lower RMS battery current than the agent (Table~\ref{tab:sizing}: \G{g:wh:dv2mpcp}\,\% and \G{m:wh:dv2mpcp}\,\% on WLTC high for the agent relative to MPC-EMS).
+\end{itemize}
+The failure modes of the learned supervisor therefore depend on how tightly the storage is sized relative to the load. The ranking against the model-based baseline does not.
+
+\subsection{Computational Cost of the Supervisory Tier}\label{sec:res_cost}
 On the simulation host, one tier-1 update (compiled) costs \TimeADOSMC\,\si{\micro s}. One tier-2 decision (actor with \NActorParams\ parameters plus safety filter, interpreted Python) costs \TimeAgent\,\si{\micro s} every \SI{100}{ms}. One MPC-EMS decision (\NCandMPC\ candidates, \HorMPCP\,s horizon, vectorized NumPy) has a median cost of \TimeMPCEMS\,ms, more than an order of magnitude above the actor but still only about 1\,\% of the decision period. Both figures are relative indicators only; execution on an automotive microcontroller was not measured.

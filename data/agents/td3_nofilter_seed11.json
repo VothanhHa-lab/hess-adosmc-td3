@@ -2,11 +2,12 @@
  "tag": "td3_nofilter_seed11",
  "seed": 11,
  "filtered": false,
- "best_val_return_per_step": -0.18420405667536122,
- "best_episode": 160,
+ "filter_version": 1,
+ "best_val_return_per_step": -3.8743184782909013,
+ "best_episode": 40,
  "episodes": 240,
  "total_steps": 72000,
- "wall_time_s": 744.2568483352661,
+ "wall_time_s": 706.8573179244995,
  "hyperparameters": {
   "hidden": 64,
   "gamma": 0.98,
@@ -32,7 +33,12 @@
   "w_soc": 2.0,
   "e_ref": 5.0,
   "slew_ref": 500.0,
-  "clip": 10.0
+  "clip": 10.0,
+  "sc_pen_lo": 237.5,
+  "sc_pen_hi": 368.75,
+  "sc_pen_lo_scale": 12.5,
+  "sc_pen_hi_scale": 2.5,
+  "dhat_norm": "7.0e4"
  },
  "train_cycles": [
   "udds",
@@ -64,2137 +70,2137 @@
   {
    "episode": 0,
    "cycle": "udds",
-   "return_per_step": -4.735937363705455,
+   "return_per_step": -5.709799813044028,
    "status": 0,
    "steps": 300,
-   "wall_s": 1.1141529083251953
+   "wall_s": 1.0315687656402588
   },
   {
    "episode": 1,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -2.4317091499193886,
+   "return_per_step": -4.935382161986892,
    "status": 0,
    "steps": 600,
-   "wall_s": 2.278003454208374
+   "wall_s": 2.0931248664855957
   },
   {
    "episode": 2,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -5.107382611664134,
+   "return_per_step": -5.259990357425457,
    "status": 0,
    "steps": 900,
-   "wall_s": 3.390691041946411
+   "wall_s": 3.3806960582733154
   },
   {
    "episode": 3,
    "cycle": "NREL13",
-   "return_per_step": -2.6853924734338377,
+   "return_per_step": -5.463680921587848,
    "status": 0,
    "steps": 1200,
-   "wall_s": 4.569831848144531
+   "wall_s": 4.4077112674713135
   },
   {
    "episode": 4,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -4.370743441569928,
+   "return_per_step": -5.185377039487872,
    "status": 0,
    "steps": 1500,
-   "wall_s": 5.695671796798706
+   "wall_s": 5.605057001113892
   },
   {
    "episode": 5,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -3.8899425246019503,
+   "return_per_step": -5.3420107827087255,
    "status": 0,
    "steps": 1800,
-   "wall_s": 6.834928274154663
+   "wall_s": 6.711057186126709
   },
   {
    "episode": 6,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -2.8491900386893567,
+   "return_per_step": -4.097470784051963,
    "status": 0,
    "steps": 2100,
-   "wall_s": 8.17298674583435
+   "wall_s": 7.764703750610352
   },
   {
    "episode": 7,
    "cycle": "udds",
-   "return_per_step": -1.0709540068860128,
+   "return_per_step": -1.291884763193827,
    "status": 0,
    "steps": 2400,
-   "wall_s": 9.830256938934326
+   "wall_s": 9.009144306182861
   },
   {
    "episode": 8,
    "cycle": "udds",
-   "return_per_step": -0.17254811021580957,
+   "return_per_step": -0.6693621029065084,
    "status": 0,
    "steps": 2700,
-   "wall_s": 11.477760791778564
+   "wall_s": 10.578588247299194
   },
   {
    "episode": 9,
    "cycle": "hwfet",
-   "return_per_step": -0.14360307478866652,
+   "return_per_step": -0.3574859295756878,
    "status": 0,
    "steps": 3000,
-   "wall_s": 13.17741060256958
+   "wall_s": 12.241095304489136
   },
   {
    "episode": 10,
    "cycle": "NREL13",
-   "return_per_step": -0.08093701265183219,
+   "return_per_step": -0.42870799061068143,
    "status": 0,
    "steps": 3300,
-   "wall_s": 14.839207172393799
+   "wall_s": 13.902637481689453
   },
   {
    "episode": 11,
    "cycle": "NREL13",
-   "return_per_step": -0.059144278902432935,
+   "return_per_step": -0.44501161477597984,
    "status": 0,
    "steps": 3600,
-   "wall_s": 16.516122341156006
+   "wall_s": 15.539493322372437
   },
   {
    "episode": 12,
    "cycle": "NREL13",
-   "return_per_step": -0.0387039445514193,
+   "return_per_step": -0.5929002469656511,
    "status": 0,
    "steps": 3900,
-   "wall_s": 18.169277906417847
+   "wall_s": 17.15121340751648
   },
   {
    "episode": 13,
    "cycle": "hwfet",
-   "return_per_step": -0.06368704110544367,
+   "return_per_step": -0.7005592051797683,
    "status": 0,
    "steps": 4200,
-   "wall_s": 19.738986492156982
+   "wall_s": 18.527339696884155
   },
   {
    "episode": 14,
    "cycle": "hwfet",
-   "return_per_step": -0.16978449011931024,
+   "return_per_step": -0.5308349487349395,
    "status": 0,
    "steps": 4500,
-   "wall_s": 21.436912536621094
+   "wall_s": 20.1284499168396
   },
   {
    "episode": 15,
    "cycle": "udds",
-   "return_per_step": -0.08802964506981081,
+   "return_per_step": -0.5504814207600626,
    "status": 0,
    "steps": 4800,
-   "wall_s": 23.148523092269897
+   "wall_s": 21.313501834869385
   },
   {
    "episode": 16,
    "cycle": "hwfet",
-   "return_per_step": -0.868555892931415,
+   "return_per_step": -0.780379454062178,
    "status": 0,
    "steps": 5100,
-   "wall_s": 24.83627200126648
+   "wall_s": 22.531697750091553
   },
   {
    "episode": 17,
    "cycle": "udds",
-   "return_per_step": -0.19220708039510476,
+   "return_per_step": -0.4795068254045354,
    "status": 0,
    "steps": 5400,
-   "wall_s": 26.527015686035156
+   "wall_s": 23.88462209701538
   },
   {
    "episode": 18,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.7914546867185513,
+   "return_per_step": -0.6764383101481515,
    "status": 0,
    "steps": 5700,
-   "wall_s": 28.23918914794922
+   "wall_s": 25.28860569000244
   },
   {
    "episode": 19,
    "cycle": "udds",
-   "return_per_step": -0.9310817742719099,
+   "return_per_step": -0.6657309718018644,
    "status": 0,
    "steps": 6000,
-   "wall_s": 29.872995138168335
+   "wall_s": 26.558051586151123
   },
   {
    "episode": 20,
    "cycle": "udds",
-   "return_per_step": -0.11162587925886813,
+   "return_per_step": -0.5279406412393799,
    "status": 0,
    "steps": 6300,
-   "wall_s": 31.464843273162842
+   "wall_s": 27.811158418655396
   },
   {
    "episode": 21,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5797011384950657,
+   "return_per_step": -0.3924043737301556,
    "status": 0,
    "steps": 6600,
-   "wall_s": 32.99217128753662
+   "wall_s": 29.15366005897522
   },
   {
    "episode": 22,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.599523785871546,
+   "return_per_step": -0.4898070393983272,
    "status": 0,
    "steps": 6900,
-   "wall_s": 34.676738262176514
+   "wall_s": 30.55440616607666
   },
   {
    "episode": 23,
    "cycle": "hwfet",
-   "return_per_step": -0.8689179819918543,
+   "return_per_step": -0.35562737833667396,
    "status": 0,
    "steps": 7200,
-   "wall_s": 36.37718963623047
+   "wall_s": 31.98849129676819
   },
   {
    "episode": 24,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.7334357226355243,
+   "return_per_step": -0.526601465952948,
    "status": 0,
    "steps": 7500,
-   "wall_s": 37.99527883529663
+   "wall_s": 33.501683712005615
   },
   {
    "episode": 25,
    "cycle": "udds",
-   "return_per_step": -0.1448849384466197,
+   "return_per_step": -0.3557238582732472,
    "status": 0,
    "steps": 7800,
-   "wall_s": 39.67735004425049
+   "wall_s": 34.74887132644653
   },
   {
    "episode": 26,
    "cycle": "NREL13",
-   "return_per_step": -0.6561048288052742,
+   "return_per_step": -0.254581130529798,
    "status": 0,
    "steps": 8100,
-   "wall_s": 41.18881440162659
+   "wall_s": 36.00243401527405
   },
   {
    "episode": 27,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5842530246410191,
+   "return_per_step": -0.3437234940711602,
    "status": 0,
    "steps": 8400,
-   "wall_s": 42.81466269493103
+   "wall_s": 37.23859405517578
   },
   {
    "episode": 28,
    "cycle": "udds",
-   "return_per_step": -0.06792015655496884,
+   "return_per_step": -0.33349744825714095,
    "status": 0,
    "steps": 8700,
-   "wall_s": 44.492684841156006
+   "wall_s": 38.95811748504639
   },
   {
    "episode": 29,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.8676237250695416,
+   "return_per_step": -0.2591233655110247,
    "status": 0,
    "steps": 9000,
-   "wall_s": 46.21785378456116
+   "wall_s": 40.71128726005554
   },
   {
    "episode": 30,
    "cycle": "NREL13",
-   "return_per_step": -0.2752896628461311,
+   "return_per_step": -0.3027528109006571,
    "status": 0,
    "steps": 9300,
-   "wall_s": 47.9749755859375
+   "wall_s": 42.04500412940979
   },
   {
    "episode": 31,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5731903887957415,
+   "return_per_step": -0.27530520234764994,
    "status": 0,
    "steps": 9600,
-   "wall_s": 49.61469841003418
+   "wall_s": 43.70699954032898
   },
   {
    "episode": 32,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -1.1496778489068535,
+   "return_per_step": -0.3046972861662885,
    "status": 0,
    "steps": 9900,
-   "wall_s": 51.27407765388489
+   "wall_s": 45.269083738327026
   },
   {
    "episode": 33,
    "cycle": "NREL13",
-   "return_per_step": -0.3460339060004432,
+   "return_per_step": -0.29996046525463144,
    "status": 0,
    "steps": 10200,
-   "wall_s": 52.94410514831543
+   "wall_s": 46.691551208496094
   },
   {
    "episode": 34,
    "cycle": "udds",
-   "return_per_step": -0.2188813760636379,
+   "return_per_step": -0.2855028565888764,
    "status": 0,
    "steps": 10500,
-   "wall_s": 54.60293531417847
+   "wall_s": 48.20818281173706
   },
   {
    "episode": 35,
    "cycle": "NREL13",
-   "return_per_step": -0.5355389708868223,
+   "return_per_step": -0.13648330943184778,
    "status": 0,
    "steps": 10800,
-   "wall_s": 56.28399991989136
+   "wall_s": 50.01312708854675
   },
   {
    "episode": 36,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3886264944859383,
+   "return_per_step": -0.28842126281041897,
    "status": 0,
    "steps": 11100,
-   "wall_s": 57.96894097328186
+   "wall_s": 51.33864998817444
   },
   {
    "episode": 37,
    "cycle": "NREL13",
-   "return_per_step": -0.05102881572353476,
+   "return_per_step": -0.23635721123544176,
    "status": 0,
    "steps": 11400,
-   "wall_s": 59.535898208618164
+   "wall_s": 52.76507306098938
   },
   {
    "episode": 38,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.9018327392765616,
+   "return_per_step": -0.49490521799807036,
    "status": 0,
    "steps": 11700,
-   "wall_s": 61.15406155586243
+   "wall_s": 54.04874515533447
   },
   {
    "episode": 39,
    "cycle": "NREL13",
-   "return_per_step": -0.37594518834888274,
+   "return_per_step": -0.2766772074027732,
    "status": 0,
    "steps": 12000,
-   "wall_s": 62.8755156993866
+   "wall_s": 55.57904553413391
   },
   {
    "episode": 40,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.47858205376271323,
+   "return_per_step": -0.3281846235829557,
    "status": 0,
    "steps": 12300,
-   "wall_s": 120.84388709068298
+   "wall_s": 112.14071416854858
   },
   {
    "episode": 41,
    "cycle": "hwfet",
-   "return_per_step": -0.8205629873556529,
+   "return_per_step": -0.39448068034607076,
    "status": 0,
    "steps": 12600,
-   "wall_s": 122.5109498500824
+   "wall_s": 113.71871876716614
   },
   {
    "episode": 42,
    "cycle": "NREL13",
-   "return_per_step": -0.5474561740511384,
+   "return_per_step": -0.4231777040770439,
    "status": 0,
    "steps": 12900,
-   "wall_s": 124.15492057800293
+   "wall_s": 115.01389980316162
   },
   {
    "episode": 43,
    "cycle": "hwfet",
-   "return_per_step": -0.5491012129235024,
+   "return_per_step": -0.2541249886763931,
    "status": 0,
    "steps": 13200,
-   "wall_s": 125.79387927055359
+   "wall_s": 116.71167159080505
   },
   {
    "episode": 44,
    "cycle": "hwfet",
-   "return_per_step": -0.32069718586401846,
+   "return_per_step": -0.21703932727927522,
    "status": 0,
    "steps": 13500,
-   "wall_s": 127.45652532577515
+   "wall_s": 118.42713189125061
   },
   {
    "episode": 45,
    "cycle": "hwfet",
-   "return_per_step": -0.5001907995543767,
+   "return_per_step": -0.3614817750933284,
    "status": 0,
    "steps": 13800,
-   "wall_s": 129.15155053138733
+   "wall_s": 120.01067066192627
   },
   {
    "episode": 46,
    "cycle": "NREL13",
-   "return_per_step": -0.4293453611011347,
+   "return_per_step": -0.3295528864139966,
    "status": 0,
    "steps": 14100,
-   "wall_s": 130.78962206840515
+   "wall_s": 121.56096315383911
   },
   {
    "episode": 47,
    "cycle": "hwfet",
-   "return_per_step": -0.42674174364291206,
+   "return_per_step": -0.2981220527486505,
    "status": 0,
    "steps": 14400,
-   "wall_s": 132.4476556777954
+   "wall_s": 123.04104328155518
   },
   {
    "episode": 48,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5084227749557055,
+   "return_per_step": -0.5009905108756013,
    "status": 0,
    "steps": 14700,
-   "wall_s": 134.1302044391632
+   "wall_s": 124.77271461486816
   },
   {
    "episode": 49,
    "cycle": "hwfet",
-   "return_per_step": -0.7094303641794035,
+   "return_per_step": -0.3377349348507715,
    "status": 0,
    "steps": 15000,
-   "wall_s": 135.83280491828918
+   "wall_s": 126.09699440002441
   },
   {
    "episode": 50,
    "cycle": "NREL13",
-   "return_per_step": -0.31433404280211563,
+   "return_per_step": -0.17882879842924632,
    "status": 0,
    "steps": 15300,
-   "wall_s": 137.4867513179779
+   "wall_s": 127.49078750610352
   },
   {
    "episode": 51,
    "cycle": "NREL13",
-   "return_per_step": -2.247737619811683,
+   "return_per_step": -0.27524945017260194,
    "status": 0,
    "steps": 15600,
-   "wall_s": 139.12657737731934
+   "wall_s": 129.1924331188202
   },
   {
    "episode": 52,
    "cycle": "NREL13",
-   "return_per_step": -0.2568552130567724,
+   "return_per_step": -0.2948115144826819,
    "status": 0,
    "steps": 15900,
-   "wall_s": 140.7160530090332
+   "wall_s": 130.94177627563477
   },
   {
    "episode": 53,
    "cycle": "NREL13",
-   "return_per_step": -2.5427358654442354,
+   "return_per_step": -0.4689590210139105,
    "status": 0,
    "steps": 16200,
-   "wall_s": 142.2775719165802
+   "wall_s": 132.57693457603455
   },
   {
    "episode": 54,
    "cycle": "hwfet",
-   "return_per_step": -0.6149356952035218,
+   "return_per_step": -0.3027430758216916,
    "status": 0,
    "steps": 16500,
-   "wall_s": 143.89916467666626
+   "wall_s": 134.1785228252411
   },
   {
    "episode": 55,
    "cycle": "udds",
-   "return_per_step": -0.046303932424861804,
+   "return_per_step": -0.29135605504591416,
    "status": 0,
    "steps": 16800,
-   "wall_s": 145.51290464401245
+   "wall_s": 135.87705731391907
   },
   {
    "episode": 56,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.37995491482554294,
+   "return_per_step": -0.3263827853816742,
    "status": 0,
    "steps": 17100,
-   "wall_s": 147.17008543014526
+   "wall_s": 137.3240807056427
   },
   {
    "episode": 57,
    "cycle": "udds",
-   "return_per_step": -0.37735325722695734,
+   "return_per_step": -0.2209929556664206,
    "status": 0,
    "steps": 17400,
-   "wall_s": 148.83768033981323
+   "wall_s": 139.12099981307983
   },
   {
    "episode": 58,
    "cycle": "udds",
-   "return_per_step": -0.14371158874823298,
+   "return_per_step": -0.2990407716774503,
    "status": 0,
    "steps": 17700,
-   "wall_s": 150.44912791252136
+   "wall_s": 140.69685864448547
   },
   {
    "episode": 59,
    "cycle": "hwfet",
-   "return_per_step": -0.13073113197982575,
+   "return_per_step": -0.3332336572046427,
    "status": 0,
    "steps": 18000,
-   "wall_s": 151.9945433139801
+   "wall_s": 142.48658752441406
   },
   {
    "episode": 60,
    "cycle": "hwfet",
-   "return_per_step": -0.03232034557091002,
+   "return_per_step": -0.2502059932935725,
    "status": 0,
    "steps": 18300,
-   "wall_s": 153.65830969810486
+   "wall_s": 144.14045023918152
   },
   {
    "episode": 61,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.6600248352824394,
+   "return_per_step": -0.4872547922635292,
    "status": 0,
    "steps": 18600,
-   "wall_s": 155.32126927375793
+   "wall_s": 145.92958211898804
   },
   {
    "episode": 62,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5552942103913696,
+   "return_per_step": -0.3758672761635686,
    "status": 0,
    "steps": 18900,
-   "wall_s": 156.96270608901978
+   "wall_s": 147.76800537109375
   },
   {
    "episode": 63,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -1.0136434021910836,
+   "return_per_step": -0.33609833925084714,
    "status": 0,
    "steps": 19200,
-   "wall_s": 158.6641948223114
+   "wall_s": 149.46490621566772
   },
   {
    "episode": 64,
    "cycle": "hwfet",
-   "return_per_step": -0.23330875982534224,
+   "return_per_step": -0.3376637557444269,
    "status": 0,
    "steps": 19500,
-   "wall_s": 160.20402336120605
+   "wall_s": 150.92682480812073
   },
   {
    "episode": 65,
    "cycle": "hwfet",
-   "return_per_step": -0.2018080505596643,
+   "return_per_step": -0.3371344016855197,
    "status": 0,
    "steps": 19800,
-   "wall_s": 162.0039083957672
+   "wall_s": 152.45727276802063
   },
   {
    "episode": 66,
    "cycle": "NREL13",
-   "return_per_step": -0.8122912122824475,
+   "return_per_step": -0.37361951964135964,
    "status": 0,
    "steps": 20100,
-   "wall_s": 163.632262468338
+   "wall_s": 154.1868815422058
   },
   {
    "episode": 67,
    "cycle": "udds",
-   "return_per_step": -0.5723103687098905,
+   "return_per_step": -0.255040906270228,
    "status": 0,
    "steps": 20400,
-   "wall_s": 165.3150634765625
+   "wall_s": 155.86426186561584
   },
   {
    "episode": 68,
    "cycle": "hwfet",
-   "return_per_step": -0.38793545489096487,
+   "return_per_step": -0.3928942377096947,
    "status": 0,
    "steps": 20700,
-   "wall_s": 167.05943632125854
+   "wall_s": 157.6538429260254
   },
   {
    "episode": 69,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.46396051924714016,
+   "return_per_step": -0.3660431670121694,
    "status": 0,
    "steps": 21000,
-   "wall_s": 168.73144340515137
+   "wall_s": 159.30880689620972
   },
   {
    "episode": 70,
    "cycle": "udds",
-   "return_per_step": -0.571481389095923,
+   "return_per_step": -0.2802896174168405,
    "status": 0,
    "steps": 21300,
-   "wall_s": 170.312433719635
+   "wall_s": 160.70738673210144
   },
   {
    "episode": 71,
    "cycle": "NREL13",
-   "return_per_step": -0.7561880721875505,
+   "return_per_step": -0.5582420257606039,
    "status": 0,
    "steps": 21600,
-   "wall_s": 171.93795919418335
+   "wall_s": 162.42340564727783
   },
   {
    "episode": 72,
    "cycle": "hwfet",
-   "return_per_step": -0.5232498020850858,
+   "return_per_step": -0.29921963550623315,
    "status": 0,
    "steps": 21900,
-   "wall_s": 173.60872745513916
+   "wall_s": 164.17643523216248
   },
   {
    "episode": 73,
    "cycle": "hwfet",
-   "return_per_step": -0.06414687475881342,
+   "return_per_step": -0.3075142630600892,
    "status": 0,
    "steps": 22200,
-   "wall_s": 175.17708468437195
+   "wall_s": 165.59900093078613
   },
   {
    "episode": 74,
    "cycle": "hwfet",
-   "return_per_step": -0.09901858276755442,
+   "return_per_step": -0.2824269323956883,
    "status": 0,
    "steps": 22500,
-   "wall_s": 176.66915678977966
+   "wall_s": 167.3059995174408
   },
   {
    "episode": 75,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.24770183478336244,
+   "return_per_step": -0.46974807006136277,
    "status": 0,
    "steps": 22800,
-   "wall_s": 178.20177507400513
+   "wall_s": 169.039208650589
   },
   {
    "episode": 76,
    "cycle": "NREL13",
-   "return_per_step": -1.059513416825735,
+   "return_per_step": -0.23197488682060124,
    "status": 0,
    "steps": 23100,
-   "wall_s": 179.8506691455841
+   "wall_s": 170.85316944122314
   },
   {
    "episode": 77,
    "cycle": "NREL13",
-   "return_per_step": -0.6885205694553876,
+   "return_per_step": -0.2911340837723967,
    "status": 0,
    "steps": 23400,
-   "wall_s": 181.5060534477234
+   "wall_s": 172.2775423526764
   },
   {
    "episode": 78,
    "cycle": "NREL13",
-   "return_per_step": -0.052723489628933924,
+   "return_per_step": -0.3186619244225021,
    "status": 0,
    "steps": 23700,
-   "wall_s": 183.15045309066772
+   "wall_s": 173.96564054489136
   },
   {
    "episode": 79,
    "cycle": "NREL13",
-   "return_per_step": -0.10837156855463025,
+   "return_per_step": -0.29833466419285815,
    "status": 0,
    "steps": 24000,
-   "wall_s": 184.78872752189636
+   "wall_s": 175.44125032424927
   },
   {
    "episode": 80,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.7909679685315254,
+   "return_per_step": -0.3039291165572998,
    "status": 0,
    "steps": 24300,
-   "wall_s": 243.13270163536072
+   "wall_s": 233.31294298171997
   },
   {
    "episode": 81,
    "cycle": "hwfet",
-   "return_per_step": -0.9165063304317678,
+   "return_per_step": -0.3464011482365085,
    "status": 0,
    "steps": 24600,
-   "wall_s": 244.8558065891266
+   "wall_s": 235.04045605659485
   },
   {
    "episode": 82,
    "cycle": "hwfet",
-   "return_per_step": -0.5848997443665691,
+   "return_per_step": -0.3431199540625138,
    "status": 0,
    "steps": 24900,
-   "wall_s": 246.48926401138306
+   "wall_s": 236.88482213020325
   },
   {
    "episode": 83,
    "cycle": "hwfet",
-   "return_per_step": -0.7252803067943201,
+   "return_per_step": -0.4495744370179794,
    "status": 0,
    "steps": 25200,
-   "wall_s": 248.09089374542236
+   "wall_s": 238.6541497707367
   },
   {
    "episode": 84,
    "cycle": "udds",
-   "return_per_step": -0.233737898248504,
+   "return_per_step": -0.2913131503773853,
    "status": 0,
    "steps": 25500,
-   "wall_s": 249.88671946525574
+   "wall_s": 240.43688917160034
   },
   {
    "episode": 85,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.15945392462005092,
+   "return_per_step": -0.18543339134745124,
    "status": 0,
    "steps": 25800,
-   "wall_s": 251.62711215019226
+   "wall_s": 241.77187633514404
   },
   {
    "episode": 86,
    "cycle": "NREL13",
-   "return_per_step": -0.9029274901566098,
+   "return_per_step": -0.3720270826099874,
    "status": 0,
    "steps": 26100,
-   "wall_s": 253.30443620681763
+   "wall_s": 243.6226043701172
   },
   {
    "episode": 87,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.1465315617359694,
+   "return_per_step": -0.3650755291200914,
    "status": 0,
    "steps": 26400,
-   "wall_s": 255.05127096176147
+   "wall_s": 245.26804089546204
   },
   {
    "episode": 88,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.26476010686234003,
+   "return_per_step": -0.2994585195985126,
    "status": 0,
    "steps": 26700,
-   "wall_s": 256.7837781906128
+   "wall_s": 246.64883494377136
   },
   {
    "episode": 89,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.2419840972783535,
+   "return_per_step": -0.3869293921255317,
    "status": 0,
    "steps": 27000,
-   "wall_s": 258.4503221511841
+   "wall_s": 248.21423316001892
   },
   {
    "episode": 90,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3685202931836082,
+   "return_per_step": -0.3215132402725469,
    "status": 0,
    "steps": 27300,
-   "wall_s": 260.09646248817444
+   "wall_s": 250.14869117736816
   },
   {
    "episode": 91,
    "cycle": "udds",
-   "return_per_step": -0.16950774851888128,
+   "return_per_step": -0.30172729808751647,
    "status": 0,
    "steps": 27600,
-   "wall_s": 261.5140686035156
+   "wall_s": 251.73476243019104
   },
   {
    "episode": 92,
    "cycle": "NREL13",
-   "return_per_step": -0.37754468987316736,
+   "return_per_step": -0.46827376080468125,
    "status": 0,
    "steps": 27900,
-   "wall_s": 263.15696835517883
+   "wall_s": 253.5057463645935
   },
   {
    "episode": 93,
    "cycle": "udds",
-   "return_per_step": -0.5423130041305648,
+   "return_per_step": -0.30128396849920364,
    "status": 0,
    "steps": 28200,
-   "wall_s": 264.8042151927948
+   "wall_s": 255.26063060760498
   },
   {
    "episode": 94,
    "cycle": "NREL13",
-   "return_per_step": -0.3751920924215447,
+   "return_per_step": -0.34437671028724903,
    "status": 0,
    "steps": 28500,
-   "wall_s": 266.51328134536743
+   "wall_s": 256.9181697368622
   },
   {
    "episode": 95,
    "cycle": "hwfet",
-   "return_per_step": -0.1414659173931164,
+   "return_per_step": -0.2603301488376434,
    "status": 0,
    "steps": 28800,
-   "wall_s": 268.33111214637756
+   "wall_s": 258.7491843700409
   },
   {
    "episode": 96,
    "cycle": "hwfet",
-   "return_per_step": -0.7618611128994657,
+   "return_per_step": -0.35895779019584223,
    "status": 0,
    "steps": 29100,
-   "wall_s": 269.9747066497803
+   "wall_s": 260.3399052619934
   },
   {
    "episode": 97,
    "cycle": "NREL13",
-   "return_per_step": -0.2740377493358648,
+   "return_per_step": -0.3081925975888565,
    "status": 0,
    "steps": 29400,
-   "wall_s": 271.73645782470703
+   "wall_s": 261.88452219963074
   },
   {
    "episode": 98,
    "cycle": "hwfet",
-   "return_per_step": -0.6070757767688596,
+   "return_per_step": -0.3393938281835339,
    "status": 0,
    "steps": 29700,
-   "wall_s": 273.4817764759064
+   "wall_s": 263.5585660934448
   },
   {
    "episode": 99,
    "cycle": "hwfet",
-   "return_per_step": -0.07766892549063166,
+   "return_per_step": -0.2617412622194808,
    "status": 0,
    "steps": 30000,
-   "wall_s": 275.15003180503845
+   "wall_s": 265.30052518844604
   },
   {
    "episode": 100,
    "cycle": "udds",
-   "return_per_step": -0.3404107232458392,
+   "return_per_step": -0.30178910184703595,
    "status": 0,
    "steps": 30300,
-   "wall_s": 276.88473629951477
+   "wall_s": 267.0724952220917
   },
   {
    "episode": 101,
    "cycle": "hwfet",
-   "return_per_step": -0.24446166547616605,
+   "return_per_step": -0.22144377627292505,
    "status": 0,
    "steps": 30600,
-   "wall_s": 278.65300369262695
+   "wall_s": 268.85012435913086
   },
   {
    "episode": 102,
    "cycle": "udds",
-   "return_per_step": -0.2501735068099741,
+   "return_per_step": -0.27236516158246693,
    "status": 0,
    "steps": 30900,
-   "wall_s": 280.56556940078735
+   "wall_s": 270.4438011646271
   },
   {
    "episode": 103,
    "cycle": "hwfet",
-   "return_per_step": -0.40315971526325994,
+   "return_per_step": -0.3190971612538351,
    "status": 0,
    "steps": 31200,
-   "wall_s": 282.5277576446533
+   "wall_s": 272.1402609348297
   },
   {
    "episode": 104,
    "cycle": "udds",
-   "return_per_step": -0.1749981679361098,
+   "return_per_step": -0.2256590085237249,
    "status": 0,
    "steps": 31500,
-   "wall_s": 284.3675057888031
+   "wall_s": 273.74711871147156
   },
   {
    "episode": 105,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.1698500844327217,
+   "return_per_step": -0.32770549475823024,
    "status": 0,
    "steps": 31800,
-   "wall_s": 286.08904361724854
+   "wall_s": 275.11310052871704
   },
   {
    "episode": 106,
    "cycle": "udds",
-   "return_per_step": -0.18766126158730198,
+   "return_per_step": -0.26460718396859567,
    "status": 0,
    "steps": 32100,
-   "wall_s": 289.4260149002075
+   "wall_s": 276.60330843925476
   },
   {
    "episode": 107,
    "cycle": "udds",
-   "return_per_step": -0.06297391870456424,
+   "return_per_step": -0.380485752620907,
    "status": 0,
    "steps": 32400,
-   "wall_s": 292.37347054481506
+   "wall_s": 278.24469351768494
   },
   {
    "episode": 108,
    "cycle": "NREL13",
-   "return_per_step": -0.07289490317510583,
+   "return_per_step": -0.3032035239979896,
    "status": 0,
    "steps": 32700,
-   "wall_s": 295.24104857444763
+   "wall_s": 279.63756585121155
   },
   {
    "episode": 109,
    "cycle": "hwfet",
-   "return_per_step": -0.2750165920218902,
+   "return_per_step": -0.29375633163952275,
    "status": 0,
    "steps": 33000,
-   "wall_s": 298.36663150787354
+   "wall_s": 281.3860547542572
   },
   {
    "episode": 110,
    "cycle": "hwfet",
-   "return_per_step": -0.2406844013868355,
+   "return_per_step": -0.1535011466391468,
    "status": 0,
    "steps": 33300,
-   "wall_s": 301.65211153030396
+   "wall_s": 283.1524693965912
   },
   {
    "episode": 111,
    "cycle": "udds",
-   "return_per_step": -0.754261388745595,
+   "return_per_step": -0.20911318037768725,
    "status": 0,
    "steps": 33600,
-   "wall_s": 305.0156047344208
+   "wall_s": 284.8338100910187
   },
   {
    "episode": 112,
    "cycle": "udds",
-   "return_per_step": -0.21013314185923457,
+   "return_per_step": -0.28176230161445964,
    "status": 0,
    "steps": 33900,
-   "wall_s": 308.36852192878723
+   "wall_s": 286.47160387039185
   },
   {
    "episode": 113,
    "cycle": "NREL13",
-   "return_per_step": -0.9014235103401476,
+   "return_per_step": -2.409373646401592,
    "status": 0,
    "steps": 34200,
-   "wall_s": 311.0896272659302
+   "wall_s": 287.86986088752747
   },
   {
    "episode": 114,
    "cycle": "NREL13",
-   "return_per_step": -0.26787280395335766,
+   "return_per_step": -0.28324986353812664,
    "status": 0,
    "steps": 34500,
-   "wall_s": 312.7367355823517
+   "wall_s": 289.5108439922333
   },
   {
    "episode": 115,
    "cycle": "hwfet",
-   "return_per_step": -0.9754688505865615,
+   "return_per_step": -0.19554722807147432,
    "status": 0,
    "steps": 34800,
-   "wall_s": 314.49866795539856
+   "wall_s": 291.0846540927887
   },
   {
    "episode": 116,
    "cycle": "udds",
-   "return_per_step": -0.2584419256120406,
+   "return_per_step": -0.33484443128939373,
    "status": 0,
    "steps": 35100,
-   "wall_s": 316.2142400741577
+   "wall_s": 292.6310467720032
   },
   {
    "episode": 117,
    "cycle": "udds",
-   "return_per_step": -0.20026436248095755,
+   "return_per_step": -0.27715321770912343,
    "status": 0,
    "steps": 35400,
-   "wall_s": 317.8051884174347
+   "wall_s": 294.15674567222595
   },
   {
    "episode": 118,
    "cycle": "NREL13",
-   "return_per_step": -0.5659882880596654,
+   "return_per_step": -0.25230059211534667,
    "status": 0,
    "steps": 35700,
-   "wall_s": 319.613094329834
+   "wall_s": 295.64451122283936
   },
   {
    "episode": 119,
    "cycle": "hwfet",
-   "return_per_step": -0.20469042152510045,
+   "return_per_step": -0.2931811544916031,
    "status": 0,
    "steps": 36000,
-   "wall_s": 321.2842490673065
+   "wall_s": 297.22854137420654
   },
   {
    "episode": 120,
    "cycle": "hwfet",
-   "return_per_step": -0.2550888963954321,
+   "return_per_step": -0.2233863772250674,
    "status": 0,
    "steps": 36300,
-   "wall_s": 381.9557008743286
+   "wall_s": 351.0658178329468
   },
   {
    "episode": 121,
    "cycle": "hwfet",
-   "return_per_step": -0.2856555735731009,
+   "return_per_step": -0.28292390850626253,
    "status": 0,
    "steps": 36600,
-   "wall_s": 383.58182549476624
+   "wall_s": 352.724858045578
   },
   {
    "episode": 122,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.26639224217799323,
+   "return_per_step": -0.34259983927610993,
    "status": 0,
    "steps": 36900,
-   "wall_s": 385.251291513443
+   "wall_s": 354.58632254600525
   },
   {
    "episode": 123,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.33765435457773446,
+   "return_per_step": -0.2926631777412761,
    "status": 0,
    "steps": 37200,
-   "wall_s": 386.5188627243042
+   "wall_s": 356.45149517059326
   },
   {
    "episode": 124,
    "cycle": "hwfet",
-   "return_per_step": -0.13971501443323525,
+   "return_per_step": -0.2577049444572234,
    "status": 0,
    "steps": 37500,
-   "wall_s": 387.93771958351135
+   "wall_s": 358.2215588092804
   },
   {
    "episode": 125,
    "cycle": "NREL13",
-   "return_per_step": -0.2801590694811563,
+   "return_per_step": -0.3024164996830281,
    "status": 0,
    "steps": 37800,
-   "wall_s": 389.67169737815857
+   "wall_s": 359.9742741584778
   },
   {
    "episode": 126,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.1089911977479329,
+   "return_per_step": -0.24667847407456123,
    "status": 0,
    "steps": 38100,
-   "wall_s": 391.32060408592224
+   "wall_s": 361.56898045539856
   },
   {
    "episode": 127,
    "cycle": "udds",
-   "return_per_step": -0.0745788694398219,
+   "return_per_step": -0.3022557677942745,
    "status": 0,
    "steps": 38400,
-   "wall_s": 392.94322872161865
+   "wall_s": 363.23793745040894
   },
   {
    "episode": 128,
    "cycle": "NREL13",
-   "return_per_step": -1.890584958520397,
+   "return_per_step": -0.9861073436837914,
    "status": 0,
    "steps": 38700,
-   "wall_s": 394.5554587841034
+   "wall_s": 364.6956613063812
   },
   {
    "episode": 129,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.45413619712720693,
+   "return_per_step": -0.39831354530686913,
    "status": 0,
    "steps": 39000,
-   "wall_s": 395.831431388855
+   "wall_s": 366.3464193344116
   },
   {
    "episode": 130,
    "cycle": "hwfet",
-   "return_per_step": -0.19888913907050673,
+   "return_per_step": -0.2613819756775482,
    "status": 0,
    "steps": 39300,
-   "wall_s": 397.55300188064575
+   "wall_s": 368.1025540828705
   },
   {
    "episode": 131,
    "cycle": "hwfet",
-   "return_per_step": -0.060284665333752964,
+   "return_per_step": -0.2738874289943657,
    "status": 0,
    "steps": 39600,
-   "wall_s": 399.2202150821686
+   "wall_s": 369.77181482315063
   },
   {
    "episode": 132,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.11229388965677731,
+   "return_per_step": -0.37783940649232517,
    "status": 0,
    "steps": 39900,
-   "wall_s": 400.89937376976013
+   "wall_s": 371.59600019454956
   },
   {
    "episode": 133,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.24678790234307452,
+   "return_per_step": -0.3582835995004439,
    "status": 0,
    "steps": 40200,
-   "wall_s": 402.6549084186554
+   "wall_s": 373.438791513443
   },
   {
    "episode": 134,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.6816907316047491,
+   "return_per_step": -0.4831200335165849,
    "status": 0,
    "steps": 40500,
-   "wall_s": 404.4509844779968
+   "wall_s": 375.1806221008301
   },
   {
    "episode": 135,
    "cycle": "NREL13",
-   "return_per_step": -0.26747061816478135,
+   "return_per_step": -0.3726574908790282,
    "status": 0,
    "steps": 40800,
-   "wall_s": 406.04422068595886
+   "wall_s": 376.70203018188477
   },
   {
    "episode": 136,
    "cycle": "NREL13",
-   "return_per_step": -0.38215830955314845,
+   "return_per_step": -0.24279389527426679,
    "status": 0,
    "steps": 41100,
-   "wall_s": 407.59205508232117
+   "wall_s": 378.42048931121826
   },
   {
    "episode": 137,
    "cycle": "hwfet",
-   "return_per_step": -0.2138125681168043,
+   "return_per_step": -0.3626581881088499,
    "status": 0,
    "steps": 41400,
-   "wall_s": 409.2656795978546
+   "wall_s": 379.9814429283142
   },
   {
    "episode": 138,
    "cycle": "NREL13",
-   "return_per_step": -0.26630500254790673,
+   "return_per_step": -0.26673547208689463,
    "status": 0,
    "steps": 41700,
-   "wall_s": 410.942480802536
+   "wall_s": 381.6477634906769
   },
   {
    "episode": 139,
    "cycle": "udds",
-   "return_per_step": -0.2994021877070213,
+   "return_per_step": -0.3352457985791144,
    "status": 0,
    "steps": 42000,
-   "wall_s": 412.44060826301575
+   "wall_s": 383.20979166030884
   },
   {
    "episode": 140,
    "cycle": "udds",
-   "return_per_step": -0.7349810086403799,
+   "return_per_step": -0.23327447651448993,
    "status": 0,
    "steps": 42300,
-   "wall_s": 414.1676445007324
+   "wall_s": 384.81213569641113
   },
   {
    "episode": 141,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3428629264947389,
+   "return_per_step": -0.3058233228188905,
    "status": 0,
    "steps": 42600,
-   "wall_s": 415.8097450733185
+   "wall_s": 386.28499126434326
   },
   {
    "episode": 142,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.10309796988863185,
+   "return_per_step": -0.2702115260088102,
    "status": 0,
    "steps": 42900,
-   "wall_s": 417.59523701667786
+   "wall_s": 387.77097749710083
   },
   {
    "episode": 143,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.165500786674887,
+   "return_per_step": -0.30903113384607317,
    "status": 0,
    "steps": 43200,
-   "wall_s": 419.2581858634949
+   "wall_s": 389.53167271614075
   },
   {
    "episode": 144,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.32061958954286107,
+   "return_per_step": -0.3272479848547904,
    "status": 0,
    "steps": 43500,
-   "wall_s": 420.90322184562683
+   "wall_s": 391.2642421722412
   },
   {
    "episode": 145,
    "cycle": "hwfet",
-   "return_per_step": -0.5495310465827705,
+   "return_per_step": -0.39662407750594664,
    "status": 0,
    "steps": 43800,
-   "wall_s": 422.5548014640808
+   "wall_s": 392.945330619812
   },
   {
    "episode": 146,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.31336806239579057,
+   "return_per_step": -0.39959475226344465,
    "status": 0,
    "steps": 44100,
-   "wall_s": 424.15943241119385
+   "wall_s": 394.6207420825958
   },
   {
    "episode": 147,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5575827166681556,
+   "return_per_step": -0.5110901376938756,
    "status": 0,
    "steps": 44400,
-   "wall_s": 425.9030876159668
+   "wall_s": 396.24491333961487
   },
   {
    "episode": 148,
    "cycle": "udds",
-   "return_per_step": -0.07124075561571792,
+   "return_per_step": -0.2996917166752927,
    "status": 0,
    "steps": 44700,
-   "wall_s": 427.50264525413513
+   "wall_s": 397.9620780944824
   },
   {
    "episode": 149,
    "cycle": "hwfet",
-   "return_per_step": -0.3324454410075041,
+   "return_per_step": -0.22825692911031822,
    "status": 0,
    "steps": 45000,
-   "wall_s": 429.1831569671631
+   "wall_s": 399.49076652526855
   },
   {
    "episode": 150,
    "cycle": "udds",
-   "return_per_step": -0.26361427750400546,
+   "return_per_step": -0.4236871025787333,
    "status": 0,
    "steps": 45300,
-   "wall_s": 430.9223618507385
+   "wall_s": 401.20248007774353
   },
   {
    "episode": 151,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.6367419661334094,
+   "return_per_step": -0.5540217464754975,
    "status": 0,
    "steps": 45600,
-   "wall_s": 432.38031673431396
+   "wall_s": 402.87686228752136
   },
   {
    "episode": 152,
    "cycle": "udds",
-   "return_per_step": -0.19661035231082244,
+   "return_per_step": -0.3277858282674055,
    "status": 0,
    "steps": 45900,
-   "wall_s": 434.046329498291
+   "wall_s": 404.5980679988861
   },
   {
    "episode": 153,
    "cycle": "hwfet",
-   "return_per_step": -0.6080124689079808,
+   "return_per_step": -0.3788023543983173,
    "status": 0,
    "steps": 46200,
-   "wall_s": 435.71713066101074
+   "wall_s": 406.1056640148163
   },
   {
    "episode": 154,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.6020069076310186,
+   "return_per_step": -0.3717587177295233,
    "status": 0,
    "steps": 46500,
-   "wall_s": 437.3402795791626
+   "wall_s": 407.4047167301178
   },
   {
    "episode": 155,
    "cycle": "hwfet",
-   "return_per_step": -0.10918655264447057,
+   "return_per_step": -0.2676471986261651,
    "status": 0,
    "steps": 46800,
-   "wall_s": 438.9618384838104
+   "wall_s": 408.97503423690796
   },
   {
    "episode": 156,
    "cycle": "NREL13",
-   "return_per_step": -2.005177663587913,
+   "return_per_step": -0.7943497461470357,
    "status": 0,
    "steps": 47100,
-   "wall_s": 440.5931386947632
+   "wall_s": 410.48911714553833
   },
   {
    "episode": 157,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.037731887676883395,
+   "return_per_step": -0.13869193783774555,
    "status": 0,
    "steps": 47400,
-   "wall_s": 442.21472454071045
+   "wall_s": 412.08839297294617
   },
   {
    "episode": 158,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3642263571941854,
+   "return_per_step": -0.4768272318050059,
    "status": 0,
    "steps": 47700,
-   "wall_s": 443.5868663787842
+   "wall_s": 413.5180239677429
   },
   {
    "episode": 159,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.08829086000285111,
+   "return_per_step": -0.3093835841422539,
    "status": 0,
    "steps": 48000,
-   "wall_s": 445.28781723976135
+   "wall_s": 415.0740864276886
   },
   {
    "episode": 160,
    "cycle": "udds",
-   "return_per_step": -0.11357001278716841,
+   "return_per_step": -0.26165777987259475,
    "status": 0,
    "steps": 48300,
-   "wall_s": 503.8075633049011
+   "wall_s": 470.99299573898315
   },
   {
    "episode": 161,
    "cycle": "NREL13",
-   "return_per_step": -0.13567825186667232,
+   "return_per_step": -0.32281633807555243,
    "status": 0,
    "steps": 48600,
-   "wall_s": 505.4305684566498
+   "wall_s": 472.55330634117126
   },
   {
    "episode": 162,
    "cycle": "NREL13",
-   "return_per_step": -0.31017386425979476,
+   "return_per_step": -0.3027891710125229,
    "status": 0,
    "steps": 48900,
-   "wall_s": 507.0621511936188
+   "wall_s": 474.3252911567688
   },
   {
    "episode": 163,
    "cycle": "udds",
-   "return_per_step": -0.09289227625214132,
+   "return_per_step": -0.2318284604850857,
    "status": 0,
    "steps": 49200,
-   "wall_s": 508.66038036346436
+   "wall_s": 476.11068296432495
   },
   {
    "episode": 164,
    "cycle": "NREL13",
-   "return_per_step": -0.15341956371511978,
+   "return_per_step": -0.30554769203937815,
    "status": 0,
    "steps": 49500,
-   "wall_s": 510.2829694747925
+   "wall_s": 477.77134919166565
   },
   {
    "episode": 165,
    "cycle": "hwfet",
-   "return_per_step": -0.16206146434239757,
+   "return_per_step": -0.3033847436032828,
    "status": 0,
    "steps": 49800,
-   "wall_s": 511.56969928741455
+   "wall_s": 479.4366719722748
   },
   {
    "episode": 166,
    "cycle": "udds",
-   "return_per_step": -0.13066046715171226,
+   "return_per_step": -0.2672162923412066,
    "status": 0,
    "steps": 50100,
-   "wall_s": 513.157105922699
+   "wall_s": 481.06533312797546
   },
   {
    "episode": 167,
    "cycle": "udds",
-   "return_per_step": -0.2573779325403651,
+   "return_per_step": -0.20635818395766767,
    "status": 0,
    "steps": 50400,
-   "wall_s": 514.7142119407654
+   "wall_s": 482.81693053245544
   },
   {
    "episode": 168,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.4105712715809302,
+   "return_per_step": -0.27801568027285983,
    "status": 0,
    "steps": 50700,
-   "wall_s": 516.3935987949371
+   "wall_s": 484.5276870727539
   },
   {
    "episode": 169,
    "cycle": "udds",
-   "return_per_step": -0.13162638214870048,
+   "return_per_step": -0.250508034631297,
    "status": 0,
    "steps": 51000,
-   "wall_s": 518.1576595306396
+   "wall_s": 486.1411786079407
   },
   {
    "episode": 170,
    "cycle": "hwfet",
-   "return_per_step": -0.2992451212016966,
+   "return_per_step": -0.22627136423773458,
    "status": 0,
    "steps": 51300,
-   "wall_s": 519.6705935001373
+   "wall_s": 487.770220041275
   },
   {
    "episode": 171,
    "cycle": "NREL13",
-   "return_per_step": -0.12901801912197144,
+   "return_per_step": -0.28944464477044296,
    "status": 0,
    "steps": 51600,
-   "wall_s": 521.3385181427002
+   "wall_s": 489.45908856391907
   },
   {
    "episode": 172,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3890759163787845,
+   "return_per_step": -0.4673590335995806,
    "status": 0,
    "steps": 51900,
-   "wall_s": 522.9878869056702
+   "wall_s": 491.13353872299194
   },
   {
    "episode": 173,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.22315577623879018,
+   "return_per_step": -0.2271160268357735,
    "status": 0,
    "steps": 52200,
-   "wall_s": 524.6639897823334
+   "wall_s": 492.5442247390747
   },
   {
    "episode": 174,
    "cycle": "NREL13",
-   "return_per_step": -0.3044026733362083,
+   "return_per_step": -0.3406276069605577,
    "status": 0,
    "steps": 52500,
-   "wall_s": 526.3693537712097
+   "wall_s": 494.17022585868835
   },
   {
    "episode": 175,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.1595975367088377,
+   "return_per_step": -0.30267003649474356,
    "status": 0,
    "steps": 52800,
-   "wall_s": 528.1043336391449
+   "wall_s": 495.82092237472534
   },
   {
    "episode": 176,
    "cycle": "NREL13",
-   "return_per_step": -0.528343636750993,
+   "return_per_step": -0.1561005577023187,
    "status": 0,
    "steps": 53100,
-   "wall_s": 529.6712417602539
+   "wall_s": 497.477956533432
   },
   {
    "episode": 177,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5438331203101977,
+   "return_per_step": -0.23738888514672146,
    "status": 0,
    "steps": 53400,
-   "wall_s": 531.3201551437378
+   "wall_s": 499.2472608089447
   },
   {
    "episode": 178,
    "cycle": "NREL13",
-   "return_per_step": -0.29178340517911294,
+   "return_per_step": -0.2833142647045353,
    "status": 0,
    "steps": 53700,
-   "wall_s": 532.9473638534546
+   "wall_s": 501.05894684791565
   },
   {
    "episode": 179,
    "cycle": "udds",
-   "return_per_step": -0.12725991680523374,
+   "return_per_step": -0.2946632923790319,
    "status": 0,
    "steps": 54000,
-   "wall_s": 534.5257620811462
+   "wall_s": 502.70491886138916
   },
   {
    "episode": 180,
    "cycle": "udds",
-   "return_per_step": -0.13062724605054638,
+   "return_per_step": -0.3038090370893718,
    "status": 0,
    "steps": 54300,
-   "wall_s": 536.2522225379944
+   "wall_s": 504.5658073425293
   },
   {
    "episode": 181,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3456941471259391,
+   "return_per_step": -0.19233720278555727,
    "status": 0,
    "steps": 54600,
-   "wall_s": 537.8921523094177
+   "wall_s": 506.2991044521332
   },
   {
    "episode": 182,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.14596765051100416,
+   "return_per_step": -0.3918093030422506,
    "status": 0,
    "steps": 54900,
-   "wall_s": 539.5820064544678
+   "wall_s": 507.60758566856384
   },
   {
    "episode": 183,
    "cycle": "udds",
-   "return_per_step": -0.7058603488027495,
+   "return_per_step": -0.2514967742145091,
    "status": 0,
    "steps": 55200,
-   "wall_s": 541.2383587360382
+   "wall_s": 509.1290810108185
   },
   {
    "episode": 184,
    "cycle": "hwfet",
-   "return_per_step": -0.1026833089807501,
+   "return_per_step": -0.3190096244136067,
    "status": 0,
    "steps": 55500,
-   "wall_s": 542.9105684757233
+   "wall_s": 510.89678406715393
   },
   {
    "episode": 185,
    "cycle": "hwfet",
-   "return_per_step": -0.1810853566839042,
+   "return_per_step": -0.3135333836186162,
    "status": 0,
    "steps": 55800,
-   "wall_s": 544.6056017875671
+   "wall_s": 512.5238213539124
   },
   {
    "episode": 186,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.1046910029689577,
+   "return_per_step": -0.3264002604637187,
    "status": 0,
    "steps": 56100,
-   "wall_s": 546.2726032733917
+   "wall_s": 514.0466372966766
   },
   {
    "episode": 187,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.2580585513496654,
+   "return_per_step": -0.3294025733887875,
    "status": 0,
    "steps": 56400,
-   "wall_s": 547.9869334697723
+   "wall_s": 515.7991116046906
   },
   {
    "episode": 188,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.623239890641355,
+   "return_per_step": -0.37407498415295953,
    "status": 0,
    "steps": 56700,
-   "wall_s": 549.640820980072
+   "wall_s": 517.1324377059937
   },
   {
    "episode": 189,
    "cycle": "hwfet",
-   "return_per_step": -0.0845456409844512,
+   "return_per_step": -0.20417285197530988,
    "status": 0,
    "steps": 57000,
-   "wall_s": 551.2562234401703
+   "wall_s": 518.6192104816437
   },
   {
    "episode": 190,
    "cycle": "udds",
-   "return_per_step": -0.1785734443853214,
+   "return_per_step": -0.17467020665847124,
    "status": 0,
    "steps": 57300,
-   "wall_s": 552.8530488014221
+   "wall_s": 520.442076921463
   },
   {
    "episode": 191,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3071800851410603,
+   "return_per_step": -0.2910899284910391,
    "status": 0,
    "steps": 57600,
-   "wall_s": 554.5397245883942
+   "wall_s": 522.1014852523804
   },
   {
    "episode": 192,
    "cycle": "udds",
-   "return_per_step": -0.20871706149221883,
+   "return_per_step": -0.22558497048193124,
    "status": 0,
    "steps": 57900,
-   "wall_s": 555.9769685268402
+   "wall_s": 523.789924621582
   },
   {
    "episode": 193,
    "cycle": "NREL13",
-   "return_per_step": -0.38399616509675333,
+   "return_per_step": -0.3403746372527166,
    "status": 0,
    "steps": 58200,
-   "wall_s": 557.5448443889618
+   "wall_s": 525.4549009799957
   },
   {
    "episode": 194,
    "cycle": "hwfet",
-   "return_per_step": -0.8637607165872013,
+   "return_per_step": -0.36667304616245616,
    "status": 0,
    "steps": 58500,
-   "wall_s": 559.1526596546173
+   "wall_s": 527.1455411911011
   },
   {
    "episode": 195,
    "cycle": "NREL13",
-   "return_per_step": -0.41952651198069685,
+   "return_per_step": -0.4392432358769711,
    "status": 0,
    "steps": 58800,
-   "wall_s": 560.7258431911469
+   "wall_s": 528.729834318161
   },
   {
    "episode": 196,
    "cycle": "udds",
-   "return_per_step": -0.8564552255767738,
+   "return_per_step": -0.3567848594845097,
    "status": 0,
    "steps": 59100,
-   "wall_s": 562.2830958366394
+   "wall_s": 530.349767446518
   },
   {
    "episode": 197,
    "cycle": "NREL13",
-   "return_per_step": -0.45152011350487803,
+   "return_per_step": -0.3130015854932494,
    "status": 0,
    "steps": 59400,
-   "wall_s": 563.7868227958679
+   "wall_s": 531.7165758609772
   },
   {
    "episode": 198,
    "cycle": "NREL13",
-   "return_per_step": -0.19079401512150782,
+   "return_per_step": -0.2743555763561733,
    "status": 0,
    "steps": 59700,
-   "wall_s": 565.3798828125
+   "wall_s": 533.1509742736816
   },
   {
    "episode": 199,
    "cycle": "udds",
-   "return_per_step": -0.3236373994086497,
+   "return_per_step": -0.30526982029188443,
    "status": 0,
    "steps": 60000,
-   "wall_s": 567.0508923530579
+   "wall_s": 534.8030874729156
   },
   {
    "episode": 200,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.0887626938076722,
+   "return_per_step": -0.32304553516606377,
    "status": 0,
    "steps": 60300,
-   "wall_s": 624.7439727783203
+   "wall_s": 591.3452391624451
   },
   {
    "episode": 201,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.11861714402790174,
+   "return_per_step": -0.3420769706912798,
    "status": 0,
    "steps": 60600,
-   "wall_s": 626.3030004501343
+   "wall_s": 592.7729942798615
   },
   {
    "episode": 202,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.3089497210702853,
+   "return_per_step": -0.17686668914410172,
    "status": 0,
    "steps": 60900,
-   "wall_s": 627.9612684249878
+   "wall_s": 594.2828450202942
   },
   {
    "episode": 203,
    "cycle": "udds",
-   "return_per_step": -0.4108399038088773,
+   "return_per_step": -0.27476987252248253,
    "status": 0,
    "steps": 61200,
-   "wall_s": 629.6073822975159
+   "wall_s": 595.7963516712189
   },
   {
    "episode": 204,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.5528553122273745,
+   "return_per_step": -0.481583605102948,
    "status": 0,
    "steps": 61500,
-   "wall_s": 631.2350816726685
+   "wall_s": 597.4425919055939
   },
   {
    "episode": 205,
    "cycle": "NREL13",
-   "return_per_step": -0.20394894310847042,
+   "return_per_step": -0.5475476606036696,
    "status": 0,
    "steps": 61800,
-   "wall_s": 632.9448750019073
+   "wall_s": 599.0233056545258
   },
   {
    "episode": 206,
    "cycle": "NREL13",
-   "return_per_step": -0.18975416149784807,
+   "return_per_step": -0.3122906153434078,
    "status": 0,
    "steps": 62100,
-   "wall_s": 634.6027252674103
+   "wall_s": 600.6268274784088
   },
   {
    "episode": 207,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.9450557602709834,
+   "return_per_step": -0.24634492569186345,
    "status": 0,
    "steps": 62400,
-   "wall_s": 636.1891758441925
+   "wall_s": 602.3255777359009
   },
   {
    "episode": 208,
    "cycle": "hwfet",
-   "return_per_step": -0.05864391756966233,
+   "return_per_step": -0.4073158093995804,
    "status": 0,
    "steps": 62700,
-   "wall_s": 637.7785487174988
+   "wall_s": 603.9698350429535
   },
   {
    "episode": 209,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.2820481338836551,
+   "return_per_step": -0.4356132451589296,
    "status": 0,
    "steps": 63000,
-   "wall_s": 639.423707485199
+   "wall_s": 605.62899518013
   },
   {
    "episode": 210,
    "cycle": "udds",
-   "return_per_step": -1.0862468717313432,
+   "return_per_step": -0.3803474533934471,
    "status": 0,
    "steps": 63300,
-   "wall_s": 641.0010361671448
+   "wall_s": 606.9906001091003
   },
   {
    "episode": 211,
    "cycle": "udds",
-   "return_per_step": -0.2753092712741822,
+   "return_per_step": -0.2874655558430895,
    "status": 0,
    "steps": 63600,
-   "wall_s": 642.6332020759583
+   "wall_s": 608.4676737785339
   },
   {
    "episode": 212,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.12694554085010093,
+   "return_per_step": -0.3438779558084482,
    "status": 0,
    "steps": 63900,
-   "wall_s": 644.2236158847809
+   "wall_s": 609.9747042655945
   },
   {
    "episode": 213,
    "cycle": "NREL13",
-   "return_per_step": -0.7447730024909012,
+   "return_per_step": -0.522988014195595,
    "status": 0,
    "steps": 64200,
-   "wall_s": 645.883763551712
+   "wall_s": 611.4619140625
   },
   {
    "episode": 214,
    "cycle": "hwfet",
-   "return_per_step": -0.10403107041191353,
+   "return_per_step": -0.13842617975913873,
    "status": 0,
    "steps": 64500,
-   "wall_s": 647.512971162796
+   "wall_s": 613.0658898353577
   },
   {
    "episode": 215,
    "cycle": "NREL13",
-   "return_per_step": -0.44355015497374145,
+   "return_per_step": -0.21165776445554998,
    "status": 0,
    "steps": 64800,
-   "wall_s": 649.2202413082123
+   "wall_s": 614.9408521652222
   },
   {
    "episode": 216,
    "cycle": "NREL13",
-   "return_per_step": -0.2323461588935533,
+   "return_per_step": -0.47927399501666496,
    "status": 0,
    "steps": 65100,
-   "wall_s": 650.9258766174316
+   "wall_s": 616.7169110774994
   },
   {
    "episode": 217,
    "cycle": "hwfet",
-   "return_per_step": -0.3282522987845621,
+   "return_per_step": -0.17209041038062955,
    "status": 0,
    "steps": 65400,
-   "wall_s": 652.6109087467194
+   "wall_s": 618.342048406601
   },
   {
    "episode": 218,
    "cycle": "NREL13",
-   "return_per_step": -0.0979273828814473,
+   "return_per_step": -0.30232798214596324,
    "status": 0,
    "steps": 65700,
-   "wall_s": 654.2042298316956
+   "wall_s": 620.0150063037872
   },
   {
    "episode": 219,
    "cycle": "hwfet",
-   "return_per_step": -0.09001751123651501,
+   "return_per_step": -0.35625131045521125,
    "status": 0,
    "steps": 66000,
-   "wall_s": 655.8340020179749
+   "wall_s": 621.6271476745605
   },
   {
    "episode": 220,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.08921717463082562,
+   "return_per_step": -0.29637986703112784,
    "status": 0,
    "steps": 66300,
-   "wall_s": 657.5544898509979
+   "wall_s": 623.2015480995178
   },
   {
    "episode": 221,
    "cycle": "udds",
-   "return_per_step": -0.438973383597801,
+   "return_per_step": -0.2921895490742834,
    "status": 0,
    "steps": 66600,
-   "wall_s": 659.2207570075989
+   "wall_s": 624.834979057312
   },
   {
    "episode": 222,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.40714736323335576,
+   "return_per_step": -0.4108515364706431,
    "status": 0,
    "steps": 66900,
-   "wall_s": 660.8382732868195
+   "wall_s": 626.4681179523468
   },
   {
    "episode": 223,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.18151556770249527,
+   "return_per_step": -0.4633905043780866,
    "status": 0,
    "steps": 67200,
-   "wall_s": 662.4912910461426
+   "wall_s": 627.969030380249
   },
   {
    "episode": 224,
    "cycle": "udds",
-   "return_per_step": -0.7582918880170871,
+   "return_per_step": -0.3279032979761716,
    "status": 0,
    "steps": 67500,
-   "wall_s": 664.1847290992737
+   "wall_s": 629.7102243900299
   },
   {
    "episode": 225,
    "cycle": "NREL13",
-   "return_per_step": -0.7987089282773315,
+   "return_per_step": -0.3593471321017136,
    "status": 0,
    "steps": 67800,
-   "wall_s": 665.8117828369141
+   "wall_s": 631.3534162044525
   },
   {
    "episode": 226,
    "cycle": "NREL13",
-   "return_per_step": -1.3928492108401513,
+   "return_per_step": -0.3906156762355636,
    "status": 0,
    "steps": 68100,
-   "wall_s": 667.4465937614441
+   "wall_s": 632.8815586566925
   },
   {
    "episode": 227,
    "cycle": "NREL13",
-   "return_per_step": -0.045710672335558096,
+   "return_per_step": -0.14219231757286943,
    "status": 0,
    "steps": 68400,
-   "wall_s": 669.0861964225769
+   "wall_s": 634.6860585212708
   },
   {
    "episode": 228,
    "cycle": "udds",
-   "return_per_step": -0.13491280269189393,
+   "return_per_step": -0.14167057097104205,
    "status": 0,
    "steps": 68700,
-   "wall_s": 670.6515760421753
+   "wall_s": 636.39541888237
   },
   {
    "episode": 229,
    "cycle": "udds",
-   "return_per_step": -0.12332403496100812,
+   "return_per_step": -0.23083132270194304,
    "status": 0,
    "steps": 69000,
-   "wall_s": 672.3390338420868
+   "wall_s": 637.9100790023804
   },
   {
    "episode": 230,
    "cycle": "hwfet",
-   "return_per_step": -0.6665842566282839,
+   "return_per_step": -0.28961468848660005,
    "status": 0,
    "steps": 69300,
-   "wall_s": 673.97434258461
+   "wall_s": 639.4908883571625
   },
   {
    "episode": 231,
    "cycle": "hwfet",
-   "return_per_step": -0.28547223228437446,
+   "return_per_step": -0.22592808602268724,
    "status": 0,
    "steps": 69600,
-   "wall_s": 675.644238948822
+   "wall_s": 641.2772209644318
   },
   {
    "episode": 232,
    "cycle": "hwfet",
-   "return_per_step": -0.5299122329505317,
+   "return_per_step": -0.3095376082195313,
    "status": 0,
    "steps": 69900,
-   "wall_s": 677.3044257164001
+   "wall_s": 643.0227236747742
   },
   {
    "episode": 233,
    "cycle": "hwfet",
-   "return_per_step": -0.6625003725802028,
+   "return_per_step": -0.34580683594780315,
    "status": 0,
    "steps": 70200,
-   "wall_s": 678.9265654087067
+   "wall_s": 644.723482131958
   },
   {
    "episode": 234,
    "cycle": "TSDC_tripno_42648_cycle",
-   "return_per_step": -0.7087182130178995,
+   "return_per_step": -0.3867898844460251,
    "status": 0,
    "steps": 70500,
-   "wall_s": 680.6745619773865
+   "wall_s": 646.1485471725464
   },
   {
    "episode": 235,
    "cycle": "NREL13",
-   "return_per_step": -0.17132163278315088,
+   "return_per_step": -0.3704944643775145,
    "status": 0,
    "steps": 70800,
-   "wall_s": 682.3470416069031
+   "wall_s": 647.7719061374664
   },
   {
    "episode": 236,
    "cycle": "NREL13",
-   "return_per_step": -0.4308488787821676,
+   "return_per_step": -0.3183757652655562,
    "status": 0,
    "steps": 71100,
-   "wall_s": 684.0362663269043
+   "wall_s": 649.3891227245331
   },
   {
    "episode": 237,
    "cycle": "udds",
-   "return_per_step": -0.2631292931299774,
+   "return_per_step": -0.178835706757421,
    "status": 0,
    "steps": 71400,
-   "wall_s": 685.8573479652405
+   "wall_s": 651.2760694026947
   },
   {
    "episode": 238,
    "cycle": "hwfet",
-   "return_per_step": -1.2730282950559948,
+   "return_per_step": -0.22725108179375833,
    "status": 0,
    "steps": 71700,
-   "wall_s": 687.5080478191376
+   "wall_s": 653.2020523548126
   },
   {
    "episode": 239,
    "cycle": "NREL13",
-   "return_per_step": -0.6397044540382455,
+   "return_per_step": -0.4475153625165034,
    "status": 0,
    "steps": 72000,
-   "wall_s": 689.2312450408936
+   "wall_s": 654.8702659606934
   }
  ],
  "validation": [
   {
    "episode": 40,
-   "val_return_per_step": -0.32575173603367696,
+   "val_return_per_step": -3.8743184782909013,
    "details": [
     {
      "cycle": "wltc_low_3",
      "scale": 1.0,
-     "return": -801.2039418801859,
-     "ib_rms_A": 26.709322597408324,
-     "rms_e_V": 0.4947810037994853,
+     "return": -38813.04542538966,
+     "ib_rms_A": 13.18803750790782,
+     "rms_e_V": 0.05791377380113426,
      "sat_frac": 0.0,
-     "vsc_min_V": 217.87810390333647,
+     "vsc_min_V": 187.25202683439014,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.0,
-     "return": -1110.0713257456239,
-     "ib_rms_A": 36.81906881079191,
-     "rms_e_V": 0.42581641548017307,
+     "return": -15771.023812709236,
+     "ib_rms_A": 24.4803337113021,
+     "rms_e_V": 0.05742978429792471,
      "sat_frac": 0.0,
-     "vsc_min_V": 236.50624728522925,
+     "vsc_min_V": 189.31610277235794,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.6,
-     "return": -2523.0899402909,
-     "ib_rms_A": 50.34768113747039,
-     "rms_e_V": 2.2910704475249752,
-     "sat_frac": 0.005903218337578143,
-     "vsc_min_V": 236.78750411131443,
+     "return": -5962.984423826067,
+     "ib_rms_A": 44.65561474585503,
+     "rms_e_V": 0.056407677351931536,
+     "sat_frac": 0.0,
+     "vsc_min_V": 195.852424291169,
      "status": "ok"
     }
    ]
   },
   {
    "episode": 80,
-   "val_return_per_step": -0.2283350971157907,
+   "val_return_per_step": -7.872402770366709,
    "details": [
     {
      "cycle": "wltc_low_3",
      "scale": 1.0,
-     "return": -613.3733702500308,
-     "ib_rms_A": 24.05187552441794,
-     "rms_e_V": 0.0541291767636311,
+     "return": -48437.14450915871,
+     "ib_rms_A": 20.56439926324056,
+     "rms_e_V": 0.06062158374496196,
      "sat_frac": 0.0,
-     "vsc_min_V": 223.82399726291968,
+     "vsc_min_V": 198.7971534432562,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.0,
-     "return": -1148.9794493064267,
-     "ib_rms_A": 38.52106343855536,
-     "rms_e_V": 0.0681719502640107,
+     "return": -33070.17317850565,
+     "ib_rms_A": 37.60867290403066,
+     "rms_e_V": 0.060329935478896465,
      "sat_frac": 0.0,
-     "vsc_min_V": 235.05582503329308,
+     "vsc_min_V": 198.60781698339318,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.6,
-     "return": -1359.7096035287516,
-     "ib_rms_A": 42.50480728758059,
-     "rms_e_V": 0.1059307198010968,
+     "return": -33408.68686896864,
+     "ib_rms_A": 60.407764471403816,
+     "rms_e_V": 0.05993287926796139,
      "sat_frac": 0.0,
-     "vsc_min_V": 223.21142450103258,
+     "vsc_min_V": 193.3981270353862,
      "status": "ok"
     }
    ]
   },
   {
    "episode": 120,
-   "val_return_per_step": -0.24693954658164674,
+   "val_return_per_step": -8.12404958180575,
    "details": [
     {
      "cycle": "wltc_low_3",
      "scale": 1.0,
-     "return": -735.0115626501758,
-     "ib_rms_A": 22.548789170773837,
-     "rms_e_V": 0.06112436773991238,
+     "return": -49708.93858724946,
+     "ib_rms_A": 20.093370603719013,
+     "rms_e_V": 0.06090581830991291,
      "sat_frac": 0.0,
-     "vsc_min_V": 249.99999999987674,
+     "vsc_min_V": 193.95085679164816,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.0,
-     "return": -831.242808745388,
-     "ib_rms_A": 29.82968114363481,
-     "rms_e_V": 0.1308882081757792,
+     "return": -34582.46352578234,
+     "ib_rms_A": 37.43696713141454,
+     "rms_e_V": 0.06083433545493888,
      "sat_frac": 0.0,
-     "vsc_min_V": 249.99999999987674,
+     "vsc_min_V": 192.64991548511802,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.6,
-     "return": -1829.2944926644932,
-     "ib_rms_A": 41.68583024888438,
-     "rms_e_V": 2.4285685378737165,
-     "sat_frac": 0.0016291965732808521,
-     "vsc_min_V": 231.46464188228182,
+     "return": -34224.24888252475,
+     "ib_rms_A": 60.61313215265631,
+     "rms_e_V": 10.213840270531382,
+     "sat_frac": 0.004152813151192406,
+     "vsc_min_V": 187.11799511311526,
      "status": "ok"
     }
    ]
   },
   {
    "episode": 160,
-   "val_return_per_step": -0.18420405667536122,
+   "val_return_per_step": -8.495777646399388,
    "details": [
     {
      "cycle": "wltc_low_3",
      "scale": 1.0,
-     "return": -446.21779961403865,
-     "ib_rms_A": 15.926541414967478,
-     "rms_e_V": 0.07455617242165409,
+     "return": -50767.67064595516,
+     "ib_rms_A": 21.099400995431306,
+     "rms_e_V": 0.060557458399325075,
      "sat_frac": 0.0,
-     "vsc_min_V": 240.03984674558305,
+     "vsc_min_V": 193.50347718170633,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.0,
-     "return": -606.889711756195,
-     "ib_rms_A": 22.09710798177269,
-     "rms_e_V": 0.07683331531329883,
+     "return": -36118.7230925712,
+     "ib_rms_A": 38.56090600758033,
+     "rms_e_V": 0.060558198254303024,
      "sat_frac": 0.0,
-     "vsc_min_V": 224.95305572610954,
+     "vsc_min_V": 188.95965892266696,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.6,
-     "return": -1452.585555641133,
-     "ib_rms_A": 36.49638436694451,
-     "rms_e_V": 0.15181609979941454,
-     "sat_frac": 0.0,
-     "vsc_min_V": 203.71300194897952,
+     "return": -36727.9944264393,
+     "ib_rms_A": 62.13720998297129,
+     "rms_e_V": 12.792158274044295,
+     "sat_frac": 0.0070188701088214865,
+     "vsc_min_V": 186.98947819542533,
      "status": "ok"
     }
    ]
   },
   {
    "episode": 200,
-   "val_return_per_step": -0.19356961589636987,
+   "val_return_per_step": -8.305004933694587,
    "details": [
     {
      "cycle": "wltc_low_3",
      "scale": 1.0,
-     "return": -595.2183970988708,
-     "ib_rms_A": 20.07063055406128,
-     "rms_e_V": 0.057564409627349974,
+     "return": -52686.98022987407,
+     "ib_rms_A": 19.38095798779724,
+     "rms_e_V": 0.060566616998791775,
      "sat_frac": 0.0,
-     "vsc_min_V": 241.23701631111754,
+     "vsc_min_V": 196.00419796324934,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.0,
-     "return": -689.2002757785316,
-     "ib_rms_A": 26.12195392506875,
-     "rms_e_V": 0.06097514620010344,
+     "return": -34547.39853718296,
+     "ib_rms_A": 33.62728939724033,
+     "rms_e_V": 0.060514400688801324,
      "sat_frac": 0.0,
-     "vsc_min_V": 226.589553414213,
+     "vsc_min_V": 190.27805904706096,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.6,
-     "return": -1382.3473170188488,
-     "ib_rms_A": 38.470375675926945,
-     "rms_e_V": 0.880230983164285,
-     "sat_frac": 0.00034394535772169484,
-     "vsc_min_V": 213.28874824678326,
+     "return": -34419.85288269914,
+     "ib_rms_A": 53.39430448524213,
+     "rms_e_V": 9.302439025525194,
+     "sat_frac": 0.006819634174577449,
+     "vsc_min_V": 186.9034963116845,
      "status": "ok"
     }
    ]
   },
   {
    "episode": 240,
-   "val_return_per_step": -0.20054075847228423,
+   "val_return_per_step": -4.428844658322002,
    "details": [
     {
      "cycle": "wltc_low_3",
      "scale": 1.0,
-     "return": -637.7542374813675,
-     "ib_rms_A": 21.113372543581786,
-     "rms_e_V": 0.04978495342545831,
+     "return": -1816.3387725204484,
+     "ib_rms_A": 20.92784310808439,
+     "rms_e_V": 0.12166121556970035,
      "sat_frac": 0.0,
-     "vsc_min_V": 249.99999999987674,
+     "vsc_min_V": 235.26419407509823,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.0,
-     "return": -750.7144960636854,
-     "ib_rms_A": 28.19595285033855,
-     "rms_e_V": 0.046483441745171605,
+     "return": -23135.20616529962,
+     "ib_rms_A": 36.70975493290146,
+     "rms_e_V": 0.06567689940552421,
      "sat_frac": 0.0,
-     "vsc_min_V": 238.4440155904473,
+     "vsc_min_V": 195.728851886955,
      "status": "ok"
     },
     {
      "cycle": "wltc_medium_3b",
      "scale": 1.6,
-     "return": -1379.9623523036055,
-     "ib_rms_A": 40.69970176762982,
-     "rms_e_V": 0.20173117329913895,
-     "sat_frac": 8.7636026858069e-05,
-     "vsc_min_V": 220.334786863165,
+     "return": -32917.228934436964,
+     "ib_rms_A": 57.58337121810402,
+     "rms_e_V": 0.06298761476056691,
+     "sat_frac": 0.0,
+     "vsc_min_V": 188.91028079155635,
      "status": "ok"
     }
    ]

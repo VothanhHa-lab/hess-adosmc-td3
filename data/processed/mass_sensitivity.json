@@ -1,0 +1,173 @@
+{
+ "added_mass_kg": 183.0,
+ "runs": {
+  "A-DO-SMC + fixed|us06": {
+   "ib_rms_A": 85.85640757417357,
+   "sat_frac": 0.0,
+   "max_dev_V": 1.6038162154543443,
+   "vsc_min_V": 276.29006704665613,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 81.67177673565874,
+    "sat_frac": 0.0,
+    "max_dev_V": 1.4664895904954278,
+    "vsc_min_V": 286.8712452417138,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + fixed|wltc_high_3b": {
+   "ib_rms_A": 45.543504801711286,
+   "sat_frac": 0.0,
+   "max_dev_V": 0.21122981678212227,
+   "vsc_min_V": 311.25904537735124,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 42.770135955401635,
+    "sat_frac": 0.0,
+    "max_dev_V": 0.19906416475009792,
+    "vsc_min_V": 311.36516200349257,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + rule|us06": {
+   "ib_rms_A": 74.82294100492943,
+   "sat_frac": 0.0,
+   "max_dev_V": 1.5966228098202464,
+   "vsc_min_V": 261.29582201655586,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 71.37084191786172,
+    "sat_frac": 0.0,
+    "max_dev_V": 1.4605184879059152,
+    "vsc_min_V": 269.7606376982678,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + rule|wltc_high_3b": {
+   "ib_rms_A": 40.23025602642816,
+   "sat_frac": 0.0,
+   "max_dev_V": 0.21200005593692595,
+   "vsc_min_V": 296.1986458268466,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 38.11386663725815,
+    "sat_frac": 0.0,
+    "max_dev_V": 0.19974713168062408,
+    "vsc_min_V": 297.5401740052408,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + MPC-EMS (persistence)|us06": {
+   "ib_rms_A": 68.26132218096322,
+   "sat_frac": 0.0,
+   "max_dev_V": 1.5872964189483696,
+   "vsc_min_V": 213.42330791670224,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 65.00535388848046,
+    "sat_frac": 0.0,
+    "max_dev_V": 1.4526428842345922,
+    "vsc_min_V": 219.13386603920628,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + MPC-EMS (persistence)|wltc_high_3b": {
+   "ib_rms_A": 33.36976936856091,
+   "sat_frac": 0.0,
+   "max_dev_V": 0.20978634826997222,
+   "vsc_min_V": 242.66017830835276,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 32.09117469213179,
+    "sat_frac": 0.0,
+    "max_dev_V": 0.19744370342567663,
+    "vsc_min_V": 244.71915106808981,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + TD3 + filter v2 [s11]|us06": {
+   "ib_rms_A": 72.12263156133093,
+   "sat_frac": 0.0,
+   "max_dev_V": 1.9424483001204749,
+   "vsc_min_V": 207.94540663822863,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 68.18515874548778,
+    "sat_frac": 0.0,
+    "max_dev_V": 1.572718901430676,
+    "vsc_min_V": 219.5888407762135,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + TD3 + filter v2 [s11]|wltc_high_3b": {
+   "ib_rms_A": 36.86686096584262,
+   "sat_frac": 0.0,
+   "max_dev_V": 0.18257157218084785,
+   "vsc_min_V": 258.6300534777034,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 34.942028380840966,
+    "sat_frac": 0.0,
+    "max_dev_V": 0.1800901420292007,
+    "vsc_min_V": 259.956516760377,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + TD3 + filter v2 [s22]|us06": {
+   "ib_rms_A": 76.1793237597054,
+   "sat_frac": 0.0,
+   "max_dev_V": 0.9732949182507582,
+   "vsc_min_V": 240.6572972346624,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 72.60484639386026,
+    "sat_frac": 0.0,
+    "max_dev_V": 0.9064915592455236,
+    "vsc_min_V": 250.80797901291356,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + TD3 + filter v2 [s22]|wltc_high_3b": {
+   "ib_rms_A": 40.09206162679859,
+   "sat_frac": 0.0,
+   "max_dev_V": 0.19656258908850077,
+   "vsc_min_V": 302.43777928120096,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 38.03126977875824,
+    "sat_frac": 0.0,
+    "max_dev_V": 0.18970694379623865,
+    "vsc_min_V": 302.09651353244647,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + TD3 + filter v2 [s33]|us06": {
+   "ib_rms_A": 79.86524170568408,
+   "sat_frac": 0.0,
+   "max_dev_V": 1.02749207732586,
+   "vsc_min_V": 194.23470419481262,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 75.92049795223343,
+    "sat_frac": 0.0,
+    "max_dev_V": 1.0370348358037518,
+    "vsc_min_V": 208.9143285207939,
+    "status": "ok"
+   }
+  },
+  "A-DO-SMC + TD3 + filter v2 [s33]|wltc_high_3b": {
+   "ib_rms_A": 40.51308982831973,
+   "sat_frac": 0.0,
+   "max_dev_V": 0.19548365080407848,
+   "vsc_min_V": 259.84277921907835,
+   "status": "ok",
+   "ref": {
+    "ib_rms_A": 38.28875311526163,
+    "sat_frac": 0.0,
+    "max_dev_V": 0.19531906916375874,
+    "vsc_min_V": 259.8896612692939,
+    "status": "ok"
+   }
+  }
+ }
+}

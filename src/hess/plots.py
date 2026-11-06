@@ -16,7 +16,7 @@ def style():
     plt.rcParams.update({
         "font.family": "serif", "font.serif": ["DejaVu Serif"], "mathtext.fontset": "dejavuserif",
         "font.size": 8, "axes.labelsize": 8, "axes.titlesize": 8, "legend.fontsize": 7,
-        "xtick.labelsize": 7, "ytick.labelsize": 7, "lines.linewidth": 1.0,
+        "xtick.labelsize": 7, "ytick.labelsize": 7, "lines.linewidth": 1.2,
         "axes.grid": True, "grid.alpha": 0.3, "grid.linewidth": 0.4,
         "savefig.bbox": "tight", "savefig.pad_inches": 0.02, "figure.dpi": 100,
     })

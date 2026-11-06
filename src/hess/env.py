@@ -56,6 +56,13 @@ class Episode:
         self.ilog = 0
         R = A["reward"]
         self.w = R
+        L = cfg["limits"]
+        self.vsc_lo, self.vsc_hi = float(L["vscmin"]["value"]), float(L["vscmax"]["value"])
+        self.ib_norm = float(L["Ibmax"]["value"])
+        # SC-window penalty band (defaults of the reduced-storage plant: [190, 295] V, scales 10 V / 2 V)
+        self.pen_lo = float(R.get("sc_pen_lo", 190.0)); self.pen_hi = float(R.get("sc_pen_hi", 295.0))
+        self.pen_lo_s = float(R.get("sc_pen_lo_scale", 10.0)); self.pen_hi_s = float(R.get("sc_pen_hi_scale", 2.0))
+        self.d_norm = float(R.get("dhat_norm", 7e4))
         self.reset()
 
     # --------------------------------------------------------------
@@ -108,8 +115,8 @@ class Episode:
         tr, vr, lr = A["tau_range"], A["vsc_range"], A["lam_range"]
         th = self.theta
         o = np.array([
-            e_rms / 2.0, D / 7e4, h[-10:].mean() / 7e4, h.mean() / 7e4,
-            2.0 * (self.x[3] - 150.0) / 150.0 - 1.0, self.x[1] / 80.0,
+            e_rms / 2.0, D / self.d_norm, h[-10:].mean() / self.d_norm, h.mean() / self.d_norm,
+            2.0 * (self.x[3] - self.vsc_lo) / (self.vsc_hi - self.vsc_lo) - 1.0, self.x[1] / self.ib_norm,
             2.0 * (np.log(th[0]) - np.log(tr[0])) / (np.log(tr[1]) - np.log(tr[0])) - 1.0,
             2.0 * (th[1] - vr[0]) / (vr[1] - vr[0]) - 1.0,
             2.0 * (th[2] - lr[0]) / (lr[1] - lr[0]) - 1.0,
@@ -133,11 +140,11 @@ class Episode:
         sl2 = st[5] / max(st[7], 1.0)
         sat = st[8] / n
         pen = 0.0
-        if st[9] < 190.0:
-            pen += ((190.0 - st[9]) / 10.0) ** 2
-        if st[10] > 295.0:
-            pen += ((st[10] - 295.0) / 2.0) ** 2
-        terms = np.array([w["w_v"] * e2 / w["e_ref"] ** 2, w["w_rms"] * ib2 / 80.0 ** 2,
+        if st[9] < self.pen_lo:
+            pen += ((self.pen_lo - st[9]) / self.pen_lo_s) ** 2
+        if st[10] > self.pen_hi:
+            pen += ((st[10] - self.pen_hi) / self.pen_hi_s) ** 2
+        terms = np.array([w["w_v"] * e2 / w["e_ref"] ** 2, w["w_rms"] * ib2 / self.ib_norm ** 2,
                           w["w_slew"] * sl2 / w["slew_ref"] ** 2, w["w_sat"] * sat, w["w_soc"] * pen])
         return -min(float(terms.sum()), float(w.get("clip", 1e9))), terms
 

@@ -66,16 +66,7 @@ def group_vals(res, cfg, gname, item, key):
 def tables(cfg, E):
     res = E["results"]
     items = [f"{c}x{float(s)}" for c, s in cfg["agent"]["test_set"]]
-    paper = ["paper_transientx1.0", "paper_urbanx1.0"]
-    # ---- tier-1 on the GTSD profiles
-    rows = []
-    for name in ["PI + fixed", "DO-SMC (paper) + fixed", "Robust MPC + fixed", "A-DO-SMC + fixed"]:
-        r = [name]
-        for it in paper:
-            r += [f"{cfg_seed_mean(res, name, it, 'max_dev_V'):.2f}", f"{cfg_seed_mean(res, name, it, 'rms_e_V'):.3f}"]
-        rows.append(r)
-    write_table(rows, ["Controller", "Fig.2 max|e| (V)", "Fig.2 RMS e (V)", "Fig.7 max|e| (V)", "Fig.7 RMS e (V)"],
-                os.path.join(TAB, "T2_tier1_gtsd_profiles"))
+    # tier-1 table on the Tesla Model 3 plant: scripts/make_tier1_m3.py
     # ---- test cycles: full table
     for it in items:
         rows = []
@@ -194,29 +185,7 @@ def timing(cfg):
 def figures(cfg, E):
     plots.style()
     res = E["results"]
-    # F2: tier-1 on GTSD transient
-    names = {"DO-SMC (paper) + fixed": ("DO-SMC [GTSD]", "#D55E00", "-"),
-             "A-DO-SMC + fixed": ("A-DO-SMC (proposed tier 1)", "#0072B2", "-"),
-             "Robust MPC + fixed": ("Robust MPC", "#009E73", (0, (3, 2)))}
-    fig, axs = plt.subplots(2, 2, figsize=(plots.W2, 3.4), gridspec_kw={"width_ratios": [2, 1]})
-    for nm, (lab, col, ls) in names.items():
-        stem = res[nm]["paper_transientx1.0"]["101"]["raw"]
-        d = np.load(os.path.join(RAW, stem + ".npz"))
-        for ax in (axs[0, 0], axs[0, 1]):
-            ax.plot(d["t"], d["vdc"], linestyle=ls, color=col, label=lab, lw=1.3 if nm.startswith("Robust") else 1.0)
-        if nm == "A-DO-SMC + fixed":
-            axs[1, 0].semilogy(d["t"], d["ks"], color=col, label=r"$k_s(t)$")
-            axs[1, 0].semilogy(d["t"], np.abs(d["Dtrue"] - d["Dhat"]) + 1, color="0.5", lw=0.6, label=r"$|\tilde D(t)|$")
-            axs[1, 1].plot(d["t"], d["phi"], color=col)
-    axs[0, 1].set_xlim(0.95, 1.6)
-    axs[0, 0].set_ylabel(r"$v_{dc}$ (V)")
-    axs[0, 0].legend(loc="lower center", bbox_to_anchor=(0.75, 1.02), ncol=3, frameon=False)
-    axs[1, 0].set_ylabel("V/s"); axs[1, 0].legend(loc="upper right", ncol=2)
-    axs[1, 1].set_ylabel(r"$\phi_s(t)$ (V)")
-    for ax in axs[1]:
-        ax.set_xlabel("Time (s)")
-    plots.save(fig, os.path.join(FIG, "F2_tier1_gtsd_transient"))
-
+    # F2 (tier 1 on US06, Tesla Model 3 plant): scripts/make_tier1_m3.py
     # F3: training curves (validation)
     fig, ax = plt.subplots(figsize=(plots.W1, 2.0))
     for kind, col, lab in (("filterv2", "#0072B2", "TD3 + filter v2"), ("filter", "#CC79A7", "TD3 + filter v1"),
@@ -226,8 +195,27 @@ def figures(cfg, E):
             ep = [v["episode"] for v in m["validation"]]; vr = [v["val_return_per_step"] for v in m["validation"]]
             ax.plot(ep, vr, "o-", ms=2.5, color=col, alpha=0.8,
                     label=lab if s == cfg["agent"]["train_seeds"][0] else None)
-    ax.set_xlabel("Training episode"); ax.set_ylabel("Validation return / step"); ax.legend(fontsize=6)
-    ax.set_ylim(-0.65, -0.12)   # points below the axis are reported in Table T6 / text
+            if kind == "filterv2":
+                kb = int(np.argmax(vr))
+                ax.plot(ep[kb], vr[kb], "*", ms=7, color="#0072B2", mec="k", mew=0.4,
+                        label="selected checkpoint" if s == cfg["agent"]["train_seeds"][0] else None)
+    vb = json.load(open(os.path.join(PROC, "validation_baselines.json")))
+    ms = json.load(open(os.path.join(PROC, "mpc_ems_selection.json")))
+    hp = ms["selected_horizon_s"]["persistence"]
+    for val, lab, ls in ((vb["fixed"], "fixed", ":"), (vb["rule"], "SOC rule", "--"),
+                         (ms["persistence"][hp]["mean_return_per_step"], "MPC-EMS (persistence)", "-.")):
+        ax.axhline(val, color="k", lw=0.8, ls=ls, label=lab)
+    ax.set_xlabel("Training episode"); ax.set_ylabel("Validation return / step"); ax.legend(fontsize=5.5, ncol=2)
+    lo = min(vb["fixed"], min(v["val_return_per_step"] for k in ("filterv2",) for s in cfg["agent"]["train_seeds"]
+                              for v in json.load(open(os.path.join(AG, f"td3_{k}_seed{s}.json")))["validation"]))
+    ax.set_ylim(1.15 * lo, 0.0)   # unfiltered points below the axis are reported in the text
+    off = [v["val_return_per_step"] for s in cfg["agent"]["train_seeds"]
+           for v in json.load(open(os.path.join(AG, f"td3_nofilter_seed{s}.json")))["validation"]
+           if v["val_return_per_step"] < 1.15 * lo]
+    if off:
+        ax.annotate("no filter: %d points off scale\n(%.1f to %.1f)" % (len(off), max(off), min(off)),
+                    xy=(0.5, 0.02), xycoords="axes fraction", fontsize=6, color="0.35", ha="center",
+                    xytext=(0.5, 0.14), arrowprops=dict(arrowstyle="->", color="0.35", lw=0.6))
     plots.save(fig, os.path.join(FIG, "F3_validation_curves"))
 
     # F4: US06 time series — fixed vs rule vs proposed (median-validation seed)
@@ -238,23 +226,47 @@ def figures(cfg, E):
              for s in cfg["agent"]["train_seeds"]}
     med1 = sorted(vals1, key=vals1.get)[len(vals1) // 2]
     show = {"A-DO-SMC + fixed": ("fixed", "0.4", "-"), "A-DO-SMC + rule": ("rule (SOC-adaptive)", "#E69F00", "-"),
-            f"A-DO-SMC + TD3 + filter [s{med1}]": (f"TD3 + filter v1 (seed {med1})", "#CC79A7", "--"),
+            "A-DO-SMC + MPC-EMS (persistence)": ("MPC-EMS (persistence)", "#009E73", "--"),
             f"A-DO-SMC + TD3 + filter v2 [s{med_seed}]": (f"TD3 + filter v2 (seed {med_seed})", "#0072B2", "-")}
     it = "us06x1.0"
-    fig, axs = plt.subplots(5, 1, figsize=(plots.W2, 6.2), sharex=True)
+    fig, axs = plt.subplots(5, 1, figsize=(plots.W2, 7.0), sharex=True)
     for nm, (lab, col, ls) in show.items():
         d = np.load(os.path.join(RAW, res[nm][it]["101"]["raw"] + ".npz"))
         if nm == "A-DO-SMC + fixed":
-            axs[0].plot(d["t"], d["P_L"] / 1e3, color="k", lw=0.7)
+            axs[0].plot(d["t"], d["P_L"] / 1e3, color="k", lw=1.2)
         axs[1].plot(d["t"], d["vC_sc"], ls, color=col, label=lab)
-        axs[1].plot(d["t"], d["vsc_ref"], ":", color=col, lw=0.8)
+        axs[1].plot(d["t"], d["vsc_ref"], ":", color=col, lw=1.2)
         axs[2].semilogy(d["t"], d["taub"], ls, color=col)
         axs[3].plot(d["t"], d["lam"], ls, color=col)
-        axs[4].plot(d["t"], d["iLb"], ls, color=col, lw=0.6)
+        rms = float(np.sqrt(np.mean(d["iLb"] ** 2)))
+        axs[4].plot(d["t"], d["iLb"], ls, color=col, lw=1.2, label=f"{lab.split(' (')[0]}: RMS {rms:.1f} A")
+        if nm == "A-DO-SMC + fixed":
+            kp = int(np.argmax(d["P_L"]))
+            axs[0].annotate(f"peak {d['P_L'][kp] / 1e3:.0f} kW", xy=(d["t"][kp], d["P_L"][kp] / 1e3),
+                            xytext=(d["t"][kp] + 40, d["P_L"][kp] / 1e3 - 25), fontsize=6.5,
+                            arrowprops=dict(arrowstyle="->", lw=0.8))
     axs[0].set_ylabel(r"$P_L$ (kW)"); axs[1].set_ylabel(r"$v_{sc}$, $v_{sc}^{ref}$ (V)")
-    axs[1].legend(loc="lower left", ncol=3); axs[2].set_ylabel(r"$\tau_b$ (s)"); axs[3].set_ylabel(r"$\lambda$ (1/s)")
+    axs[2].set_ylabel(r"$\tau_b$ (s)"); axs[3].set_ylabel(r"$\lambda$ (1/s)")
     axs[4].set_ylabel(r"$i_b$ (A)"); axs[4].set_xlabel("Time (s)")
-    axs[1].legend(loc="lower left", ncol=4, fontsize=6)
+    hh, ll = axs[1].get_legend_handles_labels()
+    fig.legend(hh, ll, loc="upper center", ncol=4, fontsize=6.5, frameon=False, bbox_to_anchor=(0.5, 1.0))
+    fig.subplots_adjust(top=0.95)
+    BB = dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85)
+    from hess.supervisors import SafetyFilter
+    sf = SafetyFilter(cfg, True, 2)
+    sf(np.array([0.2, cfg["supervision"]["vsc_ref"]["value"], 250.0]), np.zeros(3), cfg["plant"]["ocv_nom"]["value"])
+    A = cfg["agent"]
+    axs[1].axhline(sf.v_lo_last, color="k", lw=0.6, ls="-.")
+    axs[1].text(0.99, 0.97, f"dash-dot: filter lower bound {sf.v_lo_last:.0f} V;  red dotted: SC penalty band; dotted: references",
+                transform=axs[1].transAxes, fontsize=6, ha="right", va="top", bbox=BB)
+    axs[1].axhline(A["reward"].get("sc_pen_lo", 190.0), color="r", lw=0.5, ls=":")
+
+    for b in A["tau_range"]:
+        axs[2].axhline(b, color="k", lw=0.5, ls="-.")
+    axs[2].text(0.99, 0.5, r"dash-dot: filter bounds on $\tau_b$", transform=axs[2].transAxes, fontsize=6, ha="right", bbox=BB)
+    axs[3].axhline(cfg["control"]["lam"]["value"], color="k", lw=0.5, ls="-.")
+    axs[3].text(0.99, 0.12, r"dash-dot: nominal $\lambda$ (fixed, rule, MPC-EMS)", transform=axs[3].transAxes, fontsize=6, ha="right", bbox=BB)
+    axs[4].legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=4, fontsize=6, frameon=False)
     plots.save(fig, os.path.join(FIG, "F4_us06_supervision"))
 
     # F5: battery RMS and saturation per test item
@@ -278,6 +290,21 @@ def figures(cfg, E):
                  "wltc_extrahigh_3x1.2": "WLTC\nx-high\n×1.2", "us06x1.1": "US06\n×1.1"}
         ax.set_xticks(x); ax.set_xticklabels([short.get(i, i) for i in items], fontsize=7); ax.set_ylabel(lab)
     axs[0].set_ylim(bottom=0)
+    fixm = np.array([cfg_seed_mean(res, "A-DO-SMC + fixed", it, "ib_rms_A") for it in items])
+    v2m = np.array([group_vals(res, cfg, PROPOSED, it, "ib_rms_A") for it in items]).mean(1)
+    top = axs[0].get_ylim()[1]
+    gmax = [max(cfg_seed_mean(res, c, it, "ib_rms_A") if c not in GROUPS else group_vals(res, cfg, c, it, "ib_rms_A").max()
+                for c in cfgs) for it in items]
+    for k in range(len(items)):
+        axs[0].text(x[k], gmax[k] + 0.04 * top, f"{100 * (v2m[k] - fixm[k]) / fixm[k]:+.1f} %", ha="center", va="bottom",
+                    fontsize=6, color="#0072B2", fontweight="bold")
+    axs[0].set_ylim(0, max(gmax) + 0.16 * top)
+    axs[0].text(0.01, 0.99, "labels: TD3 + filter v2 vs fixed", transform=axs[0].transAxes, fontsize=6, va="top",
+                color="#0072B2")
+    nof = np.array([group_vals(res, cfg, "A-DO-SMC + TD3 no-filter", it, "sat_frac") for it in items]).mean(1)
+    for k in range(len(items)):
+        if nof[k] > 0:
+            axs[1].text(x[k] + (4 - 3) * w, nof[k], f"{nof[k]:.2f}", ha="center", va="bottom", fontsize=5.5, color="0.3")
     h, l = axs[0].get_legend_handles_labels()
     fig.legend(h, [t.replace("A-DO-SMC + ", "") for t in l], loc="upper center", ncol=4, fontsize=6, frameon=False)
     fig.subplots_adjust(top=0.84)

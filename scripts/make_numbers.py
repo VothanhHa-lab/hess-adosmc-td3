@@ -102,31 +102,8 @@ for item, ik in ITEMS.items():
         kv(f"{ik}:v2vs{rk}:dsat", fmt(np.mean(d_sat), 2))
         kv(f"{ik}:v2vs{rk}:wins", f"{wins}/{n}")
 
-# ---------------- GTSD reproduction (previous study)
-G = os.path.join(PROC, "gtsd_reproduction")
-nom = json.load(open(os.path.join(G, "nominal_metrics.json")))
-sw = json.load(open(os.path.join(G, "sweeps_metrics.json")))
-mc = json.load(open(os.path.join(G, "montecarlo_metrics.json")))
-mac("GtsdDevPI", fmt(nom["transient"]["PI"]["global"]["max_dev_V"], 1))
-mac("GtsdDevDOSMC", fmt(nom["transient"]["DO-SMC"]["global"]["max_dev_V"], 1))
-mac("GtsdDevMPC", fmt(nom["transient"]["Robust MPC"]["global"]["max_dev_V"], 2))
-mac("GtsdDtildeMax", fmt(sw["ks"]["120"]["global"]["Dtilde_max_Vps"], 0))
-mac("GtsdKsFiveKDev", fmt(sw["ks"]["5000"]["global"]["max_dev_V"], 2))
-mac("GtsdKsFiveKDtilde", fmt(sw["ks"]["5000"]["global"]["Dtilde_max_Vps"], 0))
-for sname, tag in (("transient", "Tr"), ("urban", "Ur")):
-    a = np.array([r["metrics"]["global"]["max_dev_V"] for r in mc[sname]["DO-SMC"]])
-    b = np.array([r["metrics"]["global"]["max_dev_V"] for r in mc[sname]["PI"]])
-    mac(f"GtsdPaired{tag}", fmt(np.mean(a - b), 2))
-    mac(f"GtsdPaired{tag}Abs", fmt(abs(np.mean(a - b)), 2))
-    mac(f"GtsdMCn{tag}", str(len(a)))
-
 # ---------------- verification
 V = json.load(open(os.path.join(ROOT, "results", "verification_agent.json")))
-c = V["adaptive_gain_satisfies_eq38_fraction_of_time"]
-mac("AssumptionHoldPct", fmt(100 * c["fraction"], 1) + r"\,\%")
-mac("MinKsRatio", fmt(c["min_ratio"], 2))
-mac("DtildeMaxAdapt", fmt(c["max_Dtilde"], 0))
-mac("KsMaxAdapt", fmt(c["max_ks"], 0))
 mac("TimestepRelPct", r"$10^{-9}$")
 mac("EnergyResidual", f"{V['energy_balance_chunk_kernel_us06_60s']['rel_residual']:.0e}".replace("e-", r"\times10^{-") + "}")
 mac("NumChecks", str(len(V)))
@@ -152,7 +129,7 @@ mac("TimeMPC", fmt(T["Robust MPC (tier-1 update, us)"], 2))
 mac("TimeADOSMC", fmt(T["A-DO-SMC (tier-1 update, us)"], 2))
 mac("TimeAgent", fmt(T["TD3 actor + safety filter (tier-2 decision, us, NumPy/Python)"], 1))
 mac("NActorParams", str(T["n_actor_parameters"]))
-g = json.load(open(os.path.join(ROOT, "data", "processed", "gtsd_reproduction", "timing.json")))
+g = json.load(open(os.path.join(ROOT, "data", "processed", "timing_controllers.json")))
 mac("TimeMPCActive", fmt(g["Robust MPC (constraints active)"]["median_us"], 2))
 
 # ---------------- training
@@ -217,20 +194,7 @@ write_test_table([("xtra:wmtc_allx1.0", "WMTC"), ("xtra:ftpmc1bx1.0", "FTP-MC1b"
                  "tab:extra")
 print("numbers.tex, tab_test.tex, tab_extra.tex written:", len(lines), "macros")
 
-# tier-1 table
-T1 = [("pi", "PI (same small-signal poles)", r"\TimePI"), ("dosmc", r"DO-SMC~\cite{ha2026gtsd}, $k_s=120$\,V/s", r"\TimeDOSMC"),
-      ("mpc", r"Robust MPC (offset-free, $N=20$)", r"\TimeMPC"), ("afix", "A-DO-SMC (proposed tier 1)", r"\TimeADOSMC")]
-L = [r"\begin{table*}[t]", r"\centering\footnotesize\setlength{\tabcolsep}{6pt}",
-     r"\caption{Tier-1 comparison on the two GTSD load profiles (fixed supervisor, mean over three noise seeds). The last column is the median time of one controller update on the simulation host.}",
-     r"\label{tab:tier1}", r"\begin{tabular}{@{}lccccc@{}}", r"\toprule",
-     r" & \multicolumn{2}{c}{Fig.~2 profile} & \multicolumn{2}{c}{Fig.~7 profile} & Update\\",
-     r"Outer loop & max$|e|$ (V) & RMS $e$ (V) & max$|e|$ (V) & RMS $e$ (V) & (\si{\micro s})\\", r"\midrule"]
-for ck, name, tm in T1:
-    L.append(f"{name} & \\R{{pt:{ck}:maxdev}} & \\R{{pt:{ck}:rmse}} & \\R{{pu:{ck}:maxdev}} & \\R{{pu:{ck}:rmse}} & {tm}\\\\")
-L += [r"\bottomrule", r"\end{tabular}", r"\end{table*}"]
-with open(os.path.join(OUT, "tab_tier1.tex"), "w") as fh:
-    fh.write("\n".join(L) + "\n")
-print("tab_tier1.tex written")
+# tier-1 table: scripts/make_tier1_m3.py (Tesla Model 3 plant)
 
 vb = json.load(open(os.path.join(PROC, "validation_baselines.json")))
 with open(os.path.join(OUT, "numbers.tex"), "a") as fh:
@@ -284,7 +248,7 @@ rows = [
     (r"\multicolumn{3}{@{}l}{\emph{Timing}}", None, None),
     (r"Controller sampling $T_s$ (= PWM period)", r"\SI{50}{\micro s} (\SI{20}{kHz})", "A"),
     (r"Computation delay", r"one sample ($d_k$ applied on $[t_{k+1},t_{k+2})$)", "A"),
-    (r"Plant integration (RK4) step", r"$T_s/5$ (cycles), $T_s/10$ (GTSD profiles)", "A"),
+    (r"Plant integration (RK4) step", r"$T_s/5$", "A"),
     (r"Supervisor period $\Delta_a$", r"\SI{0.1}{s} $=2000\,T_s$", "A"),
     (r"\multicolumn{3}{@{}l}{\emph{Inner current loops}}", None, None),
     (r"Bandwidth $\omega_{ci}$", f"{wci:.1f}" + r"\,rad/s ($2\pi\cdot800$\,Hz)", "A"),
@@ -292,7 +256,7 @@ rows = [
     (r"$K_{p,sc}=L_{sc,n}\omega_{ci}$, $K_{i,sc}=K_{p,sc}\omega_{ci}/5$", f"{p[IDX['Lsc_nom']]*wci:.3f}" + r"\,V/A, " + f"{p[IDX['Lsc_nom']]*wci*wci/kr:.0f}" + r"\,V/(A\,s)", "D"),
     (r"Duty limits", r"$0\le d\le " + f"{p[IDX['dmax']]:.2f}" + r"$", "A"),
     (r"\multicolumn{3}{@{}l}{\emph{Outer voltage loop (all variants share poles $\{-c_v,-k'\}$)}}", None, None),
-    (r"A-DO-SMC: $c_v$, $k'$, $k_{\min}$, $\beta$", f"{p[IDX['cv']]:.0f}" + r"\,s$^{-1}$, " + f"{p[IDX['ks']]/p[IDX['phi']]:.0f}" + r"\,s$^{-1}$, " + f"{p[IDX['ks']]:.0f}" + r"\,V/s, " + f"{cfg['supervision']['beta']['value']:.1f}", "P/A"),
+    (r"A-DO-SMC: $c_v$, $k'$, $k_{\min}$, $\beta$", f"{p[IDX['cv']]:.0f}" + r"\,s$^{-1}$, " + f"{p[IDX['ks']]/p[IDX['phi']]:.0f}" + r"\,s$^{-1}$, " + f"{p[IDX['ks']]:.0f}" + r"\,V/s, " + f"{cfg['supervision']['beta']['value']:.1f}", "A"),
     (r"A-DO-SMC: $\tau_f$, $\tau_{env}$", f"{cfg['supervision']['tau_f']['value']*1e3:.0f}" + r"\,ms, " + f"{cfg['supervision']['tau_env']['value']*1e3:.0f}" + r"\,ms", "A"),
     (r"PI: $K_P=C_{dc,n}(c_v+k')$, $K_I=C_{dc,n}c_vk'$", f"{p[IDX['kp_pi']]*Cn:.3f}" + r"\,A/V, " + f"{p[IDX['ki_pi']]*Cn:.1f}" + r"\,A/(V\,s)", "D"),
     (r"MPC: $N$, $Q$, $R$", f"{info['N']}" + r", diag$(" + sci(info['Q_diag'][0]) + ", " + sci(info['Q_diag'][1]) + r")$, 1", "D"),
@@ -302,7 +266,7 @@ rows = [
     (r"$k_E$, $P_{rec,\max}$", f"{cfg['supervision']['kE']['value']:.2f}" + r"\,s$^{-1}$, " + f"{cfg['supervision']['Prec_max']['value']/1e3:.0f}" + r"\,kW", "A"),
 ]
 L = [r"\begin{table*}[t]", r"\centering\footnotesize\setlength{\tabcolsep}{5pt}",
-     r"\caption{Controller structure parameters as implemented. D: derived from other parameters by the stated formula; P: from~\cite{ha2026gtsd}; A: assumed.}",
+     r"\caption{Controller structure parameters as implemented. D: derived from other parameters by the stated formula; A: assumed (design choice).}",
      r"\label{tab:ctrl}", r"\begin{tabular}{@{}p{0.42\textwidth}p{0.45\textwidth}c@{}}", r"\toprule",
      r"Quantity & Value & Src.\\", r"\midrule"]
 for a, b, c in rows:

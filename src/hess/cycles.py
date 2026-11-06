@@ -9,7 +9,8 @@ data/cycles/SOURCE_COMMIT.txt).  Traction power at the DC bus:
           = regen_frac * eta_regen * P_wheel      (P_wheel <  0)
     P_bus = clip(P_bus, -P_regen_max, P_trac_max) + P_aux
 
-All vehicle parameters are ASSUMED (configs/nominal.yaml, section `vehicle`).
+Vehicle parameters: configs/nominal.yaml, section `vehicle` (Tesla Model 3, sourced; see the
+source tags there). configs/reduced_storage.yaml keeps the reduced-storage plant of the sizing study.
 Speed is interpolated with a shape-preserving PCHIP spline so acceleration is
 continuous between 1 Hz samples.
 """
@@ -44,8 +45,14 @@ def power_table(t, v, grade, veh, dt=0.01):
     aa = sp.derivative()(tt)
     th = np.arctan(gp(tt, t, grade))
     m = V["mass"]
-    F = (m * (1 + V["rot_frac"]) * aa + 0.5 * V["rho_air"] * V["Cd"] * V["Af"] * vv ** 2
-         + m * G * V["Crr"] * np.cos(th) * (vv > 0.05) + m * G * np.sin(th))
+    if "f0" in V:
+        # measured coast-down road load F_rl = f0 + f1 v + f2 v^2 (includes rolling resistance and
+        # aerodynamic drag), inertia with a rotational-mass factor, plus grade
+        F = (m * V["rot_factor"] * aa + (V["f0"] * (vv > 0.05) + V["f1"] * vv + V["f2"] * vv ** 2)
+             + m * G * np.sin(th))
+    else:
+        F = (m * (1 + V["rot_frac"]) * aa + 0.5 * V["rho_air"] * V["Cd"] * V["Af"] * vv ** 2
+             + m * G * V["Crr"] * np.cos(th) * (vv > 0.05) + m * G * np.sin(th))
     Pw = F * vv
     Pb = np.where(Pw >= 0, Pw / V["eta_trac"], V["regen_frac"] * V["eta_regen"] * Pw)
     Pb = np.clip(Pb, -V["P_regen_max"], V["P_trac_max"]) + V["P_aux"]
@@ -57,7 +64,7 @@ def cycle_profile(name, cfg, root):
     t, v, g = load_speed(path)
     tt, P, vv = power_table(t, v, g, cfg["vehicle"])
     return {"name": name, "t0": 0.0, "dt": float(tt[1] - tt[0]), "P": P, "speed": vv,
-            "Tend": float(tt[-1]), "source": f"FASTSim cycle '{name}' + vehicle model (ASSUMED params)"}
+            "Tend": float(tt[-1]), "source": f"FASTSim cycle '{name}' + vehicle model of configs (vehicle section)"}
 
 
 def scenario_profile(scen, dt=0.001):

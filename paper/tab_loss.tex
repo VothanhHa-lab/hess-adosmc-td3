@@ -1,0 +1,17 @@
+\begin{table*}[t]
+\centering\footnotesize
+\caption{Resistive losses on the Tesla Model 3 plant (noise seed 101; battery $R_0+r_b$ / SC $R_{esr}+r_{sc}$, in Wh; TD3: mean of the three filter-v2 agents) and change of the total relative to the fixed supervisor. Switching, core and drive-unit losses are not modelled.}
+\label{tab:loss}
+\begin{tabular}{@{}lccccrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{Battery / SC loss (Wh)} & \multicolumn{3}{c}{$\Delta$ total vs fixed (\%)}\\
+Cycle & Fixed & Rule & MPC-EMS & TD3 & Rule & MPC-EMS & TD3\\
+\midrule
+US06 & 104.1 / 6.7 & 79.5 / 35.1 & 66.0 / 37.5 & 81.6 / 26.7 & +3.5 & -6.6 & -2.2\\
+WLTC high & 21.6 / 0.1 & 17.2 / 4.3 & 12.2 / 6.7 & 16.3 / 2.5 & -1.2 & -13.2 & -13.6\\
+WLTC x-high & 47.4 / 0.0 & 45.4 / 3.3 & 40.4 / 3.0 & 42.4 / 2.1 & +2.6 & -8.5 & -6.2\\
+WMTC & 143.2 / 0.6 & 118.5 / 25.5 & 98.3 / 29.1 & 115.8 / 14.3 & +0.1 & -11.5 & -9.6\\
+FTP-MC1b & 34.1 / 0.3 & 24.5 / 9.3 & 14.3 / 12.1 & 22.4 / 5.6 & -1.8 & -23.4 & -18.7\\
+\bottomrule
+\end{tabular}
+\end{table*}

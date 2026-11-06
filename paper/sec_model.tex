@@ -29,7 +29,7 @@
 \end{figure*}
 
 
-\subsection{Battery--supercapacitor HESS}
+\subsection{Battery--Supercapacitor HESS Model}
 The HESS consists of a Li-ion battery and a supercapacitor (SC), each connected to a common DC bus through a bidirectional boost converter (Fig.~\ref{fig:arch}). With the averaged converter model, the dynamics are
 \begin{align}
 L_b \dot i_b &= v_b - r_b i_b - (1-d_b)\,v_{dc},\label{eq:ib}\\
@@ -37,24 +37,24 @@ L_{sc} \dot i_{sc} &= v_{sc} - r_{sc} i_{sc} - (1-d_{sc})\,v_{dc},\label{eq:isc}
 C_{dc}\dot v_{dc} &= (1-d_b)\,i_b + (1-d_{sc})\,i_{sc} - P_L(t)/v_{dc},\label{eq:vdc}\\
 C_{sc}\dot v_C &= -i_{sc},\qquad \dot{\mathrm{SOC}}_b = -\eta_b i_b/(3600\,Q_b),\label{eq:soc}
 \end{align}
-where $v_b=\mathrm{OCV}(\mathrm{SOC}_b)-R_0 i_b$ and $v_{sc}=v_C-R_{esr}i_{sc}$ are the terminal voltages, $d_b,d_{sc}\in[0,d_{\max}]$ are duty ratios, and $P_L$ is the traction power (constant-power load, $P_L<0$ during regenerative braking). The inductor currents are limited, $|i_b|\le I_{b,\max}$ and $|i_{sc}|\le I_{sc,\max}$. Parameters (Table~\ref{tab:params}) follow~\cite{ha2026gtsd}; values not reported there are stated as assumptions.
+where $v_b=\mathrm{OCV}(\mathrm{SOC}_b)-R_0 i_b$ and $v_{sc}=v_C-R_{esr}i_{sc}$ are the terminal voltages, $d_b,d_{sc}\in[0,d_{\max}]$ are duty ratios, and $P_L$ is the traction power (constant-power load, $P_L<0$ during regenerative braking). The inductor currents are limited, $|i_b|\le I_{b,\max}$ and $|i_{sc}|\le I_{sc,\max}$. The main plant (Table~\ref{tab:params}) is built on the measured vehicle and battery data of a Tesla Model 3~\cite{rosenberger2024m3}; a second plant with smaller storage is used only for the sizing sensitivity study. Values without a source are stated as design choices or assumptions.
 
-Note that, with $v_b, v_{sc} < v_{dc}$, the averaged boost form \eqref{eq:ib}--\eqref{eq:isc} is required; the form $L\dot i = u\,v_{src}-v_{dc}-ri$ used in~\cite{ha2026gtsd} would need $u>1$ and cannot represent a duty ratio.
+Note that, with $v_b, v_{sc} < v_{dc}$, the averaged boost form \eqref{eq:ib}--\eqref{eq:isc} is required; a buck-type form $L\dot i = u\,v_{src}-v_{dc}-ri$ would need $u>1$ and cannot represent a duty ratio.
 
-\subsection{Control structure}
+\subsection{Cascaded Control Structure}
 A cascaded digital controller with sampling period $T_s=\SI{50}{\micro\second}$ and a one-sample computation delay is used. The outer loop computes the total bus-side HESS current $u=i^*_{\mathrm{HESS}}$, the allocation layer splits it into battery and SC references, and PI current loops with voltage feedforward generate the duty ratios. The complete discrete-time structure used for simulation is given in Section~\ref{sec:impl}. Writing $e=v_{dc}-v^*_{dc}$, the outer-loop design model is
 \begin{equation}
 \dot e = g\,u + D(t),\qquad g = 1/C_{dc,n},\label{eq:edyn}
 \end{equation}
 where the aggregated disturbance $D$ collects the unmeasured load current, the inner-loop tracking error and all parameter mismatch. The input $u$ is bounded by the instantaneous capability of the two sources, $u\in[u_{\min},u_{\max}]$, with $u_{\max}=(v_bI_{b,\max}+v_{sc}I_{sc,\max})/v_{dc}$ and $u_{\min}$ defined analogously.
 
-\subsection{Allocation with SC energy recovery}
+\subsection{Power Allocation with Supercapacitor Energy Recovery}
 With $P^*=v_{dc}u$, the battery share is the low-pass component plus an SC energy-recovery term,
 \begin{align}
 \tau_b\dot P_{b,f} &= P^*-P_{b,f},\label{eq:lpf}\\
 P_{rec} &= \mathrm{sat}_{P_{rec,\max}}\!\Big(k_E\,\tfrac{1}{2}C_{sc}\big(v_{sc,ref}^2-v_{sc}^2\big)\Big),\label{eq:prec}
 \end{align}
-This is followed by saturation of the battery share, assignment of the remainder to the SC within its limits, and re-assignment of any SC shortfall to the battery. Re-assignment is necessary: in the reproduction of~\cite{ha2026gtsd} the literal allocation (SC reference computed from the unsaturated battery reference) caused a bus collapse for every outer-loop controller when the battery limit became active.
+This is followed by saturation of the battery share, assignment of the remainder to the SC within its limits, and re-assignment of any SC shortfall to the battery. Re-assignment is necessary: in preliminary simulations, an allocation that computes the SC reference from the unsaturated battery reference caused a bus collapse for every outer-loop controller when the battery limit became active.
 
-\subsection{Problem statement}
+\subsection{Problem Formulation}
 The supervisory parameters $\theta=(\tau_b, v_{sc,ref}, \lambda)$, where $\lambda$ is the disturbance-observer gain introduced below, determine how transient power is shared and how much energy the SC holds in reserve. The best $\theta$ depends on the driving situation (Section~\ref{sec:results}). The problem is to adapt $\theta$ online so as to reduce battery stress and power-deficit events, while guaranteeing that the fast voltage loop keeps its stability certificate for \emph{every} admissible $\theta$ trajectory.

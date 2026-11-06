@@ -47,12 +47,13 @@ class RuleSupervisor:
         self.tmin, self.tmax = cfg["agent"]["rule_tau_range"]
         self.vref = cfg["supervision"]["vsc_ref"]["value"]
         self.lam = cfg["control"]["lam"]["value"]
+        self.vlo = cfg["limits"]["vscmin"]["value"]; self.vhi = cfg["limits"]["vscmax"]["value"]
 
     def reset(self):
         pass
 
     def decide(self, obs, info):
-        soc = (info["vsc"] - 150.0) / 150.0
+        soc = (info["vsc"] - self.vlo) / (self.vhi - self.vlo)
         w = np.clip((soc - 0.2) / 0.6, 0.0, 1.0)
         return np.array([self.tmin + w * (self.tmax - self.tmin), self.vref, self.lam]), None
 
@@ -172,6 +173,10 @@ class MPCEMSSupervisor:
         self.Csc = P["Csc"]["value"]; self.Ib = L["Ibmax"]["value"]; self.Isc = L["Iscmax"]["value"]
         self.vmin = L["vscmin"]["value"]; self.vmax = L["vscmax"]["value"]
         self.w = A["reward"]
+        R = self.w
+        self.pen_lo = float(R.get("sc_pen_lo", 190.0)); self.pen_hi = float(R.get("sc_pen_hi", 295.0))
+        self.pen_lo_s = float(R.get("sc_pen_lo_scale", 10.0)); self.pen_hi_s = float(R.get("sc_pen_hi_scale", 2.0))
+        self.deficit_ref = float(M.get("deficit_ref_W", 1000.0))
         n = int(M.get("n_grid", 5))
         g = np.linspace(-1.0, 1.0, n)
         G1, G2 = np.meshgrid(g, g, indexing="ij")
@@ -199,12 +204,12 @@ class MPCEMSSupervisor:
             deficit = np.abs(PL[j] - Pb - Psc)
             v = np.sqrt(np.maximum(v ** 2 - 2.0 * Psc * self.dt / self.Csc, 1.0))
             ib = Pb / vb
-            J += w["w_rms"] * (ib / 80.0) ** 2
+            J += w["w_rms"] * (ib / self.Ib) ** 2
             if Pb_prev is not None:
                 J += w["w_slew"] * ((ib - Pb_prev / vb) / self.dt / w["slew_ref"]) ** 2
-            J += w["w_sat"] * np.minimum(deficit / 1000.0, 1.0)
-            J += w["w_soc"] * (np.maximum(190.0 - v, 0.0) / 10.0) ** 2
-            J += w["w_soc"] * (np.maximum(v - 295.0, 0.0) / 2.0) ** 2
+            J += w["w_sat"] * np.minimum(deficit / self.deficit_ref, 1.0)
+            J += w["w_soc"] * (np.maximum(self.pen_lo - v, 0.0) / self.pen_lo_s) ** 2
+            J += w["w_soc"] * (np.maximum(v - self.pen_hi, 0.0) / self.pen_hi_s) ** 2
             Pb_prev = Pb
         return J / PL.shape[0]
 
