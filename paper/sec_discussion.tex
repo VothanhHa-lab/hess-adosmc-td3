@@ -3,46 +3,47 @@
 \paragraph{What the evidence supports}
 The tier-1 result is consistent across all test conditions.
 \begin{itemize}
-\item On both GTSD profiles and on every drive cycle, A-DO-SMC matches the observer-compensated robust MPC in bus-voltage regulation (Tables~\ref{tab:tier1}--\ref{tab:extra}). It has the update cost of the original fixed-gain DO-SMC and needs no online optimisation.
-\item The improvement over the fixed-gain DO-SMC comes from one mechanism: the reaching condition is enforced online using the observer's own error estimate. The sweep in Section~\ref{sec:repro} shows the same: a large \emph{constant} gain gives comparable regulation. The adaptive law, however, applies that gain only while the observer error is large, and the scaled boundary layer keeps the small-signal behaviour unchanged.
+\item On both GTSD profiles and on every drive cycle, A-DO-SMC matches the observer-compensated robust MPC in bus-voltage regulation (Tables~\ref{tab:tier1}--\ref{tab:extra}). It has the update cost of the original fixed-gain DO-SMC and needs no online optimization.
+\item The improvement over the fixed-gain DO-SMC comes from one mechanism: the reaching condition is enforced online using the observer's own error estimate. The sweep in Section~\ref{sec:repro} supports this: a large \emph{constant} gain gives comparable regulation. The adaptive law, however, applies a large gain only while the observer error is large, and the scaled boundary layer keeps the small-signal behaviour unchanged.
 \end{itemize}
-The supporting theory is a proof sketch (Proposition~\ref{prop:uub}) under an estimator assumption, which we checked numerically but did not prove. A full proof that covers input saturation and sampling is still open.
+The supporting theory (Proposition~\ref{prop:uub}, Appendix~\ref{app:proof}) proves boundedness under input saturation and regional ultimate bounds in continuous time, under an estimator assumption that is checked numerically but not proved. For the sampled implementation it proves the observer bound and boundedness in unsaturated operation; sharp discrete-time bounds and saturated discrete-time operation remain open.
 
 \paragraph{What the evidence does not support}
 The learned supervisor is not uniformly beneficial.
 \begin{itemize}
-\item It lowered the RMS battery current on five of the six drive cycles evaluated at rated load (WLTC high and extra-high, US06, WMTC, FTP-MC1b), by up to \R{wh:v2vsafix:dibrmsabs}\,\% against the fixed supervisor.
+\item It lowered the RMS battery current on five of the six drive cycles evaluated at rated load (WLTC high and extra-high, US06, WMTC, FTP-MC1b), by up to \R{wh:v2vsafix:dibrmsabs}\,\% relative to the fixed supervisor.
 \item On US06, the reduction came with power deficits that the fixed supervisor avoids.
 \item On the long-haul segment, the RMS battery current tripled.
+\item A non-learning MPC-EMS that optimizes the same objective over the same actions lowered the RMS battery current more than the agent on every test cycle, even with a causal persistence forecast, and without the long-haul failure.
 \item Validation performance (Fig.~\ref{fig:val}) did not predict either failure. The validation cycles contain neither sustained high-power phases nor long steady cruising.
 \end{itemize}
-A claim that the agent improves battery stress in general would therefore be wrong. The defensible claim is narrower: on cycles whose power and energy profile resembles the training cycles, the agent reduced RMS battery current more than a well-tuned SOC rule, at the cost of faster battery-current changes.
+A claim that the agent reduces battery stress in general would therefore be wrong. The defensible claim is narrower: on cycles whose power and energy profile resembles the training cycles, the agent reduced RMS battery current more than a well-tuned SOC rule, at the cost of faster battery-current changes. It did not reach the battery-current reduction of a short-horizon model-based optimizer of the same objective. Its advantage over that optimizer is limited to fewer power deficits (US06, WMTC and WLTC extra-high$\times1.2$), which coincides with a higher average SC reference (\VtwoVrefMeanMin--\VtwoVrefMeanMax\,V against \MPCVrefMeanMin--\MPCVrefMeanMax\,V).
 
 \paragraph{Why the agent fails: the action semantics were not enforced}
-The supervisory variable $v_{sc,ref}$ was designed as a slow reserve set-point. The reward, however, rewards any use of it that lowers instantaneous battery stress. The agents found that rapid switching of the reference turns the bounded recovery term into a $\pm\PrecMax$\,kW battery-power actuator. Neither the rate limit of \SI{5}{V} per decision nor the reserve bound prevents this switching, because both constrain the \emph{value} of the reference rather than its \emph{effect}, i.e.\ the net SC energy balance. We read this as a concrete instance of a general lesson for safe learning-based supervision: a safety filter must constrain the physical quantity that carries the risk (here, the SC energy and power capability over a horizon), not a proxy parameter.
+The supervisory variable $v_{sc,ref}$ was designed as a slow reserve setpoint. The reward, however, favors any use of it that lowers instantaneous battery stress. The agents found that rapid switching of the reference turns the bounded recovery term into a $\pm\PrecMax$\,kW battery-power actuator. Neither the rate limit of \SI{5}{V} per decision nor the reserve bound prevents this switching, because both constrain the \emph{value} of the reference rather than its \emph{effect}, i.e.\ the net SC energy balance. The MPC-EMS baseline fails differently but for a related reason. It parks $v_{sc,ref}$ at the filter's lower bound, because its \HorMPCP\,s prediction assigns no value to energy kept in the SC beyond the horizon. Two different optimizers of the same objective thus deplete the SC when sustained demand arrives. The root cause is the problem formulation (objective without a terminal value of stored energy, a short horizon, and a filter on a proxy variable), not the learning algorithm alone. This is a concrete instance of a general lesson for safe learning-based supervision: a safety filter must constrain the physical quantity that carries the risk (here, the SC energy and power capability over a horizon), not a proxy parameter.
 
 \paragraph{The safety filter: necessary but not sufficient}
 The filter did what it was designed to do.
 \begin{itemize}
-\item With the filter, no run left the admissible bus-voltage range. Without it, one training seed did so on three of the five test items.
+\item With the filter, no agent run left the admissible bus-voltage range. Without it, one training seed did so on three of the five test items. The filter alone did not guarantee this: preview MPC-EMS behind the same filter collapsed the bus on WLTC extra-high$\times1.2$.
 \item Filter v2 removed the deficits of v1 on WLTC extra-high$\times1.2$ and WMTC, and reduced them on US06.
 \end{itemize}
 It did not make the agent safe in the operational sense, because its reserve bound is derived from the training distribution and acts on the reference only. Three remedies follow from the diagnosis; none of them is evaluated in this paper.
 \begin{enumerate}
 \item A runtime-assurance (simplex) switch that hands control to the fixed supervisor when the SC voltage approaches $v_{pow}$ in \eqref{eq:vpow}.
 \item A filter on the \emph{net} recovery power over a moving window rather than on $v_{sc,ref}$.
-\item Training on cycles that include sustained high-power and steady-cruise phases.
+\item Training on cycles that include sustained high-power and steady-cruise phases, and an objective with a terminal value of the SC energy, which would benefit learned and model-based supervisors alike.
 \end{enumerate}
 Because the v2 filter was itself designed after seeing test failures of v1, any further iteration should be evaluated on new held-out data.
 
 \paragraph{Comparison with related work}
-Safe-RL allocation with a predictive filter~\cite{xu2025safe} protects power and energy limits through model-based look-ahead. Our simpler projection filter shows why such look-ahead matters: constraints on the next action alone did not anticipate SC depletion. Conversely, those studies do not report the stability certificate of the voltage loop, and our tier 1 provides it independently of the agent. Combining a certificate-enforcing inner loop with a predictive or runtime-assured supervisor is therefore a natural next step. The RL-tuned observer gains of~\cite{choi2024dob,luna2026} adapt the observer for performance. Here the agent's $\lambda$ choice is made harmless to stability by the adaptive switching gain, and in our runs the agents used $\lambda$ well above the nominal value (Fig.~\ref{fig:us06}).
+Safe-RL allocation with a predictive filter~\cite{xu2025safe} enforces operating constraints through model-based look-ahead. The simpler projection filter used here shows why such look-ahead matters: constraints on the next action alone did not anticipate SC depletion. Conversely, that work does not report a stability certificate for the voltage loop, whereas tier 1 provides one independently of the agent. The hierarchical controller of~\cite{jouili2026cbf} does give a Lyapunov--barrier certificate, but its agent outputs current references and its sliding-mode gains are scheduled from an estimator covariance; the certificate therefore does not have to accommodate agent-chosen observer gains. Combining a certificate-enforcing inner loop with a predictive or runtime-assured supervisor is therefore a natural next step. The RL-tuned observer gains of~\cite{choi2024dob,luna2026} adapt the observer for performance. Here, the agent's choice of $\lambda$ is made harmless to stability by the adaptive switching gain, and in the runs reported here the agents used $\lambda$ well above the nominal value (Fig.~\ref{fig:us06}).
 
 \paragraph{Limits of the evidence}
 \begin{itemize}
 \item All results are offline simulations with an averaged converter model, an equivalent-circuit battery with constant parameters, and a road-load vehicle model whose parameters are assumed.
 \item No hardware-in-the-loop or experimental validation was performed. Timing figures refer to a server CPU.
-\item Agents were trained with a small budget (72\,000 transitions per seed, three seeds); larger budgets may change the learned behaviour.
+\item Agents were trained with a small budget (72\,000 transitions per seed, three seeds); larger budgets may change the learned behavior.
 \item The GTSD load profiles were reconstructed from published figures.
-\item Battery ageing is represented only through current-based proxies (RMS, rate of change, charge throughput), not through an ageing model.
+\item Battery aging is represented only through current-based proxies (RMS, rate of change, charge throughput), not through an aging model.
 \end{itemize}

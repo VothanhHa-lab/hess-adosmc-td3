@@ -1,21 +1,21 @@
 \subsection{Tier 2: safety-filtered TD3 supervisor}\label{sec:tier2}
 
 \subsubsection{Decision process}
-Every $\Delta_a=\SI{0.1}{\second}$ the supervisor observes an 11-dimensional vector built only from signals the controller already has:
+Every $\Delta_a=\SI{0.1}{\second}$ the supervisor observes an 11-dimensional vector built only from signals that the controller already has:
 \begin{itemize}
 \item the RMS bus-voltage error over the last decision interval;
 \item $\Dh$ and its means over the last \SI{1}{\second} and \SI{5}{\second}, which act as a load proxy without a load-current sensor;
-\item the SC state of charge and the battery current;
+\item the SC SOC and the battery current;
 \item the current $\theta$;
 \item the fraction of time with input saturation;
 \item the envelope $\varepsilon$.
 \end{itemize}
-The actor outputs $a\in[-1,1]^3$, mapped to $\theta$ (logarithmically for $\tau_b$). The reward penalises battery stress, bus-voltage error, saturation (power deficit) and SC-voltage excursions:
+The actor outputs $a\in[-1,1]^3$, mapped to $\theta$ (logarithmically for $\tau_b$). The reward penalizes battery stress, bus-voltage error, saturation (power deficit), and SC-voltage excursions:
 \begin{multline}
 r=-\min\!\Big(w_v\tfrac{\overline{e^2}}{e_{\rm ref}^2}+w_b\tfrac{\overline{i_b^2}}{I_{b,\max}^2}+w_s\tfrac{\overline{(\Delta i_b/\Delta t)^2}}{\dot\imath_{\rm ref}^2}\\
 +w_{sat}\,\sigma+w_{sc}\,\Pi_{sc},\ r_{\max}\Big),\label{eq:reward}
 \end{multline}
-where overbars are averages over the decision interval, $\Delta i_b/\Delta t$ is computed from \SI{1}{\milli\second} block means, $\sigma$ is the saturated fraction and $\Pi_{sc}$ a quadratic penalty outside $[190,295]$\,V. Weights are listed in Table~\ref{tab:params}. The policy is trained with TD3~\cite{fujimoto2018td3}: twin critics, target-policy smoothing and delayed actor updates, with $2\times64$ ReLU networks. The implementation uses NumPy with manually derived gradients, which are checked against finite differences.
+where overbars are averages over the decision interval, $\Delta i_b/\Delta t$ is computed from \SI{1}{\milli\second} block means, $\sigma$ is the saturated fraction, and $\Pi_{sc}$ is a quadratic penalty outside $[190,295]$\,V. Weights are listed in Table~\ref{tab:params}. The policy is trained with TD3~\cite{fujimoto2018td3}: twin critics, target-policy smoothing, and delayed actor updates, using $2\times64$ ReLU networks. The implementation uses NumPy with manually derived gradients, which were checked against finite differences.
 
 \subsubsection{Safety filter}
 Before it is applied, every action passes through the projection
@@ -24,7 +24,7 @@ Before it is applied, every action passes through the projection
 \end{equation}
 which enforces three sets of constraints.
 \begin{enumerate}
-\item \emph{Box constraints:} $\tau_b\in[0.05,5]$\,s, $v_{sc,ref}\in[200,290]$\,V and $\lambda\in[100,800]$\,s$^{-1}$, so that $\lambda T_s\le0.04$ keeps the discretised observer well inside its stability region.
+\item \emph{Box constraints:} $\tau_b\in[0.05,5]$\,s, $v_{sc,ref}\in[200,290]$\,V and $\lambda\in[100,800]$\,s$^{-1}$, so that $\lambda T_s\le0.04$ keeps the discretized observer well inside its stability region.
 \item \emph{Rate limits:} $|\Delta\ln\tau_b|\le0.2$, $|\Delta v_{sc,ref}|\le\SI{5}{\volt}$ and $|\Delta\lambda|\le\SI{50}{\per\second}$ per decision. These keep the parameters slowly varying, as required by the piecewise argument of Proposition~\ref{prop:uub}.
 \item \emph{Reserve bounds on $v_{sc,ref}$,} described next.
 \end{enumerate}
@@ -41,8 +41,8 @@ v_{sc,ref}\ \ge\ \underline v_{sc}=\sqrt{v_{pow}^2+2E_{res}/C_{sc}}.\label{eq:vl
 Here $E_{res}=\max\int(P_L-P_{b,\max})^+\,dt$ over contiguous intervals of the \emph{training} cycles. Its value is $E_{res}=\EresKJ$\,kJ, which gives $\underline v_{sc}\approx\VloVtwo$\,V. Every quantity in \eqref{eq:vlo} is either a rating or a training-set statistic.
 
 \paragraph{Design history}
-A first filter (v1) used only an energy reserve of \SI{2}{\second} at the battery-limited deficit, $\underline v_{sc}=\sqrt{v_{sc,\min}^2+2\cdot 2\,(P_{trac,\max}-P_{b,\max})/C_{sc}}\approx\VloVone$\,V. This bound lies below the \SI{200}{V} box limit and was therefore never active. On the held-out test cycles, the v1 agents lowered the SC reserve and caused power deficits that the fixed supervisor did not have (Section~\ref{sec:results}). Filter v2 was derived \emph{after} this observation. Its agents were retrained from scratch with the same seeds and hyper-parameters. Because the v2 design was motivated by test results, we report v1 as an ablation and evaluate all agents on three further cycles that played no role in any design decision.
-The tier-1 certificate does not depend on the filter, because \eqref{eq:ks} adapts $k_s$ to whatever $\lambda$ is applied. The filter keeps the \emph{operating assumptions} of the certificate valid, namely slow variation and the bounds on $\lambda$. It also keeps the energy states in a region where the power references remain feasible. This division of responsibility differs from safety filters that act only on the power split~\cite{xu2025safe,wabersich2021psf}. The filter is a projection onto a fixed set (a box with rate limits). Unlike a predictive safety filter~\cite{wabersich2021psf}, it needs no model rollout. Its cost is evaluated in Section~\ref{sec:results}.
+A first filter (v1) used only an energy reserve of \SI{2}{\second} at the battery-limited deficit, $\underline v_{sc}=\sqrt{v_{sc,\min}^2+2\cdot 2\,(P_{trac,\max}-P_{b,\max})/C_{sc}}\approx\VloVone$\,V. This bound lies below the \SI{200}{V} box limit and was therefore never active. On the held-out test cycles, the v1 agents lowered the SC reserve and caused power deficits that the fixed supervisor did not have (Section~\ref{sec:results}). Filter v2 was derived \emph{after} this observation. Its agents were retrained from scratch with the same seeds and hyperparameters. Because the v2 design was motivated by test results, we report v1 as an ablation and evaluate all agents on three further cycles that played no role in any design decision.
+The tier-1 certificate does not depend on the filter, because \eqref{eq:ks} adapts $k_s$ to whatever $\lambda$ is applied. The filter keeps the \emph{operating assumptions} of the certificate valid, namely slow variation and the bounds on $\lambda$. It also keeps the energy states in a region where the power references remain feasible. This division of responsibility differs from safety filters that act only on the power split~\cite{xu2025safe,wabersich2021psf}. The filter is a projection onto a fixed set (a box with rate limits). Unlike a predictive safety filter~\cite{wabersich2021psf}, it needs no model rollout. Its computational cost is reported in Section~\ref{sec:res_cost}.
 
 \subsubsection{Training protocol}
-Training uses random \SI{30}{\second} windows of four cycles (UDDS, HWFET, NREL13, a TSDC trip) with randomised initial SC voltage (210--285\,V), battery SOC (0.5--0.9) and load scale (0.9--1.4). Each agent is trained for 240 episodes (72\,000 transitions). The checkpoint is selected \emph{only} on the validation set (WLTC low; WLTC medium at $\times1.0$ and $\times1.6$). Three training seeds (11, 22, 33) are run for each variant: filter v2 (proposed), filter v1 and no filter. The \emph{no-filter} ablation uses the same reward and network, a wider action box ($\tau_b\in[0.01,20]$\,s, $v_{sc,ref}\in[160,299]$\,V, $\lambda\in[20,2000]$\,s$^{-1}$), and no rate or reserve constraints.
+Training uses random \SI{30}{\second} windows of four cycles (UDDS, HWFET, NREL13, a TSDC trip) with randomized initial SC voltage (210--285\,V), battery SOC (0.5--0.9), and load scale (0.9--1.4). Each agent is trained for 240 episodes (72\,000 transitions). The checkpoint is selected \emph{only} on the validation set (WLTC low; WLTC medium at $\times1.0$ and $\times1.6$). Three training seeds (11, 22, 33) are run for each variant: filter v2 (proposed), filter v1, and no filter. The \emph{no-filter} ablation uses the same reward and network, a wider action box ($\tau_b\in[0.01,20]$\,s, $v_{sc,ref}\in[160,299]$\,V, $\lambda\in[20,2000]$\,s$^{-1}$), and no rate or reserve constraints.

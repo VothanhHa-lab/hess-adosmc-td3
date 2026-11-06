@@ -9,9 +9,9 @@ gives $\dot{\Dh} = \lambda(D-\Dh) = \lambda\Dt$ and $\dot{\Dt}=\dot D-\lambda\Dt
 \begin{equation}
 |\Dt(t)|\le |\Dt(t_0)|e^{-\lambda(t-t_0)}+\rho_D/\lambda.\label{eq:ndobound}
 \end{equation}
-When the supervisor changes $\lambda$ from $\lambda^-$ to $\lambda^+$, the auxiliary state is re-initialised as $z^+=\Dh^- - \lambda^+e$. This keeps $\Dh$, and therefore $\Dt$, continuous, so \eqref{eq:ndobound} holds piecewise with $\lambda\ge\lambda_{\min}$.
+When the supervisor changes $\lambda$ from $\lambda^-$ to $\lambda^+$, the auxiliary state is re-initialized as $z^+=\Dh^- - \lambda^+e$. This keeps $\Dh$, and therefore $\Dt$, continuous, so \eqref{eq:ndobound} holds piecewise with $\lambda\ge\lambda_{\min}$.
 
-The identity $\dot{\Dh}=\lambda\Dt$ is the key observation used here: \emph{the observer reveals its own estimation error.} We form the estimate
+The identity $\dot{\Dh}=\lambda\Dt$ is the key observation: \emph{the observer reveals its own estimation error.} We form the estimate
 \begin{align}
 \hat\varepsilon(t)&=\frac{1}{\lambda}\Big|\mathcal{F}_{\tau_f}\big[\dot{\Dh}\big](t)\Big|,\nonumber\\
 \varepsilon(t)&=\max\big(\hat\varepsilon(t),\ \varepsilon(t^-)e^{-T_s/\tau_{env}}\big),\label{eq:env}
@@ -28,19 +28,33 @@ k_s(t) &= k_{\min}+\beta\,\varepsilon(t),\qquad \phi_s(t)=k_s(t)/k',\label{eq:ks
 \end{align}
 with $\beta>1$ and a constant boundary-layer slope $k'$. Two properties follow directly.
 
-\noindent(i) \emph{Fixed small-signal dynamics.} Inside the boundary layer, $k_s\,\mathrm{sat}(s/\phi_s)=k's$ does not depend on $k_s(t)$. The linearised closed loop therefore keeps the poles $\{-c_v,-k'\}$ for any gain trajectory, so the adaptation cannot destabilise the small-signal behaviour.
+\noindent(i) \emph{Fixed small-signal dynamics.} Inside the boundary layer, $k_s\,\mathrm{sat}(s/\phi_s)=k's$ does not depend on $k_s(t)$. The linearized closed loop therefore keeps the poles $\{-c_v,-k'\}$ for any gain trajectory, so the adaptation cannot destabilize the small-signal behavior.
 
 \noindent(ii) \emph{Online enforcement of the reaching condition.} The sufficient condition $k_s>|\Dt|_{\max}$ of~\cite{ha2026gtsd} (its Eq.~(38)) is replaced by $k_s(t)\ge\beta\varepsilon(t)+k_{\min}$, which tracks the actual estimation error. The conditional integrator~\eqref{eq:condint} removes the windup observed with a fixed small $k_s$.
 
 \begin{assumption}\label{as:est}
-There is $\delta\ge 0$ with $|\Dt(t)|\le\beta\varepsilon(t)+\delta$ for all $t\ge t_0$, and $k_{\min}>\delta$.
+There is $\delta$ with $0\le\delta<k_{\min}$ such that $|\Dt(t)|\le\tilde\beta\,\varepsilon(t)+\delta$ for all $t\ge t_0$, where $\tilde\beta:=\beta\big(1-1/(k'\tau_{env})\big)$ ($=1.375$ for $\beta=1.5$, $k'=\SI{240}{s^{-1}}$, $\tau_{env}=\SI{50}{ms}$).
 \end{assumption}
 
+The gain $\beta$ of the envelope is thus discounted to the slightly smaller $\tilde\beta$. The reason is that the layer half-width $\phi_s=k_s/k'$ shrinks when $\varepsilon$ decays, and the reaching margin $k_s-|\Dt|$ has to be larger than this shrinking rate (Lemma~\ref{lem:layer} in Appendix~\ref{app:proof}).
+
 \begin{proposition}\label{prop:uub}
-Let Assumption~\ref{as:est} hold, the input be unsaturated, and $\lambda(t)\ge\lambda_{\min}$ be piecewise constant with bumpless switching. Then $s$ reaches the set $|s|\le\bar\phi$ in finite time, where $\bar\phi=\sup_t\max(\phi_s(t),\,\sup|\Dt|/k')$, and remains there. Consequently, $e$ and $\xi$ are uniformly ultimately bounded.
+Consider the design model \eqref{eq:edyn} with the applied command \eqref{eq:law}--\eqref{eq:condint}, in continuous time and without measurement noise. Let (H1) $|\dot D|\le\rho_D$; (H2) $\lambda(t)\in[\lambda_{\min},\lambda_{\max}]$ be piecewise constant with bumpless switching and zero initial filter and envelope states; and (H3) the load lie inside the source capability with margin $m>0$, i.e.\ $gu_{\min}+m\le-D\le gu_{\max}-m$. Put $D_\infty=\rho_D/\lambda_{\min}$, $\bar D=\max(|\Dt(t_0)|,D_\infty)$, $\bar k_s=k_{\min}+\beta\frac{\lambda_{\max}}{\lambda_{\min}}\bar D$ and $E=\max\{|e(t_0)|,(\bar D+\bar k_s)/c_v\}$. Then:
+\begin{enumerate}
+\item[(i)] \emph{Observer.} $\Dt$ is continuous and \eqref{eq:ndobound} holds with $\lambda_{\min}$ and $\rho_D$.
+\item[(ii)] \emph{Saturation allowed.} $|e(t)|\le E$ for all $t$, $\limsup|e|\le\big(D_\infty+k_{\min}+\beta\tfrac{\lambda_{\max}}{\lambda_{\min}}D_\infty\big)/c_v$, and $\xi$ and $s$ stay bounded, $|\xi|\le\max\{|\xi(t_0)|,(\bar k_s/k'+E)/c_v\}$ (anti-windup).
+\item[(iii)] \emph{Regional sharp bounds.} Let in addition Assumption~\ref{as:est} hold, $m>\bar D+c_vE+\bar k_s$, and $|s(t_0)|<\phi_s(t_0)$ (e.g.\ $e(t_0)=\xi(t_0)=0$). Then the input is never saturated, $|s(t)|<\phi_s(t)\le\bar k_s/k'$ for all $t$, and
+\begin{gather*}
+\limsup|s|\le\frac{D_\infty}{k'},\qquad \limsup|e|\le\kappa D_\infty,\\
+\limsup|\xi|\le\frac{D_\infty}{c_v}\Big(\frac1{k'}+\kappa\Big),
+\end{gather*}
+with $\kappa=\frac{2}{k'}(c_v/k')^{c_v/(k'-c_v)}\le 2/k'$ ($k'>c_v$); for $c_v=100$, $k'=\SI{240}{s^{-1}}$, $\kappa=\SI{4.46}{ms}$. If instead $|s(t_0)|>\phi_s(t_0)$ and $\operatorname{sgn}(s(t_0))\,c_v\xi(t_0)<k_{\min}/k'+(k_{\min}-\delta)/c_v$, the layer is reached in finite time and the same bounds follow.
+\end{enumerate}
 \end{proposition}
-\begin{proof}[Proof sketch]
-From \eqref{eq:edyn}, \eqref{eq:law}, $\dot s=-k_s\,\mathrm{sat}(s/\phi_s)+\Dt$. With $V=\tfrac12 s^2$ and $|s|>\phi_s$: $\dot V\le-(k_s-|\Dt|)|s|\le-(k_{\min}-\delta)|s|<0$, which gives finite-time reaching of the boundary layer. Inside the layer, $\dot s=-k's+\Dt$ is a stable first-order system driven by the bounded input $\Dt$ from \eqref{eq:ndobound}, so $|s|$ is ultimately bounded by $\sup|\Dt|/k'$. On $|s|\le\bar\phi$ the conditional integrator is active, so $\dot s=\dot e+c_v e$, i.e.\ $\dot e=-c_v e+\dot s$. This is input-to-state stable with respect to $\dot s=-k's+\Dt$, which is bounded. Hence $e$ is uniformly ultimately bounded, and so is $\xi=(s-e)/c_v$. A complete proof that also treats input saturation and the discretisation is left as an open item.
+\begin{proof}[Proof outline]
+The full proof is in Appendix~\ref{app:proof}. (i) From \eqref{eq:ndo}, $\dot\Dh=\lambda\Dt$ also for the saturated command, and bumpless switching keeps $\Dt$ continuous. (ii) Saturation acts on $\dot e=\Dt-c_ve-k_s\,\mathrm{sat}(s/\phi_s)$ as a sector $[0,1]$ nonlinearity, which preserves its sign when (H3) holds, so $|e|$ cannot leave the ball set by $(|\Dt|+k_s)/c_v$. The integrator runs only for $|s|\le\phi_s$, where $c_v\xi=s-e$ is bounded. (iii) Under (H3) with the stated margin the command stays inside its limits. Inside the layer $\dot s=\Dt-k's$ and $\dot e=-c_ve+\dot s$ are linear and independent of $k_s$; Assumption~\ref{as:est} makes the layer positively invariant although it moves. The bounds follow from the $L^1$ norm of the kernel of $p/((p+c_v)(p+k'))$.
 \end{proof}
 
-Assumption~\ref{as:est} is an assumption about the estimator and is \emph{checked numerically}. In the GTSD transient scenario, $k_s(t)\ge|\Dt(t)|$ holds during \AssumptionHoldPct\ of the time (Section~\ref{sec:results}).
+\emph{What is not covered.} Three limits are stated explicitly in Appendix~\ref{app:proof}. First, if the capability condition (H3) fails (a power deficit), no controller can hold the bus voltage and the proposition makes no claim. Second, finite-time reaching of the layer holds only in the regional form of (iii): with a frozen integrator, a state far outside the layer can remain outside. Third, for the sampled implementation (one-sample delay, Euler observer) the appendix proves the discrete observer bound and the boundedness of $e$ and $\xi$ for unsaturated operation under an explicit condition ($\lambda_{\max}T_s\le0.04$, $c_vT_s=0.005$). The sharp bounds in discrete time and saturated discrete-time operation are not proven. For the linearized in-layer loop with the delay, the spectral radius is at most $0.9952$ for $\lambda\in[100,800]$\,s$^{-1}$ (numerical check).
+
+Assumption~\ref{as:est} concerns the estimator and is \emph{checked numerically}. In the GTSD transient scenario, $k_s(t)\ge|\Dt(t)|$ holds during \AssumptionHoldPct\ of the time with a minimum ratio of \MinKsRatio\ (Section~\ref{sec:results}). A ratio $k_s\ge r|\Dt|$ with $r\ge12/11$ implies Assumption~\ref{as:est} with $\delta=k_{\min}/r$, so the verified ratio covers it in that scenario (noise-free run, $t>0.2$\,s).

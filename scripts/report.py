@@ -262,7 +262,7 @@ def figures(cfg, E):
     cfgs = ["A-DO-SMC + fixed", "A-DO-SMC + rule", "A-DO-SMC + MPC-EMS (persistence)", "A-DO-SMC + MPC-EMS (preview)",
             "A-DO-SMC + TD3 no-filter", "A-DO-SMC + TD3 + filter v1", PROPOSED]
     cols = ["0.5", "#E69F00", "#009E73", "#56B4E9", "#999999", "#CC79A7", "#0072B2"]
-    fig, axs = plt.subplots(1, 2, figsize=(plots.W2, 2.5))
+    fig, axs = plt.subplots(1, 2, figsize=(plots.W2, 2.9))
     x = np.arange(len(items)); w = 0.12
     for j, (c, col) in enumerate(zip(cfgs, cols)):
         for ax, key in zip(axs, ("ib_rms_A", "sat_frac")):
@@ -274,11 +274,13 @@ def figures(cfg, E):
                 m = np.array([cfg_seed_mean(res, c, it, key) for it in items])
                 ax.bar(x + (j - 3) * w, m, w, color=col, label=c)
     for ax, lab in zip(axs, ("RMS battery current (A)", "Saturated time (%)")):
-        short = {"us06x1.0": "US06", "wltc_high_3bx1.0": "WLTC-H", "wltc_extrahigh_3x1.0": "WLTC-XH",
-                 "wltc_extrahigh_3x1.2": "WLTC-XH\n×1.2", "us06x1.1": "US06\n×1.1"}
+        short = {"us06x1.0": "US06", "wltc_high_3bx1.0": "WLTC\nhigh", "wltc_extrahigh_3x1.0": "WLTC\nx-high",
+                 "wltc_extrahigh_3x1.2": "WLTC\nx-high\n×1.2", "us06x1.1": "US06\n×1.1"}
         ax.set_xticks(x); ax.set_xticklabels([short.get(i, i) for i in items], fontsize=7); ax.set_ylabel(lab)
     axs[0].set_ylim(bottom=0)
-    axs[1].legend(fontsize=5.5, loc="upper left")
+    h, l = axs[0].get_legend_handles_labels()
+    fig.legend(h, [t.replace("A-DO-SMC + ", "") for t in l], loc="upper center", ncol=4, fontsize=6, frameon=False)
+    fig.subplots_adjust(top=0.84)
     plots.save(fig, os.path.join(FIG, "F5_test_battery_rms_saturation"))
     return med_seed
 

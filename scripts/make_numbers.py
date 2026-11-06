@@ -64,6 +64,8 @@ for item, ik in ITEMS.items():
         if item in E.get(name, {}):
             for mk, (key, sc, nd) in MET.items():
                 kv(f"{ik}:{ck}:{mk}", fmt(seedmean(name, item, key, sc), nd))
+            kv(f"{ik}:{ck}:fails", str(nfail(name, item)))
+            kv(f"{ik}:{ck}:runs", str(len(E[name][item])))
     for gk, pat in GROUPS.items():
         names = [pat.format(s) for s in SEEDS]
         if all(item in E.get(n, {}) for n in names):
@@ -196,7 +198,7 @@ def write_test_table(items, fname, caption, label):
             if not any(f"r@{ik}:{ck}:" in x for x in lines):
                 continue
             row = [(lab if first else ""), name] + [cell(ik, ck, mk, grp) for mk, _ in COLS]
-            row.append(r"\R{%s:%s:fails}/\R{%s:%s:runs}" % (ik, ck, ik, ck) if grp else "0")
+            row.append(r"\R{%s:%s:fails}/\R{%s:%s:runs}" % (ik, ck, ik, ck))
             L.append(" & ".join(row) + r"\\")
             first = False
         L.append(r"\midrule")
@@ -207,11 +209,11 @@ def write_test_table(items, fname, caption, label):
 
 
 write_test_table(TEST_ITEMS, "tab_test.tex",
-                 r"Held-out test cycles. Tier~1 is A-DO-SMC in every row. Learned supervisors: mean $\pm$ standard deviation over three training seeds, each value averaged over three noise seeds. Non-learning supervisors: mean over the same three noise seeds. All indices are computed from true plant signals.",
+                 r"Held-out test cycles. Tier~1 is A-DO-SMC in every row. Learned supervisors: mean $\pm$ standard deviation over three training seeds, each value averaged over three noise seeds. Non-learning supervisors: mean over the same three noise seeds. $^\dagger$Non-causal: uses the true future load. A failed run (bus out of range) is truncated at the failure and included in the means. All indices are computed from true plant signals.",
                  "tab:test")
 write_test_table([("xtra:wmtc_allx1.0", "WMTC"), ("xtra:ftpmc1bx1.0", "FTP-MC1b"),
                   ("xtra:longHaulDriveCyclex1.0", r"Long-haul (first 1200\,s)")], "tab_extra.tex",
-                 r"Additional held-out cycles, evaluated only after filter v2 was fixed (one noise seed; learned supervisors: mean $\pm$ standard deviation over three training seeds).",
+                 r"Additional held-out cycles, evaluated only after filter v2 was fixed (one noise seed; learned supervisors: mean $\pm$ standard deviation over three training seeds; $^\dagger$non-causal load preview).",
                  "tab:extra")
 print("numbers.tex, tab_test.tex, tab_extra.tex written:", len(lines), "macros")
 
@@ -236,7 +238,8 @@ with open(os.path.join(OUT, "numbers.tex"), "a") as fh:
 
 # mechanism diagnostics (scripts/report step 'mechanism' -> data/processed/mechanism_diagnostics.json)
 M = json.load(open(os.path.join(PROC, "mechanism_diagnostics.json")))
-v2keys = [k for k in M if "filter_v2" in k]
+v2keys = [k for k in M if "filter_v2" in k and "x1.2" not in k]
+mpckeys = [k for k in M if "MPC-EMS" in k and "x1.2" not in k and not k.startswith("paper")]
 fc = [M[k]["frac_cap"] for k in v2keys]
 fx = {k: M[k] for k in M if "fixed" in k}
 us_v2 = [M[k]["Prec_mean_W"] for k in v2keys if k.startswith("us06_x1.0")]
@@ -248,6 +251,12 @@ with open(os.path.join(OUT, "numbers.tex"), "a") as fh:
     fh.write("\\newcommand{\\PrecUSfixed}{%.1f}\n" % (M["us06_x1.0_A-DO-SMC__fixed"]["Prec_mean_W"] / 1e3))
     fh.write("\\newcommand{\\PrecWHfixedAbs}{%.1f}\n" % (M["wltc_high_3b_x1.0_A-DO-SMC__fixed"]["Prec_absmean_W"] / 1e3))
     fh.write("\\newcommand{\\PrecLHfixedAbs}{%.3f}\n" % (M["xtra_longHaulDriveCycle_x1.0_A-DO-SMC__fixed"]["Prec_absmean_W"] / 1e3))
+    fh.write("\\newcommand{\\MPCVrefMeanMin}{%.0f}\n\\newcommand{\\MPCVrefMeanMax}{%.0f}\n" % (
+        min(M[k]["vsc_ref_mean"] for k in mpckeys), max(M[k]["vsc_ref_mean"] for k in mpckeys)))
+    fh.write("\\newcommand{\\MPCVrefStdMin}{%.1f}\n\\newcommand{\\MPCVrefStdMax}{%.1f}\n" % (
+        min(M[k]["vsc_ref_std"] for k in mpckeys), max(M[k]["vsc_ref_std"] for k in mpckeys)))
+    fh.write("\\newcommand{\\VtwoVrefMeanMin}{%.0f}\n\\newcommand{\\VtwoVrefMeanMax}{%.0f}\n" % (
+        min(M[k]["vsc_ref_mean"] for k in v2keys), max(M[k]["vsc_ref_mean"] for k in v2keys)))
     fh.write("\\newcommand{\\PrecMax}{%.0f}\n" % (cfg["supervision"]["Prec_max"]["value"] / 1e3))
 
 # share of decisions in which the filter modified the v_sc,ref component (v2, main test items)

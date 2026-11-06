@@ -1,0 +1,161 @@
+\section{Proof of Proposition~\ref{prop:uub}}\label{app:proof}
+
+\ifcsname lemma\endcsname\else\newtheorem{lemma}{Lemma}\fi
+\ifcsname remark\endcsname\else\newtheorem{remark}{Remark}\fi
+\ifcsname proposition\endcsname\else\newtheorem{proposition}{Proposition}\fi
+
+This appendix proves Proposition~\ref{prop:uub} in continuous time with input saturation (Sections~\ref{ap:setting}--\ref{ap:proof}), states what the proof does not cover (Section~\ref{ap:limits}), and treats the sampled-data implementation (Section~\ref{ap:disc}). Every step that is proven is labeled as such. Everything that is only assumed or only checked numerically is labeled as such.
+
+\subsection{Setting and constants}\label{ap:setting}
+Throughout, $g=1/C_{dc,n}$ and the design model is \eqref{eq:edyn} with $u$ the \emph{applied} (saturated) command of \eqref{eq:law}. The lumped disturbance $D$ is \emph{defined} by $D:=\dot e-gu$, so that $D$ contains the inner-loop error, the parameter mismatch and the allocation residual. We use the following standing hypotheses.
+\begin{itemize}
+\item[(H1)] $D$ is Lipschitz with $|\dot D|\le\rho_D$ along the closed-loop trajectory. This is the standing assumption on $D$ of~\cite{ha2026gtsd}. It is \emph{assumed}: because $D$ contains the inner-loop error, it is not exogenous, and a small-gain argument closing this loop is not given here.
+\item[(H2)] $\lambda(t)\in[\lambda_{\min},\lambda_{\max}]$ is piecewise constant, with bumpless switching $z^+=\Dh^--\lambda^+e$. The filter state and the envelope start at zero, $\eta(t_0)=0$, $\varepsilon(t_0)=0$. Measurement noise is not modeled.
+\item[(H3)] \emph{Capability margin.} There is $m>0$ with
+\begin{equation}
+g\,u_{\min}(t)+m\ \le\ -D(t)\ \le\ g\,u_{\max}(t)-m\quad\forall t.\label{ap:cap}
+\end{equation}
+This says that the load that must be compensated lies inside the source capability with margin $m$ (in V/s; $mC_{dc,n}$ in amperes).
+\end{itemize}
+Define $\Lambda=\lambda_{\max}/\lambda_{\min}$, $D_\infty=\rho_D/\lambda_{\min}$, $\bar D=\max(|\Dt(t_0)|,D_\infty)$, $\bar k_s=k_{\min}+\beta\Lambda\bar D$, $\bar\phi=\bar k_s/k'$, $W=\bar D+\bar k_s$, $E=\max(|e(t_0)|,W/c_v)$, and $\phi_{\min}=k_{\min}/k'$. We write $\mathrm{sat}$ for the unit saturation and $\mathrm{clip}(x;a,b)=\min(\max(x,a),b)$.
+
+\subsection{Lemmas}\label{ap:lemmas}
+
+\begin{lemma}[Observer error, envelope and gain]\label{lem:ndo}
+Under (H1)--(H2), irrespective of saturation: (a) $\dot\Dh=\lambda\Dt$ and $\Dt$ is continuous; (b) $|\Dt(t)|\le|\Dt(t_0)|e^{-\lambda_{\min}(t-t_0)}+D_\infty$ and $|\Dt(t)|\le\bar D$; (c) $\varepsilon(t)\le\Lambda\bar D$, hence $k_{\min}\le k_s(t)\le\bar k_s$, and $\limsup\varepsilon\le\Lambda D_\infty$; (d) $\varepsilon$ is continuous except for upward jumps at switching instants of $\lambda$, and $\varepsilon(t')\ge\varepsilon(t)e^{-(t'-t)/\tau_{env}}$ for $t'>t$. Consequently $\dot k_s\ge-(k_s-k_{\min})/\tau_{env}$ almost everywhere.
+\end{lemma}
+\begin{proof}
+(a) From \eqref{eq:ndo}, $\dot\Dh=\dot z+\lambda\dot e=-\lambda z-\lambda gu-\lambda^2e+\lambda(gu+D)=\lambda(D-\Dh)$. The command $u$ enters $\dot z$ and $\dot e$ identically. This holds for the applied $u$ also when it is saturated (the code feeds the clipped command $u$ to the observer update in \texttt{kernel\_sup.py}), so saturation does not enter $\dot\Dt$. At a switch, $z^+=\Dh^--\lambda^+e$ gives $\Dh^+=\Dh^-$ with $e$ continuous, so $\Dh$ and $\Dt=D-\Dh$ are continuous.
+
+(b) Almost everywhere $\dot\Dt=\dot D-\lambda(t)\Dt$, so $\tfrac{d}{dt}\tfrac12\Dt^2\le|\Dt|(\rho_D-\lambda_{\min}|\Dt|)$. The scalar comparison lemma gives the first bound, and the set $|\Dt|\le\max(|\Dt(t_0)|,D_\infty)$ is invariant.
+
+(c) Let $\eta$ be the filter state, $\tau_f\dot\eta=\dot\Dh-\eta$, $\eta(t_0)=0$. Then $\eta(t)=\int_{t_0}^t\tau_f^{-1}e^{-(t-\tau)/\tau_f}\lambda(\tau)\Dt(\tau)\,d\tau$, so $|\eta|\le\lambda_{\max}\bar D$ and $\hat\varepsilon=|\eta|/\lambda(t)\le\Lambda\bar D$. The envelope is $\varepsilon(t)=\sup_{\tau\le t}\hat\varepsilon(\tau)e^{-(t-\tau)/\tau_{env}}\le\Lambda\bar D$. For the $\limsup$, insert the bound (b) in the convolution. The transient part decays and the rest is at most $\lambda_{\max}D_\infty$.
+
+(d) $\hat\varepsilon$ is continuous except at switches. There $\hat\varepsilon$ is multiplied by $\lambda^-/\lambda^+$, and the max in \eqref{eq:env} turns any downward jump into a continuous decay. The last statement follows from $k_s-k_{\min}=\beta\varepsilon$.
+\end{proof}
+
+\begin{lemma}[Saturation acts as a sector {$[0,1]$}]\label{lem:sector}
+Under (H3), let $q:=\Dt-c_ve-k_s\,\mathrm{sat}(s/\phi_s)$ be the unsaturated error rate. Then $\dot e=\mathrm{clip}(q;\,gu_{\min}+D,\,gu_{\max}+D)$ with $gu_{\min}+D\le-m<0<m\le gu_{\max}+D$. Hence $\operatorname{sgn}\dot e=\operatorname{sgn}q$ and $\min(|q|,m)\le|\dot e|\le|q|$. The command is unsaturated whenever $|q|<m$.
+\end{lemma}
+\begin{proof}
+With $v_c:=-\Dh-c_ve-k_s\,\mathrm{sat}(s/\phi_s)$ we have $gu=\mathrm{clip}(v_c;gu_{\min},gu_{\max})$ and $q=v_c+D$ (because $\Dt=D-\Dh$). Adding $D$ to a clip shifts both its argument and its limits, and \eqref{ap:cap} gives the sign of the shifted limits. The rest is elementary.
+\end{proof}
+
+\begin{lemma}[Boundary-layer geometry]\label{lem:layer}
+Let Assumption~\ref{as:est} hold with $\gamma:=k_{\min}-\delta>0$ and $\tilde\beta=\beta(1-1/(k'\tau_{env}))$. Then, almost everywhere,
+\begin{equation}
+|\Dt|-k_s+\frac{k_s-k_{\min}}{k'\tau_{env}}\ \le\ -\gamma.\label{ap:R}
+\end{equation}
+\end{lemma}
+\begin{proof}
+$k_s-|\Dt|-(k_s-k_{\min})/(k'\tau_{env})=k_{\min}+\tilde\beta\varepsilon-|\Dt|\ge k_{\min}-\delta=\gamma$.
+\end{proof}
+Inequality \eqref{ap:R} is the precise reason for $\tilde\beta<\beta$ in Assumption~\ref{as:est}: the layer half-width $\phi_s=k_s/k'$ can shrink at the rate $(k_s-k_{\min})/(k'\tau_{env})$ (Lemma~\ref{lem:ndo}(d)), and the reaching margin $k_s-|\Dt|$ must beat that rate.
+
+\subsection{Proof of Proposition~\ref{prop:uub}}\label{ap:proof}
+
+\paragraph{Part (i): observer.} This is Lemma~\ref{lem:ndo}(a)--(b), which also proves \eqref{eq:ndobound} for piecewise constant, bumpless $\lambda(t)$.
+
+\paragraph{Part (ii): bounded error with saturation allowed (proven under (H1)--(H3) only).}
+Let $w:=\Dt-k_s\,\mathrm{sat}(s/\phi_s)$, so $q=w-c_ve$ and $|w|\le|\Dt|+k_s\le W$ by Lemma~\ref{lem:ndo}.
+
+\emph{Bound on $e$.} Suppose $|e(t_1)|>E$ for some $t_1$, say $e(t_1)>E$, and let $t_2<t_1$ be the last time with $e(t_2)=E$ (it exists because $|e(t_0)|\le E$). On $(t_2,t_1]$, $q\le W-c_ve<W-c_vE\le0$, so $\dot e<0$ by Lemma~\ref{lem:sector}. Then $e(t_1)<e(t_2)=E$, which is a contradiction. Hence $|e(t)|\le E$ for all $t$, with or without saturation. For the ultimate bound, let $W_\infty:=D_\infty+k_{\min}+\beta\Lambda D_\infty\ge\limsup(|\Dt|+k_s)$. For any $\theta>0$, after a finite time $|w|\le W_\infty+\theta$. For $|e|\ge(W_\infty+2\theta)/c_v$ we get $|q|\ge c_v|e|-|w|\ge\theta$, so $|\dot e|\ge\min(\theta,m)>0$ by Lemma~\ref{lem:sector}. Thus $e$ enters $|e|<(W_\infty+2\theta)/c_v$ in finite time and, by the invariance argument above, stays. Since $\theta$ is arbitrary,
+\[
+\limsup|e|\ \le\ \frac{D_\infty+k_{\min}+\beta\Lambda D_\infty}{c_v}.
+\]
+The time needed depends only on $|e(t_0)|$, $\bar D$, $\theta$, $m$. So $e$ is uniformly ultimately bounded.
+
+\emph{Bound on $\xi$ (anti-windup).} $\xi$ is integrated only if $|s|\le\phi_s\le\bar\phi$ (this is true for both the rule \eqref{eq:condint} and the implemented rule with the additional sign condition). At such an instant $c_v\xi=s-e$, so $c_v|\xi|\le\bar\phi+E$. When the integrator is frozen, $\xi$ is constant. Hence $|\xi(t)|\le\max\big(|\xi(t_0)|,(\bar\phi+E)/c_v\big)$ for all $t$, and $|s|\le E+c_v|\xi|$ is bounded. This proves boundedness of $\xi$ and $s$ under saturation. It does \emph{not} prove that $\xi$ is ultimately bounded independently of $\xi(t_0)$: a frozen integrator can stay frozen (Remark~\ref{rem:deadlock}).
+
+\paragraph{Part (iii): sharp bounds (regional).} Assume in addition Assumption~\ref{as:est}, the margin $m>\bar D+c_vE+\bar k_s$ and $|s(t_0)|<\phi_s(t_0)$.
+
+\emph{Step 1: no saturation.} $|q|\le|\Dt|+c_v|e|+k_s\le\bar D+c_vE+\bar k_s<m$, so by Lemma~\ref{lem:sector} the command is never saturated and the integrator rule reduces to ``integrate iff $|s|\le\phi_s$''. For $E=W/c_v$ the condition reads $m>2W$.
+
+\emph{Step 2: dynamics.} In both modes $\dot e=q=\Dt-c_ve-k_s\,\mathrm{sat}(s/\phi_s)$. If $|s|\le\phi_s$ the integrator runs ($\dot\xi=e$) and $\dot s=\dot e+c_ve=\Dt-k's$ (mode I). If $|s|>\phi_s$, then $\dot\xi=0$ and $\dot s=\dot e=\Dt-c_ve-k_s\operatorname{sgn}s$ (mode F). The two vector fields differ by $c_ve$ across $|s|=\phi_s$, so the right-hand side is discontinuous; solutions are understood in the Carath\'eodory sense and all statements are about any such solution. In mode I the right-hand side is continuous and Lipschitz.
+
+\emph{Step 3: a trajectory cannot reach the layer boundary from the inside.} Let $v:=|s|-\phi_s$. $v$ is absolutely continuous between switches of $\lambda$, and $\phi_s$ jumps only upward (Lemma~\ref{lem:ndo}(d)), so jumps only decrease $v$. Suppose $v<0$ on $[t_0,t_1)$ and $v(t_1)=0$; say $s(t_1)=\phi_s(t_1)>0$. On $[t_0,t_1]$ mode I holds. By Lemma~\ref{lem:ndo}(d), almost everywhere on a left neighborhood of $t_1$,
+\[
+\dot v=\Dt-k's-\dot\phi_s\le\Dt-k_s-k'v+\frac{k_s-k_{\min}}{k'\tau_{env}}\le-\gamma+k'|v|,
+\]
+where we used $k's=k_s+k'v$ and \eqref{ap:R}. For $|v|<\gamma/(2k')$ this gives $\dot v\le-\gamma/2<0$, so $v$ cannot increase to $0$. The case $s(t_1)=-\phi_s(t_1)$ is symmetric. Hence $|s(t)|<\phi_s(t)$ for all $t\ge t_0$, mode I holds for all $t$, and the layer is positively invariant.
+
+\emph{Step 4: sharp ultimate bounds.} By Step 3 the loop is linear and independent of $k_s$ for all $t$:
+\begin{equation}
+\dot s=\Dt-k's,\qquad \dot e=-c_ve+\Dt-k's.\label{ap:lin}
+\end{equation}
+Hence $s(t)=s(t_0)e^{-k'(t-t_0)}+\int e^{-k'(t-\tau)}\Dt\,d\tau$, which gives $\limsup|s|\le D_\infty/k'$. The map $\Dt\mapsto e$ has transfer function $p/((p+c_v)(p+k'))$ plus decaying free responses, with impulse response $h(t)=(c_ve^{-c_vt}-k'e^{-k't})/(c_v-k')$. Its $L^1$ norm is
+\[
+\kappa:=\|h\|_1=\frac{2}{k'}\Big(\frac{c_v}{k'}\Big)^{\frac{c_v}{k'-c_v}}\ \le\ \frac{2}{k'}\qquad(k'>c_v),
+\]
+(the closed form follows because $h$ changes sign once, at $t^\ast=\ln(k'/c_v)/(k'-c_v)$ and $\int_0^\infty h=0$). Since $|\Dt|\le|\Dt(t_0)|e^{-\lambda_{\min}(t-t_0)}+D_\infty$, we get $\limsup|e|\le\kappa D_\infty$. From $c_v\xi=s-e$, $\limsup|\xi|\le(1/k'+\kappa)D_\infty/c_v$. These bounds are uniform in the initial conditions, because the transients are exponentially decaying with rates $\min(c_v,k',\lambda_{\min})$ or faster, and are multiplied by $|s(t_0)|$, $|e(t_0)|$, $|\Dt(t_0)|$ only. Since $\beta\Lambda>1$ gives $D_\infty<\bar k_s$ and hence $D_\infty/k'<\bar\phi$, the set $|s|\le\bar\phi$ of the original statement is contained in the proven layer $|s|<\phi_s(t)\le\bar\phi$.
+
+\emph{Step 5: reaching from outside the layer (regional).} Suppose now $s(t_0)>\phi_s(t_0)$ (the case $s(t_0)<-\phi_s(t_0)$ is symmetric), with $a:=c_v\xi(t_0)$ and $a<\phi_{\min}+\gamma/c_v$, and the margin of Step~1. While $v>0$, $\xi\equiv\xi(t_0)$, $e=s-a$, and mode F with \eqref{ap:R} and $s>\phi_s\ge\phi_{\min}$ gives, almost everywhere,
+\begin{align*}
+\dot v=\dot s-\dot\phi_s&\le\Dt-k_s-c_v(s-a)+\tfrac{k_s-k_{\min}}{k'\tau_{env}}\le-g_0,\\
+g_0&:=\gamma+c_v(\phi_{\min}-a)>0.
+\end{align*}
+So $v$ reaches $0$ at a time $t_r\le t_0+v(t_0)/g_0$. Immediately afterwards the trajectory enters the open layer: otherwise $v\ge0$ on some $[t_r,t_r+h]$. The set $\{v=0\}$ is then a null set (in mode I, $\dot v\le-\gamma$ at differentiability points by \eqref{ap:R}, while $\dot v=0$ almost everywhere on $\{v=0\}$). Hence $\xi$ stays within $E h$ of $\xi(t_0)$ and, for small $h$, $\dot v\le-g_0/2$ almost everywhere on $[t_r,t_r+h]$. Then $v(t_r+h)<0$, a contradiction. From then on Steps 3--4 apply. This proves finite-time reaching of $|s|<\phi_s$ in the stated region of $(s(t_0),\xi(t_0))$. For $e(t_0)=\xi(t_0)=0$ no reaching phase is needed.
+
+\paragraph{Remark on reaching.} The identity $\dot s=\Dt-k_s\,\mathrm{sat}(s/\phi_s)$ holds only while $\xi$ integrates. Outside the layer $\xi$ is frozen and $\dot s$ contains the extra term $-c_ve$. A Lyapunov argument with $V=\tfrac12s^2$ outside the layer is therefore \emph{not} valid, and finite-time reaching cannot hold from arbitrary initial states; the correct statement is the regional one of Step~5.
+
+\subsection{What is not proven}\label{ap:limits}
+\begin{remark}[Frozen-integrator trap]\label{rem:deadlock}
+If $s(t_0)>\phi_s$ and $a=c_v\xi(t_0)>\phi_s+(k_s-\Dt)/c_v$, then outside the layer $e\to-(k_s-\Dt)/c_v$ and $s\to a-(k_s-\Dt)/c_v>\phi_s$: the integrator stays frozen and $e$ keeps a constant offset of order $k_s/c_v$. In simulation of the design model with $D=0$, $k_s=k_{\min}$, $e(t_0)=0$ and $c_v\xi(t_0)=\SI{5}{V}$ the state ended at $s=\SI{3.8}{V}$, $\phi_s=\SI{0.5}{V}$, $e=\SI{-1.2}{V}$ after \SI{1.5}{s}, as predicted. With $c_v\xi(t_0)=\SI{0.4}{V}$ (inside the regional condition) $s\to0$. $e$ stays bounded in the trap (Part (ii)), but the sharp bounds do not hold.
+\end{remark}
+\begin{remark}[Power deficit]\label{rem:deficit}
+If (H3) fails, no bound can be given for \emph{any} controller. If $-D(t)\ge gu_{\max}(t)+m'$ on an interval, then $\dot e=D+gu\le-m'$ there, so $e$ decreases at least linearly. In simulation of the design model with $D=\SI{-9e4}{V/s}$ and $gu_{\max}=\SI{7e4}{V/s}$, $e(\SI{0.2}{s})=\SI{-4078}{V}$ against the bound $-4000$\,V. This is the power-deficit case that occurs on the US06 cycle, where the proposition makes no claim.
+\end{remark}
+\begin{remark}[Not covered]
+Measurement noise (it enters $\Dh=z+\lambda e$ with gain $\lambda$, so it acts as an extra disturbance and is not included in $D_\infty$); the closure of (H1) through the inner loop; the clipping of the inner loops (duty limits) beyond what is lumped in $D$; and the interaction of $\lambda$ with the SC reserve filter (the filter enters only through $\lambda\in[\lambda_{\min},\lambda_{\max}]$ and the bumpless re-initialization).
+\end{remark}
+\begin{remark}[Conservatism and values in the GTSD scenario]
+The margin condition $m>2W$ is conservative. Substituting the supremum values measured in the noise-free GTSD transient run, $\sup|\Dt|=\DtildeMaxAdapt$\,V/s and $\sup k_s=\KsMaxAdapt$\,V/s (instead of $\bar D$ and $\bar k_s$) gives $W\approx\SI{12.5e3}{V/s}$ and $2W\approx\SI{25e3}{V/s}$, i.e. about \SI{55}{A} of bus current at $C_{dc,n}$. The capability from \eqref{eq:ulim} is about \SI{172}{A} at $v_b\approx\SI{296}{V}$, $v_{sc}=\SI{250}{V}$, $v_{dc}=\SI{400}{V}$. This is an illustration with measured suprema, not a certificate. The sharp bounds also need Assumption~\ref{as:est}. Writing the verified ratio as $k_s\ge r|\Dt|$, Assumption~\ref{as:est} follows with $\delta=k_{\min}/r$ whenever $r\ge\beta/\tilde\beta=12/11$. The reported minimum ratio is $r=\MinKsRatio$ (noise-free run, $t>0.2$\,s), which gives $\delta\approx\SI{83}{V/s}<k_{\min}$.
+\end{remark}
+
+\subsection{Discretization and one-sample delay}\label{ap:disc}
+The implementation has $T_s=\SI{50}{\micro s}$, a one-sample computation delay, the forward-Euler observer \eqref{eq:zdisc} and the discrete envelope \eqref{eq:envdisc}. Here $k'T_s=0.012$, $c_vT_s=0.005$, $\lambda_{\max}T_s=0.04$, $T_s/\tau_f=0.025$.
+
+\paragraph{Discrete plant model.} Let the plant over $[t_k,t_{k+1}]$ be $e_{k+1}=e_k+T_s(gu_{k-1}+\delta_k)$, where $u_{k-1}$ is the command computed one sample earlier, and $\delta_k$ is \emph{defined} by this equation (it contains the true disturbance, the inner-loop error and the sampling error). Define the effective disturbance seen by the observer, which is fed $u_k$, as $d_k:=(e_{k+1}-e_k)/T_s-gu_k=\delta_k+g(u_{k-1}-u_k)$.
+
+\begin{lemma}[Discrete observer; proven]\label{prop:disc-ndo}
+For the Euler observer with bumpless switching and $\lambda_{\max}T_s\le1$, $\Dh_{k+1}=(1-\lambda_kT_s)\Dh_k+\lambda_kT_sd_k$. With $\tilde D_k:=d_k-\Dh_k$ and $|d_{k+1}-d_k|\le T_s\rho_d$,
+\begin{align*}
+|\tilde D_k|&\le(1-\lambda_{\min}T_s)^{k}|\tilde D_0|+\rho_d/\lambda_{\min},\\
+|\tilde D_k|&\le\max(|\tilde D_0|,\rho_d/\lambda_{\min}).
+\end{align*}
+Moreover $(\Dh_{k}-\Dh_{k-1})/T_s=\lambda_{k-1}\tilde D_{k-1}$, so $\varepsilon_k\le\Lambda\bar D_d$ with $\bar D_d=\max(|\tilde D_0|,\rho_d/\lambda_{\min})$.
+\end{lemma}
+\begin{proof}
+$\Dh_{k+1}-\Dh_k=z_{k+1}-z_k+\lambda_k(e_{k+1}-e_k)=-\lambda_kT_s\Dh_k+\lambda_k[(e_{k+1}-e_k)-T_sgu_k]$, which is the first identity. Subtracting from $d_{k+1}$ gives $\tilde D_{k+1}=(1-\lambda_kT_s)\tilde D_k+(d_{k+1}-d_k)$ and hence the bounds because $0\le1-\lambda_kT_s\le1-\lambda_{\min}T_s$. The envelope claim follows as in Lemma~\ref{lem:ndo}(c), since the discrete filter is a convex average of the backward differences.
+\end{proof}
+The sufficient condition is $\lambda_{\max}T_s\le0.04<1$; the observer pole is $1-\lambda T_s\in[0.96,0.995]$. The assumption $|d_{k+1}-d_k|\le T_s\rho_d$ is \emph{assumed}: since $d_k=\delta_k+g(u_{k-1}-u_k)$, one has $\rho_d\le\rho_\delta+2R_u$ with $\rho_\delta=\sup|\delta_{k+1}-\delta_k|/T_s$ and $R_u=\sup g|u_k-u_{k-1}|/T_s$. $R_u$ is a closed-loop quantity that can be read from the logs. This is the price of the delay.
+
+\begin{lemma}[Discrete boundedness; proven, unsaturated]\label{prop:disc-e}
+Assume $c_vT_s<1$, $u_k=u^{un}_k$ for all $k$, and let $W_d:=\bar D_d+\bar k_s^d+T_s\rho_d$ with $\bar k_s^d=k_{\min}+\beta\Lambda\bar D_d$. If the initial values satisfy $|e_j|\le\hat E$ for all $j\le1$ and
+\[
+\hat E\ \ge\ \frac{W_d}{c_v}\,\frac{1+c_vT_s}{1-c_vT_s},
+\]
+then $|e_k|\le\hat E$ for all $k$, and $|\xi_k|\le\max\big(|\xi_0|,(\bar\phi_d+\hat E)/c_v\big)$ with $\bar\phi_d=\bar k_s^d/k'$.
+\end{lemma}
+\begin{proof}
+With the delay, $e_{k+1}=e_k-T_sc_ve_{k-1}+T_sw_k$, $w_k:=\delta_k-\Dh_{k-1}-k_{s,k-1}\mathrm{sat}(\cdot)$. Using $\delta_k-\Dh_{k-1}=(\delta_k-d_{k-1})+\tilde D_{k-1}$ and $|\delta_k-d_{k-1}|\le T_s\rho_d$ gives $|w_k|\le W_d$. Write $e_{k+1}=(1-c_vT_s)e_k+c_vT_s(e_k-e_{k-1})+T_sw_k$ and $e_k-e_{k-1}=-T_sc_ve_{k-2}+T_sw_{k-1}$. If $|e_j|\le\hat E$ for $j\le k$, then $|e_{k+1}|\le(1-c_vT_s)\hat E+c_vT_s^2(c_v\hat E+W_d)+T_sW_d\le\hat E$ exactly when $\hat Ec_vT_s(1-c_vT_s)\ge T_sW_d(1+c_vT_s)$, which is the stated condition. Integration occurs only if $|s_k|\le\phi_{s,k}$; after such a step $c_v\xi_{k+1}=s_k-(1-c_vT_s)e_k$, so $c_v|\xi_{k+1}|\le\bar\phi_d+\hat E$. Frozen steps keep $\xi$.
+\end{proof}
+For the nominal $c_vT_s=0.005$ the inflation factor with respect to the continuous bound is $(1+c_vT_s)/(1-c_vT_s)=1.0101$. Saturation in discrete time and the discrete counterpart of Steps 3--5 (layer invariance and the sharp bounds) are \emph{not proven}.
+
+\paragraph{Numerical verification of the sampled linearized loop (not a proof).} In the layer with the integrator active, the loop is linear. We built its exact sampled-data model with state $(e,\xi,z,a_{k-1})$ and $a_k=gu_k$: the plant is integrated exactly over each period with the command computed one sample before, the observer is the Euler observer of \eqref{eq:zdisc} fed with the current command, and $\xi_{k+1}=\xi_k+T_se_k$. We also added an inner-loop lag as a modeling assumption: a unity-gain first-order response with bandwidth $\omega_{ci}=\SI{5026.5}{rad/s}$ (Table~\ref{tab:ctrl}) between the applied command and the bus current. The script is \texttt{proof\_check.py}; the numbers below were computed with it. The continuous-time poles of the loop are $\{-c_v,-k',-\lambda\}$ (verified numerically for $\lambda=250$ and $800$\,s$^{-1}$).
+\begin{center}\footnotesize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & delay only & delay + lag\\
+\midrule
+$\rho$ at $\lambda=100$ & 0.995040 & 0.995176\\
+$\rho$ at $\lambda=800$ & 0.994997 & 0.994987\\
+max $\rho$ on the grid & 0.995040 & 0.995176\\
+delay margin, $\lambda=100$ / $800$ & 56 / 22 & 52 / 19\\
+\bottomrule
+\end{tabular}
+\end{center}
+(delay margin in samples; grid $\lambda=100,110,\dots,800$\,s$^{-1}$)
+Here $\rho$ is the spectral radius of the closed-loop matrix. The slowest mode is the $c_v$ pole, $e^{-c_vT_s}=0.995012$, for every $\lambda$ on the grid. The delay margin is the largest number of whole computation-delay samples for which $\rho<1$ (the implementation uses one). At $\lambda=800$\,s$^{-1}$, $T_s$ could be scaled by a factor of 16.1 (14.6 with the inner-loop lag) before the one-sample-delay loop becomes unstable. This verifies stability of the linearized in-layer loop on a grid of 71 values of $\lambda$; it does not cover the nonlinear loop, saturation or the interpolation between grid points.
+
+\paragraph{Sanity simulation of the continuous design model (not a proof).} The same script simulates $\dot e=gu+D$ with the full tier-1 law (NDO, envelope, time-varying layer, conditional integrator, clipping, bumpless rate-limited $\lambda$ switching in $[100,400]$\,s$^{-1}$, step $T_s/10$, 3\,s). For three random Lipschitz disturbances with $\rho_D=\SI{2e4}{V/s^2}$, and with a capability well above $|D|$, no violation of $|s|<\phi_s$ occurred ($\max|s|/\phi_s=0.44$) and $\sup|e|\le\SI{0.41}{V}$ against $W/c_v\approx\SI{5}{V}$. In a stress case with a trapezoidal $D$ ($\pm\SI{3e4}{V/s}$, ramps of about \SI{8}{ms}) and a capability limit only $\SI{500}{V/s}$ above $|D|$, the input was saturated in 50.5\,\% of the steps at $\lambda=100$\,s$^{-1}$ and 23.2\,\% at $\lambda=400$\,s$^{-1}$. There $\sup|e|=\SI{67.9}{V}$ and $\SI{31.1}{V}$ against the Part (ii) bound $W/c_v$ of \SI{726}{V} and \SI{432}{V}, evaluated with the measured $\sup|\Dt|$ and $\sup k_s$. The layer was left in these runs (peak $|s|/\phi_s=21.5$ and $1.09$), which is allowed because the sharp part needs Assumption~\ref{as:est} and the margin $m>2W$, neither of which held. $\xi$ stayed bounded ($\sup|\xi|\le$0.53$\,V\,s$).

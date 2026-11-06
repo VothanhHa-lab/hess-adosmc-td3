@@ -1,6 +1,6 @@
 \subsection{Digital implementation of the control structure}\label{sec:impl}
 
-This section gives the complete digital control structure in the form used by the simulation. Every equation below corresponds one-to-one to the code in the supplementary archive (\texttt{src/hess/kernel\_sup.py}), and the numerical gains are listed in Table~\ref{tab:ctrl}. The structure is summarised in Fig.~\ref{fig:ctrl}. Three rates are involved:
+This section gives the complete digital control structure in the form used by the simulation. Every equation below corresponds one-to-one to the code in the supplementary archive (\texttt{src/hess/kernel\_sup.py}), and the numerical gains are listed in Table~\ref{tab:ctrl}. The structure is summarized in Fig.~\ref{fig:ctrl}. Three rates are involved:
 \begin{itemize}
 \item the plant, integrated with fixed-step RK4 at $T_s/5$ or $T_s/10$;
 \item the digital controller (tier 1), executed once per switching period $T_s=\SI{50}{\micro s}$;
@@ -65,7 +65,7 @@ This section gives the complete digital control structure in the form used by th
 \end{figure*}
 
 \subsubsection{Discrete-time tier-1 equations}
-At sample $k$ the controller reads $v_{dc,k}$, $i_{b,k}$, $i_{sc,k}$ and the terminal voltages $v_{b,k}$, $v_{sc,k}$ (true values plus white noise). It then evaluates, in this order:
+At sample $k$, the controller reads $v_{dc,k}$, $i_{b,k}$, $i_{sc,k}$ and the terminal voltages $v_{b,k}$, $v_{sc,k}$ (true values plus white noise). It then evaluates, in this order:
 
 \paragraph{Capability limits} With the SC limits disabled at the SC voltage bounds ($I^{dis}_{sc}=0$ if $v_{sc,k}\le v_{sc,\min}$, $I^{ch}_{sc}=0$ if $v_{sc,k}\ge v_{sc,\max}$, otherwise $I_{sc,\max}$):
 \begin{align}
@@ -73,7 +73,7 @@ u_{\max}&=\frac{v_{b,k}I_{b,\max}+v_{sc,k}I^{dis}_{sc}}{v_{dc,k}},\nonumber\\
 u_{\min}&=-\frac{v_{b,k}I_{b,\max}+v_{sc,k}I^{ch}_{sc}}{v_{dc,k}}.\label{eq:ulim}
 \end{align}
 
-\paragraph{Observer and error envelope} Forward-Euler discretisation of \eqref{eq:ndo} and \eqref{eq:env}:
+\paragraph{Observer and error envelope} Forward-Euler discretization of \eqref{eq:ndo} and \eqref{eq:env} gives
 \begin{align}
 \hat D_k&=z_k+\lambda e_k,\nonumber\\
 z_{k+1}&=z_k+T_s\big[-\lambda z_k-\lambda(u_k/C_{dc,n}+\lambda e_k)\big],\label{eq:zdisc}\\
@@ -82,7 +82,7 @@ z_{k+1}&=z_k+T_s\big[-\lambda z_k-\lambda(u_k/C_{dc,n}+\lambda e_k)\big],\label{
 \end{align}
 Because $\lambda T_s\le0.04$ (Section~\ref{sec:tier2}), the Euler observer keeps its pole at $1-\lambda T_s\in[0.96,0.995]$.
 
-\paragraph{Outer law and anti-windup} $u^{un}_k$ follows from \eqref{eq:law} with $k_s=k_{\min}+\beta\varepsilon_k$ and $\phi_s=k_s/k'$. The applied command is $u_k=\mathrm{sat}_{[u_{\min},u_{\max}]}(u^{un}_k)$. The integral state is updated as $\xi_{k+1}=\xi_k+T_se_k$ only if two conditions hold:
+\paragraph{Outer law and anti-windup} The unsaturated command $u^{un}_k$ follows from \eqref{eq:law} with $k_s=k_{\min}+\beta\varepsilon_k$ and $\phi_s=k_s/k'$. The applied command is $u_k=\mathrm{sat}_{[u_{\min},u_{\max}]}(u^{un}_k)$. The integral state is updated as $\xi_{k+1}=\xi_k+T_se_k$ only if two conditions hold:
 \begin{itemize}
 \item $|s_k|\le\phi_s$ (conditional integrator);
 \item $u_k=u^{un}_k$ or $(u^{un}_k-u_k)e_k>0$ (integration that drives the command back into range).
@@ -97,9 +97,9 @@ P_{sc,k}&=\mathrm{sat}_{[-v_{sc,k}I^{ch}_{sc},\,v_{sc,k}I^{dis}_{sc}]}\big(P^*_k
 P_{b,k}&=\mathrm{sat}_{\pm P_{b,\max}}\big(P^*_k-P_{sc,k}\big),\nonumber\\
 i^*_{b,k}&=P_{b,k}/v_{b,k},\qquad i^*_{sc,k}=P_{sc,k}/v_{sc,k},\label{eq:alloc3}
 \end{align}
-with $P_{rec,k}$ from \eqref{eq:prec} evaluated at $v_{sc,k}$. The low-pass state is updated before it is used. The second line of \eqref{eq:alloc3} re-assigns to the battery any power the SC cannot supply.
+with $P_{rec,k}$ from \eqref{eq:prec} evaluated at $v_{sc,k}$. The low-pass state is updated before it is used. The expression for $P_{b,k}$ re-assigns to the battery any power the SC cannot supply.
 
-\paragraph{Inner current loops} For each source $x\in\{b,sc\}$, a PI acting on the inductor-voltage demand with source-voltage feed-forward gives
+\paragraph{Inner current loops} For each source $x\in\{b,sc\}$, a PI acting on the inductor-voltage demand with source-voltage feedforward gives
 \begin{align}
 d^{un}_{x,k}&=1-\frac{v_{x,k}-\big(K_{p,x}(i^*_{x,k}-i_{x,k})+I_{x,k}\big)}{v_{dc,k}},\nonumber\\
 d_{x,k}&=\mathrm{sat}_{[0,d_{\max}]}(d^{un}_{x,k}).\label{eq:duty}
@@ -125,14 +125,14 @@ compute $i^*_{b,k},i^*_{sc,k}$ by \eqref{eq:alloc1}--\eqref{eq:alloc3}\;
 
 \begin{algorithm}[t]
 \caption{Closed-loop simulation with the tier-2 supervisor}\label{alg:sim}
-initialise plant state, $v_{dc}=v^*_{dc}$, duties at their steady-state values, controller memories to zero, $\theta_0=(0.2\,\mathrm{s},\SI{250}{V},\SI{250}{s^{-1}})$\;
+initialize plant state, $v_{dc}=v^*_{dc}$, duties at their steady-state values, controller memories to zero, $\theta_0=(0.2\,\mathrm{s},\SI{250}{V},\SI{250}{s^{-1}})$\;
 \For{$j=0,1,\dots$ (decision instants $t=j\Delta_a$)}{
 build observation $o_j$ (Section~\ref{sec:tier2}); $a_j\leftarrow\pi(o_j)$\;
 $\theta_j\leftarrow\Pi_\mathcal{S}(\theta_{j-1},\theta(a_j))$ \tcp*{box, rate, reserve}
 \If{$\lambda$ changes}{$z\leftarrow\hat D-\lambda_{new}e$ \tcp*{bumpless: keeps $\hat D$ continuous}}
 \For{$k=2000j,\dots,2000j+1999$}{
 sample measurements with noise; run Algorithm~\ref{alg:tier1}\;
-apply $d_{\cdot,k-1}$ and integrate the plant over $[t_k,t_{k+1}]$ with RK4 (5 or 10 sub-steps)\;
+apply $d_{\cdot,k-1}$ and integrate the plant over $[t_k,t_{k+1}]$ with RK4 (5 or 10 substeps)\;
 accumulate the indices of Section~\ref{sec:setup} from the true signals\;
 \lIf{$v_{dc}\notin[0.5,1.5]\,v^*_{dc}$}{stop and mark the run as failed}
 }
@@ -142,8 +142,8 @@ compute reward \eqref{eq:reward} (training only)\;
 
 \paragraph{Verification of the implementation} The implementation was checked in four ways, with the results stored in the archive:
 \begin{itemize}
-\item \emph{Energy balance.} The change in stored energy equals the source energy minus the losses and the load energy, with a relative residual of $\EnergyResidual$.
-\item \emph{Switching model.} A switched-PWM version of the plant reproduces the analytic inductor ripple $v\,d\,T_s/L$ within 3\,\%.
-\item \emph{Step size.} Reducing the RK4 step by a factor of four changes the reported indices by a relative amount below \TimestepRelPct.
-\item \emph{Chunked execution.} Running the simulation in supervisor-length chunks reproduces the uninterrupted run within 1\,\% for every outer loop.
+\item \emph{Energy balance.} The change in stored energy matched the source energy minus the losses and the load energy, with a relative residual of $\EnergyResidual$.
+\item \emph{Switching model.} A switched-PWM version of the plant reproduced the analytic inductor ripple $v\,d\,T_s/L$ within 3\,\%.
+\item \emph{Step size.} Reducing the RK4 step by a factor of four changed the reported indices by a relative amount below \TimestepRelPct.
+\item \emph{Chunked execution.} Running the simulation in supervisor-length chunks reproduced the uninterrupted run within 1\,\% for every outer loop.
 \end{itemize}

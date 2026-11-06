@@ -1,24 +1,30 @@
 \begin{table*}[t]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
-\caption{Additional held-out cycles, evaluated only after filter v2 was fixed (one noise seed; learned supervisors: mean $\pm$ standard deviation over three training seeds).}
+\caption{Additional held-out cycles, evaluated only after filter v2 was fixed (one noise seed; learned supervisors: mean $\pm$ standard deviation over three training seeds; $^\dagger$non-causal load preview).}
 \label{tab:extra}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llrrrrrc@{}}
 \toprule
 Cycle & Supervisor (tier 1 = A-DO-SMC) & max$|e|$ (V) & RMS $i_b$ (A) & RMS $\dot\imath_b$ (A/s) & Sat. (\%) & min $v_{sc}$ (V) & Failed runs\\
 \midrule
-WMTC & Fixed $\theta$ & \R{wmtc:afix:maxdev} & \R{wmtc:afix:ibrms} & \R{wmtc:afix:slew} & \R{wmtc:afix:sat} & \R{wmtc:afix:vmin} & 0\\
- & SOC rule~\cite{nguyen2021adaptive} & \R{wmtc:arule:maxdev} & \R{wmtc:arule:ibrms} & \R{wmtc:arule:slew} & \R{wmtc:arule:sat} & \R{wmtc:arule:vmin} & 0\\
+WMTC & Fixed $\theta$ & \R{wmtc:afix:maxdev} & \R{wmtc:afix:ibrms} & \R{wmtc:afix:slew} & \R{wmtc:afix:sat} & \R{wmtc:afix:vmin} & \R{wmtc:afix:fails}/\R{wmtc:afix:runs}\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{wmtc:arule:maxdev} & \R{wmtc:arule:ibrms} & \R{wmtc:arule:slew} & \R{wmtc:arule:sat} & \R{wmtc:arule:vmin} & \R{wmtc:arule:fails}/\R{wmtc:arule:runs}\\
+ & MPC-EMS, persistence & \R{wmtc:mpcp:maxdev} & \R{wmtc:mpcp:ibrms} & \R{wmtc:mpcp:slew} & \R{wmtc:mpcp:sat} & \R{wmtc:mpcp:vmin} & \R{wmtc:mpcp:fails}/\R{wmtc:mpcp:runs}\\
+ & MPC-EMS, preview$^\dagger$ & \R{wmtc:mpcv:maxdev} & \R{wmtc:mpcv:ibrms} & \R{wmtc:mpcv:slew} & \R{wmtc:mpcv:sat} & \R{wmtc:mpcv:vmin} & \R{wmtc:mpcv:fails}/\R{wmtc:mpcv:runs}\\
  & TD3 + filter v1 & \R{wmtc:v1:maxdev:mean}\,{\scriptsize$\pm$\R{wmtc:v1:maxdev:std}} & \R{wmtc:v1:ibrms:mean}\,{\scriptsize$\pm$\R{wmtc:v1:ibrms:std}} & \R{wmtc:v1:slew:mean}\,{\scriptsize$\pm$\R{wmtc:v1:slew:std}} & \R{wmtc:v1:sat:mean}\,{\scriptsize$\pm$\R{wmtc:v1:sat:std}} & \R{wmtc:v1:vmin:mean}\,{\scriptsize$\pm$\R{wmtc:v1:vmin:std}} & \R{wmtc:v1:fails}/\R{wmtc:v1:runs}\\
  & TD3 + filter v2 (prop.) & \R{wmtc:v2:maxdev:mean}\,{\scriptsize$\pm$\R{wmtc:v2:maxdev:std}} & \R{wmtc:v2:ibrms:mean}\,{\scriptsize$\pm$\R{wmtc:v2:ibrms:std}} & \R{wmtc:v2:slew:mean}\,{\scriptsize$\pm$\R{wmtc:v2:slew:std}} & \R{wmtc:v2:sat:mean}\,{\scriptsize$\pm$\R{wmtc:v2:sat:std}} & \R{wmtc:v2:vmin:mean}\,{\scriptsize$\pm$\R{wmtc:v2:vmin:std}} & \R{wmtc:v2:fails}/\R{wmtc:v2:runs}\\
 \midrule
-FTP-MC1b & Fixed $\theta$ & \R{ftp:afix:maxdev} & \R{ftp:afix:ibrms} & \R{ftp:afix:slew} & \R{ftp:afix:sat} & \R{ftp:afix:vmin} & 0\\
- & SOC rule~\cite{nguyen2021adaptive} & \R{ftp:arule:maxdev} & \R{ftp:arule:ibrms} & \R{ftp:arule:slew} & \R{ftp:arule:sat} & \R{ftp:arule:vmin} & 0\\
+FTP-MC1b & Fixed $\theta$ & \R{ftp:afix:maxdev} & \R{ftp:afix:ibrms} & \R{ftp:afix:slew} & \R{ftp:afix:sat} & \R{ftp:afix:vmin} & \R{ftp:afix:fails}/\R{ftp:afix:runs}\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{ftp:arule:maxdev} & \R{ftp:arule:ibrms} & \R{ftp:arule:slew} & \R{ftp:arule:sat} & \R{ftp:arule:vmin} & \R{ftp:arule:fails}/\R{ftp:arule:runs}\\
+ & MPC-EMS, persistence & \R{ftp:mpcp:maxdev} & \R{ftp:mpcp:ibrms} & \R{ftp:mpcp:slew} & \R{ftp:mpcp:sat} & \R{ftp:mpcp:vmin} & \R{ftp:mpcp:fails}/\R{ftp:mpcp:runs}\\
+ & MPC-EMS, preview$^\dagger$ & \R{ftp:mpcv:maxdev} & \R{ftp:mpcv:ibrms} & \R{ftp:mpcv:slew} & \R{ftp:mpcv:sat} & \R{ftp:mpcv:vmin} & \R{ftp:mpcv:fails}/\R{ftp:mpcv:runs}\\
  & TD3 + filter v1 & \R{ftp:v1:maxdev:mean}\,{\scriptsize$\pm$\R{ftp:v1:maxdev:std}} & \R{ftp:v1:ibrms:mean}\,{\scriptsize$\pm$\R{ftp:v1:ibrms:std}} & \R{ftp:v1:slew:mean}\,{\scriptsize$\pm$\R{ftp:v1:slew:std}} & \R{ftp:v1:sat:mean}\,{\scriptsize$\pm$\R{ftp:v1:sat:std}} & \R{ftp:v1:vmin:mean}\,{\scriptsize$\pm$\R{ftp:v1:vmin:std}} & \R{ftp:v1:fails}/\R{ftp:v1:runs}\\
  & TD3 + filter v2 (prop.) & \R{ftp:v2:maxdev:mean}\,{\scriptsize$\pm$\R{ftp:v2:maxdev:std}} & \R{ftp:v2:ibrms:mean}\,{\scriptsize$\pm$\R{ftp:v2:ibrms:std}} & \R{ftp:v2:slew:mean}\,{\scriptsize$\pm$\R{ftp:v2:slew:std}} & \R{ftp:v2:sat:mean}\,{\scriptsize$\pm$\R{ftp:v2:sat:std}} & \R{ftp:v2:vmin:mean}\,{\scriptsize$\pm$\R{ftp:v2:vmin:std}} & \R{ftp:v2:fails}/\R{ftp:v2:runs}\\
 \midrule
-Long-haul (first 1200\,s) & Fixed $\theta$ & \R{lh:afix:maxdev} & \R{lh:afix:ibrms} & \R{lh:afix:slew} & \R{lh:afix:sat} & \R{lh:afix:vmin} & 0\\
- & SOC rule~\cite{nguyen2021adaptive} & \R{lh:arule:maxdev} & \R{lh:arule:ibrms} & \R{lh:arule:slew} & \R{lh:arule:sat} & \R{lh:arule:vmin} & 0\\
+Long-haul (first 1200\,s) & Fixed $\theta$ & \R{lh:afix:maxdev} & \R{lh:afix:ibrms} & \R{lh:afix:slew} & \R{lh:afix:sat} & \R{lh:afix:vmin} & \R{lh:afix:fails}/\R{lh:afix:runs}\\
+ & SOC rule~\cite{nguyen2021adaptive} & \R{lh:arule:maxdev} & \R{lh:arule:ibrms} & \R{lh:arule:slew} & \R{lh:arule:sat} & \R{lh:arule:vmin} & \R{lh:arule:fails}/\R{lh:arule:runs}\\
+ & MPC-EMS, persistence & \R{lh:mpcp:maxdev} & \R{lh:mpcp:ibrms} & \R{lh:mpcp:slew} & \R{lh:mpcp:sat} & \R{lh:mpcp:vmin} & \R{lh:mpcp:fails}/\R{lh:mpcp:runs}\\
+ & MPC-EMS, preview$^\dagger$ & \R{lh:mpcv:maxdev} & \R{lh:mpcv:ibrms} & \R{lh:mpcv:slew} & \R{lh:mpcv:sat} & \R{lh:mpcv:vmin} & \R{lh:mpcv:fails}/\R{lh:mpcv:runs}\\
  & TD3 + filter v1 & \R{lh:v1:maxdev:mean}\,{\scriptsize$\pm$\R{lh:v1:maxdev:std}} & \R{lh:v1:ibrms:mean}\,{\scriptsize$\pm$\R{lh:v1:ibrms:std}} & \R{lh:v1:slew:mean}\,{\scriptsize$\pm$\R{lh:v1:slew:std}} & \R{lh:v1:sat:mean}\,{\scriptsize$\pm$\R{lh:v1:sat:std}} & \R{lh:v1:vmin:mean}\,{\scriptsize$\pm$\R{lh:v1:vmin:std}} & \R{lh:v1:fails}/\R{lh:v1:runs}\\
  & TD3 + filter v2 (prop.) & \R{lh:v2:maxdev:mean}\,{\scriptsize$\pm$\R{lh:v2:maxdev:std}} & \R{lh:v2:ibrms:mean}\,{\scriptsize$\pm$\R{lh:v2:ibrms:std}} & \R{lh:v2:slew:mean}\,{\scriptsize$\pm$\R{lh:v2:slew:std}} & \R{lh:v2:sat:mean}\,{\scriptsize$\pm$\R{lh:v2:sat:std}} & \R{lh:v2:vmin:mean}\,{\scriptsize$\pm$\R{lh:v2:vmin:std}} & \R{lh:v2:fails}/\R{lh:v2:runs}\\
 \bottomrule

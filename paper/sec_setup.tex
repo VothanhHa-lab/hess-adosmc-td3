@@ -29,24 +29,38 @@ TD3: $\gamma$, $\tau$, lr, batch & 0.98, 0.005, $3{\times}10^{-4}$, 128 & A\\\bo
 \end{table}
 
 \paragraph{Plant and solver}
-Equations \eqref{eq:ib}--\eqref{eq:soc} are integrated with fixed-step RK4. The step is \SI{10}{\micro\second} for the drive cycles and \SI{5}{\micro\second} for the short GTSD profiles; reducing the step to \SI{2.5}{\micro\second} changes the reported indices by a relative amount below \TimestepRelPct. Measurements carry white noise. The controller is digital with a one-sample delay.
+Equations \eqref{eq:ib}--\eqref{eq:soc} are integrated with fixed-step RK4. The step is \SI{10}{\micro\second} for the drive cycles and \SI{5}{\micro\second} for the short GTSD profiles; reducing the step to \SI{2.5}{\micro\second} changed the reported indices by a relative amount below \TimestepRelPct. Measurements carry white noise. The controller is digital with a one-sample delay.
 
 \paragraph{Load profiles}
-Speed traces of standard cycles are taken from the FASTSim repository at a pinned commit~\cite{brooker2015fastsim,fastsimrepo}. They are interpolated with a shape-preserving spline and converted to bus power with a road-load model ($P_{\rm aux}=\SI{1}{kW}$, motoring efficiency 0.9, regenerative share $0.7\times0.8$, clipped to the motor rating). The test set contains five items that are never used for training or checkpoint selection: US06 ($\times1.0$, $\times1.1$), WLTC high, and WLTC extra-high ($\times1.0$, $\times1.2$). Three further cycles (WMTC, FTP-MC1b, and the first \SI{1200}{s} of a long-haul trace) were added only after filter v2 had been fixed; no design decision depends on them. The two load profiles of~\cite{ha2026gtsd}, reconstructed from its figures, are used to evaluate tier 1.
+Speed traces of standard cycles are taken from the FASTSim repository at a pinned commit~\cite{brooker2015fastsim,fastsimrepo}. They are interpolated with a shape-preserving spline and converted to bus power with a road-load model ($P_{\rm aux}=\SI{1}{kW}$, motoring efficiency 0.9, regenerative share $0.7\times0.8$, clipped to the motor rating). The test set contains five items that were never used for training or checkpoint selection: US06 ($\times1.0$, $\times1.1$), WLTC high, and WLTC extra-high ($\times1.0$, $\times1.2$). Three further cycles (WMTC, FTP-MC1b, and the first \SI{1200}{s} of a long-haul trace) were added only after filter v2 had been fixed; no design decision depends on them. The two load profiles of~\cite{ha2026gtsd} (hereafter the GTSD profiles, after the conference at which that study was presented), reconstructed from its figures, are used to evaluate tier 1.
 
 \paragraph{Compared configurations}
-All configurations use the same plant, allocation structure, current loops, limits and noise realisations (seeds 101--103).
+All configurations use the same plant, allocation structure, current loops, limits, and noise realizations (seeds 101--103).
 \begin{itemize}
 \item \emph{Outer loops:} PI tuned to the same small-signal poles $\{-c_v,-k'\}$; the DO-SMC of~\cite{ha2026gtsd} with fixed $k_s=\SI{120}{V/s}$; an offset-free robust MPC (horizon 20, constraint tightening after~\cite{chisci2001}, LQR terminal cost with the same poles); and the proposed A-DO-SMC.
-\item \emph{Supervisors (with A-DO-SMC):} fixed $\theta$; a SOC-adaptive split with $\tau_b$ interpolated between 0.2 and \SI{5}{s} according to SC SOC, in the spirit of~\cite{nguyen2021adaptive}; TD3 without a filter; TD3 with filter v1; and TD3 with filter v2 (proposed).
+\item \emph{Supervisors (with A-DO-SMC):} fixed $\theta$; an SOC-adaptive split with $\tau_b$ interpolated between 0.2 and \SI{5}{s} according to the SC SOC, in the spirit of~\cite{nguyen2021adaptive}; a model-predictive energy-management supervisor (MPC-EMS, described below) with two load forecasts; TD3 without a filter; TD3 with filter v1; and TD3 with filter v2 (proposed).
 \end{itemize}
+
+\paragraph{Model-predictive EMS baseline}
+To test whether learning is needed at all, we add a non-learning, optimization-based supervisor in the spirit of predictive HESS energy management~\cite{ha2026hmpc,ha2026agsp}. It acts on the same variables as the agent, at the same period $\Delta_a=\SI{0.1}{s}$, and every candidate decision is passed through the same safety filter v2. The observer gain is held at its nominal value, because the energy model below does not depend on it. The prediction model has the structure of the allocation layer \eqref{eq:lpf}--\eqref{eq:prec} and assumes that tier~1 tracks $P^*=P_L$:
+\begin{align}
+P_{b,f,j+1}&=P_{b,f,j}+\big(1-e^{-\Delta_a/\tau_b}\big)\big(\hat P_{L,j}-P_{b,f,j}\big),\nonumber\\
+P_{b,j}&=\mathcal{A}\big(\hat P_{L,j},P_{b,f,j+1},P_{rec}(v_{sc,ref},v_{sc,j})\big),\nonumber\\
+v_{sc,j+1}^2&=v_{sc,j}^2-2P_{sc,j}\Delta_a/C_{sc},\label{eq:mpcems}
+\end{align}
+where $\mathcal{A}$ denotes the saturation and re-assignment steps of Section~\ref{sec:impl} and $P_{sc,j}$ the resulting SC power. The stage cost contains the terms of the reward \eqref{eq:reward} that the model can predict, with the same weights: battery current and its rate of change, a power-deficit indicator (in place of the saturated fraction), and the SC-window penalty $\Pi_{sc}$. The decision is made by enumerating $5\times5=\NCandMPC$ candidate moves $(\Delta\log\tau_b,\Delta v_{sc,ref})$ that span the filter's rate window, each held constant over the horizon (move blocking), and applying the one with the lowest predicted cost. Two load forecasts are compared:
+\begin{itemize}
+\item \emph{persistence}: $\hat P_{L,j}$ equals the mean of $P^*=v_{dc}u$ over the last decision interval, a causal, controller-internal signal;
+\item \emph{preview}: the true future load of the drive cycle. This forecast is non-causal and serves only as an optimistic reference.
+\end{itemize}
+The horizon was chosen on the validation set from $\{2,5,10\}$\,s with the same protocol as TD3 checkpoint selection. The validation return per decision was \ValMPCPTwo, \ValMPCPFive\ and \ValMPCPTen\ (persistence) and \ValMPCVTwo, \ValMPCVFive\ and \ValMPCVTen\ (preview). A horizon of \HorMPCP\,s was therefore used for both forecasts. No terminal cost on the SC energy is used, so that the MPC-EMS optimizes the same objective that the agent is trained on.
 
 \paragraph{Indices}
 \begin{itemize}
 \item Bus voltage: maximum and RMS deviation.
 \item Battery current: RMS value and RMS rate of change computed on \SI{1}{ms} block means.
 \item Battery charge throughput (Ah).
-\item Saturated fraction: share of samples in which the commanded total current was clipped, i.e.\ a power deficit.
+\item Saturated fraction: share of samples in which the commanded total current was clipped, i.e., a power deficit.
 \item Minimum SC voltage.
 \end{itemize}
 Every index is computed from the true (noise-free) plant signals.

@@ -82,7 +82,7 @@ Wall-clock times are those logged on the 2-core machine used for the paper.
 | 3 | `python scripts/train.py --filter v2` | TD3 with filter v2 (the proposed variant), seeds 11/22/33 | about 25 min |
 | 4 | `python scripts/validation_baselines.py` | Validation return of the fixed and rule supervisors | not logged |
 | 5 | `python scripts/mpc_ems_select.py` | Selects the MPC-EMS horizon on the **validation** set only (candidates 2, 5, 10 s); the selected horizons are written into `agent.mpc_ems` in the config by hand | see note |
-| 6 | `python scripts/evaluate.py` | All controller/supervisor configurations on the held-out test cycles and the additional cycles (resumable; also writes the raw decimated logs to `data/raw/eval/`, about 0.4 GB) | about 48 min for the first 324 runs; the 48 MPC-EMS runs add more |
+| 6 | `python scripts/evaluate.py` | All controller/supervisor configurations on the held-out test cycles and the additional cycles (resumable; also writes the raw decimated logs to `data/raw/eval/`, about 0.4 GB) | about 48 min for the first 324 runs; the 48 MPC-EMS runs took a further 821 s (2 processes) |
 | 7 | `python scripts/report.py` | Tables `results/tables/T*.csv/.md`, figures `results/figures/F*.pdf/.png`, `data/processed/timing_two_tier.json` (needs the raw logs from step 6) | not logged |
 | 8 | `python scripts/mechanism.py` | Diagnoses how the supervisors use the supercapacitor energy-recovery term (needs the raw logs) | seconds |
 | 9 | `python scripts/make_numbers.py` | Writes `paper/numbers.tex` and `paper/tab_*.tex` from the saved results | seconds |

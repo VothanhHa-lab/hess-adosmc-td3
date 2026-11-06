@@ -34,3 +34,7 @@ paper/main.pdf
 
 # Internal publishing instructions (Vietnamese), not part of the public release
 PUBLISH_STEPS_VI.md
+
+# Internal notes
+paper/NOVELTY_SEARCH.md
+paper/novelty_search/
