@@ -1,0 +1,20 @@
+\begin{table*}[t]
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\caption{Observer-gain robustness and DO-ASMC comparison on WLTC extra-high (held-out, Tesla Model 3 plant), same variants and protocol as Tables~\ref{tab:asmc} and~\ref{tab:lambda}. Hi: fixed high-gain DO-SMC; A: A-DO-SMC; A$\phi_0$: A-DO-SMC with fixed layer; As: DO-ASMC, tuned; Ak: DO-ASMC, bounded. max$|e|$ and RMS $\Delta u$: mean over noise seeds 101--103; $r_{\min}$: seed 101. No variant saturated the input.}
+\label{tab:wltc}
+\begin{tabular}{@{}lcccccccccccccc@{}}
+\toprule
+ & \multicolumn{7}{c}{WLTC extra-high} & \multicolumn{7}{c}{WLTC extra-high$\times1.2$}\\\cmidrule(lr){2-8}\cmidrule(lr){9-15}
+ & \multicolumn{5}{c}{max$|e|$ (V)} & \multicolumn{2}{c}{$r_{\min}$} & \multicolumn{5}{c}{max$|e|$ (V)} & \multicolumn{2}{c}{$r_{\min}$}\\
+$\lambda$ schedule & Hi & A & A$\phi_0$ & As & Ak & Hi & A & Hi & A & A$\phi_0$ & As & Ak & Hi & A\\
+\midrule
+$\lambda=100$ & 0.21 & 0.21 & 0.20 & 0.22 & 0.23 & 2.81 & 1.36 & 0.24 & 0.24 & 0.20 & 0.25 & 0.26 & 2.73 & 1.36\\
+$\lambda=250$ & 0.17 & 0.17 & 0.22 & 0.17 & 0.17 & 2.91 & 1.34 & 0.18 & 0.18 & 0.22 & 0.18 & 0.18 & 2.90 & 1.34\\
+$\lambda=800$ & 0.20 & 0.20 & 0.29 & 0.20 & 0.20 & 2.30 & 1.04 & 0.20 & 0.20 & 0.29 & 0.20 & 0.20 & 2.29 & 1.03\\
+\midrule
+agent 11 & 0.18 & 0.18 & 0.26 & 0.18 & 0.18 & 2.53 & 1.17 & 0.18 & 0.18 & 0.26 & 0.18 & 0.18 & 2.53 & 1.19\\
+agent 22 & 0.18 & 0.18 & 0.26 & 0.18 & 0.18 & 2.62 & 1.21 & 0.18 & 0.18 & 0.26 & 0.18 & 0.18 & 2.56 & 1.18\\
+agent 33 & 0.20 & 0.20 & 0.28 & 0.19 & 0.19 & 2.35 & 1.04 & 0.20 & 0.20 & 0.28 & 0.19 & 0.19 & 2.31 & 1.04\\
+\bottomrule
+\end{tabular}
+\end{table*}

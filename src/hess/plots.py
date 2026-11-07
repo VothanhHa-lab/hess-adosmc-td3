@@ -22,7 +22,25 @@ def style():
     })
 
 
+BOX = dict(boxstyle="round,pad=0.18", fc="white", ec="0.6", lw=0.4, alpha=0.9)
+
+
+def panel_label(ax, lab, x=0.008, y=0.97):
+    """Bold panel label, e.g. '(a)', in the upper-left corner inside the axes."""
+    ax.text(x, y, lab, transform=ax.transAxes, fontsize=8, fontweight="bold", va="top", ha="left",
+            bbox=dict(boxstyle="round,pad=0.12", fc="white", ec="none", alpha=0.85), zorder=10)
+
+
+def note(ax, text, xy, xytext, color="k", coords="data", fs=6.2, ha="left"):
+    """Annotation with an arrow and a light box."""
+    ax.annotate(text, xy=xy, xytext=xytext, xycoords=coords, textcoords=coords, fontsize=fs, color=color, ha=ha,
+                va="center", bbox=BOX, zorder=11, arrowprops=dict(arrowstyle="->", color=color, lw=0.7))
+
+
 def save(fig, path):
+    import matplotlib.text as mtext
+    for t in fig.findobj(mtext.Text):          # all text in black (notes, labels, legends); lines keep their colours
+        t.set_color("k")
     fig.savefig(path + ".pdf")
     fig.savefig(path + ".png", dpi=300)
     plt.close(fig)

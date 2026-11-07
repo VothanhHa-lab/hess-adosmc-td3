@@ -72,15 +72,23 @@ def run(args):
     return case, tier, item, scale, seed, s
 
 
+ITEMS = {"us06": (1.0, 1.1), "wltc_extrahigh_3": (1.0, 1.2)}
+
+
 def main():
+    """Usage: lambda_robustness.py [items=us06,wltc_extrahigh_3]; results are merged into the json."""
+    kw = dict(a.split("=") for a in sys.argv[1:])
+    items = kw.get("items", "us06").split(",")
     cases = ["lam100", "lam250", "lam800"] + [f"agent{s}" for s in CFG["agent"]["train_seeds"]]
-    jobs = [(c, t, "us06", sc, sd) for c in cases for t in ("hi", "a") for sc in (1.0, 1.1) for sd in (101, 102, 103)]
-    out = {"ks_hi": T1["ks_hi"], "phi_hi": T1["phi_hi"], "results": {}}
+    jobs = [(c, t, it, sc, sd) for it in items for c in cases for t in ("hi", "a") for sc in ITEMS[it] for sd in (101, 102, 103)]
+    fn = os.path.join(ROOT, "data", "processed", "lambda_robustness.json")
+    out = json.load(open(fn)) if os.path.exists(fn) else {"results": {}}
+    out.update({"ks_hi": T1["ks_hi"], "phi_hi": T1["phi_hi"]})
     with Pool(2) as pool:
         for c, t, it, sc, sd, s in pool.imap_unordered(run, jobs):
             out["results"].setdefault(c, {}).setdefault(t, {}).setdefault(f"{it}x{sc}", {})[str(sd)] = s
             print("[lam]", c, t, it, sc, sd, round(s["max_dev_V"], 3), s.get("cond_minratio", ""), flush=True)
-    json.dump(out, open(os.path.join(ROOT, "data", "processed", "lambda_robustness.json"), "w"), indent=1, default=float)
+    json.dump(out, open(fn, "w"), indent=1, default=float)
     print("[lam] done")
 
 

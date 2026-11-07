@@ -111,7 +111,7 @@ axs[1, 0].axhline(T["ks_hi"], color="#CC79A7", lw=1.0, ls=":", label=r"$k_s$ hig
 axs[1, 1].plot(da["t"][mm], da["phi"][mm], color="#0072B2", label="A-DO-SMC")
 axs[1, 1].axhline(T["phi_hi"], color="#CC79A7", lw=1.0, ls=":", label="high gain")
 axs[1, 1].axhline(0.5, color="#D55E00", lw=1.0, ls=":", label="low gain")
-axs[1, 0].text(0.02, 0.04, r"noise-free run: $k_s\geq|\tilde D|$ in %.1f %% of samples, min. ratio %.2f"
+axs[1, 0].text(0.02, 0.04, r"noise-free run: $k_s\geq|\tilde D|$ in %.1f %% of" "\n" r"samples, min. ratio %.2f"
                % (100 * ann["cond_frac"], ann["cond_minratio"]), transform=axs[1, 0].transAxes, fontsize=6, color="#0072B2", bbox=BB)
 axs[0, 1].text(0.97, 0.05, "zoom: largest transient", transform=axs[0, 1].transAxes, fontsize=6.5, ha="right", bbox=BB)
 axs[0, 0].set_ylabel(r"$e=v_{dc}-v^*_{dc}$ (V)"); axs[0, 0].set_xlabel("Time (s)")
@@ -120,6 +120,29 @@ axs[1, 0].set_ylabel("V/s"); axs[1, 0].set_ylim(1, 1e5); axs[1, 0].legend(loc="u
 axs[1, 1].set_ylabel(r"$\phi_s(t)$ (V)"); axs[1, 1].set_ylim(0, 11); axs[1, 1].legend(loc="upper left", ncol=2, fontsize=5.5, frameon=False, handlelength=1.2, columnspacing=0.6)
 for ax in (axs[0, 1], axs[1, 0], axs[1, 1]):
     ax.set_xlabel("Time (s)")
+# ---- in-figure notes
+for ax, lab in zip((axs[0, 0], axs[0, 1], axs[1, 0], axs[1, 1]), ("(a)", "(b)", "(c)", "(d)")):
+    plots.panel_label(ax, lab)
+axs[0, 0].set_ylim(-7.5, 10.5)
+axs[0, 0].text(0.06, 0.965, "high gain and robust MPC overlap A-DO-SMC (max $|e|$ about 1.5 V)",
+               transform=axs[0, 0].transAxes, fontsize=6, ha="left", va="top", bbox=plots.BOX)
+mz = (dl["t"] >= w0) & (dl["t"] <= w1); jz = np.argmax(np.abs(dl["vdc"][mz] - VREF))
+tz, ez = dl["t"][mz][jz], dl["vdc"][mz][jz] - VREF
+plots.note(axs[0, 1], "low gain: $k_s<|\\tilde D|$,\nerror leaves the layer", (tz, ez), (tz + 1.15, 0.75 * ez), color="#D55E00")
+axs[0, 1].text(0.58, 0.22, "A-DO-SMC, high gain\nand MPC stay near 0", transform=axs[0, 1].transAxes, fontsize=6,
+               color="#0072B2", bbox=plots.BOX)
+Dt = np.abs(da["Dtrue"] - da["Dhat"]); jd = np.argmax(Dt[mm]); td, vd = da["t"][mm][jd], Dt[mm][jd]
+jk = np.argmax(da["ks"][mm]); tk2, vk = da["t"][mm][jk], da["ks"][mm][jk]
+plots.note(axs[1, 0], "$k_s$ follows $|\\tilde D|$ from above:\nreaching condition holds", (tk2, vk), (300.95, 1.5e5), color="#0072B2")
+plots.note(axs[1, 0], "$|\\tilde D|$ peak %.0f V/s, %.0f times\nthe low gain of 120 V/s" % (vd, vd / 120.0), (td, vd + 1),
+           (300.95, 9.0), color="0.3")
+axs[1, 0].text(0.99, 0.42, "steady state:\n$k_s\\to k_{\\min}$", transform=axs[1, 0].transAxes, fontsize=6, ha="right",
+               color="#0072B2", bbox=plots.BOX)
+jp = np.argmax(da["phi"][mm]); tp, vp = da["t"][mm][jp], da["phi"][mm][jp]
+plots.note(axs[1, 1], "$\\phi_s=k_s/k'$ widens with\nthe gain: poles stay fixed", (tp, vp), (299.0, 9.0), color="#0072B2")
+axs[1, 0].set_ylim(1, 1e6)
+axs[1, 0].legend(loc="upper left", ncol=1, fontsize=6, frameon=False, bbox_to_anchor=(0.06, 1.0), labelspacing=0.25)
+axs[1, 1].legend(loc="center right", ncol=1, fontsize=5.5, frameon=False, handlelength=1.2, bbox_to_anchor=(1.0, 0.55))
 plots.save(fig, os.path.join(ROOT, "results", "figures", "F2_tier1_m3_us06"))
 nc_txt = f"zoom window {w0:.1f}-{w1:.1f} s"
 open(os.path.join(ROOT, "paper", "numbers_tier1.tex"), "a").write("\\newcommand{\\ZoomA}{%.1f}\n\\newcommand{\\ZoomB}{%.1f}\n" % (w0, w1))

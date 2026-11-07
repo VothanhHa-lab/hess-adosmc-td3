@@ -27,10 +27,10 @@ from .params import (CDC, LB, LSC, RB, RSC, R0B, OCV_NOM, OCV_SLOPE, SOC_REF, QB
                      CV, TAUB, WCI, KI_RATIO, ALLOC_MODE, KP_PI, KI_PI, CDC_NOM, LB_NOM, LSC_NOM,
                      TS, N_SUB, DELAY, CTRL, LOAD_SCALE, SIG_V, SIG_I,
                      VSC_REF, KE, PREC_MAX, K_MIN, BETA, TAU_F, TAU_ENV,
-                     PHI0, GAMMA_A, EPS_S, PHI_FIX)
+                     PHI0, GAMMA_A, EPS_S, PHI_FIX, K_MAX, TAU_S)
 
 NX = 9
-NMEM = 13
+NMEM = 14
 NSTAT = 17
 LOG_COLS = ["t", "vdc", "iLb", "iLsc", "vb_t", "vC_sc", "soc_b", "P_L", "u", "u_un", "Dhat",
             "Dtrue", "ks", "phi", "taub", "vsc_ref", "lam", "iLb_ref", "iLsc_ref"]
@@ -143,10 +143,15 @@ def ctrl_step2(p, mem, vdc_m, iLb_m, iLsc_m, vb_m, vsc_m, H, Hinv, F, margin, dw
         if abs(s) > phi:
             integrate_ok = False
         a = abs(s)
+        if p[TAU_S] > 0.0:              # optional low-pass on |s| (variant with projection and filtering)
+            mem[13] += Ts / p[TAU_S] * (a - mem[13])
+            a = mem[13]
         sg = 1.0 if a > p[EPS_S] else (-1.0 if a < p[EPS_S] else 0.0)
         K = K + Ts * p[GAMMA_A] * a * sg
         if K < p[K_MIN]:
             K = p[K_MIN]
+        if p[K_MAX] > 0.0 and K > p[K_MAX]:
+            K = p[K_MAX]
         mem[11] = K
     else:
         # A-DO-SMC: |D~| estimated from the NDO itself (dDhat/dt = lam*D~), envelope,

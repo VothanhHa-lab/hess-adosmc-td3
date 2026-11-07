@@ -26,10 +26,15 @@ CFG = yaml.safe_load(open(os.path.join(ROOT, "configs", "nominal.yaml")))
 PHI0 = CFG["do_asmc"]["phi0"]["value"]
 RAW = os.path.join(ROOT, "data", "raw", "asmc"); os.makedirs(RAW, exist_ok=True)
 TUNE = json.load(open(os.path.join(ROOT, "data", "processed", "asmc_tune.json")))
+_TK = os.path.join(ROOT, "data", "processed", "asmc_tune_k.json")
+TUNEK = json.load(open(_TK)) if os.path.exists(_TK) else None
 TIERS = {"a": (CTRL_ADOSMC, {}),
          "asmc0": (CTRL_ASMC, {}),                                                  # starting values (config)
          "asmc": (CTRL_ASMC, {"eps_s": TUNE["eps_s"], "gamma_a": TUNE["gamma_a"]}),  # tuned on the training cycles
          "afix": (CTRL_ADOSMC, {"phi_fix": PHI0})}
+if TUNEK:  # DO-ASMC with gain projection K <= K_max and low-pass filtered |s|, tuned on the training cycles
+    TIERS["asmck"] = (CTRL_ASMC, {k: TUNEK[k] for k in ("eps_s", "gamma_a", "k_max", "tau_s")})
+ITEMS = {"us06": (1.0, 1.1), "wltc_extrahigh_3": (1.0, 1.2)}
 
 
 def run(args):
@@ -52,7 +57,7 @@ def run(args):
         s.update(Dtilde_max=float(Dt.max()), cond_frac=float(np.mean(r >= 1.0)), cond_minratio=float(r.min()),
                  ks_max=float(d["ks"][m].max()), ks_p99=float(np.percentile(d["ks"][m], 99)),
                  ks_final=float(d["ks"][-1]), phi_max=float(d["phi"][m].max()))
-        if scale == 1.0:
+        if scale == 1.0 and item == "us06":
             keep = ("t", "vdc", "ks", "phi", "u", "lam", "Dtrue", "Dhat")
             np.savez_compressed(os.path.join(RAW, f"{case}_{tier}_{item}_x{scale}_s{seed}.npz"),
                                 **{k: d[k].astype(np.float32) for k in keep})
@@ -60,15 +65,23 @@ def run(args):
 
 
 def main():
+    """Usage: asmc_compare.py [items=us06,wltc_extrahigh_3] [tiers=a,asmc0,...]; results are merged into the json."""
+    kw = dict(a.split("=") for a in sys.argv[1:])
+    items = kw.get("items", "us06").split(","); tiers = kw.get("tiers", ",".join(TIERS)).split(",")
     cases = ["lam100", "lam250", "lam800"] + [f"agent{s}" for s in CFG["agent"]["train_seeds"]]
-    jobs = [(c, t, "us06", sc, sd) for c in cases for t in TIERS for sc in (1.0, 1.1) for sd in (101, 102, 103)]
-    out = {"tuned": {"eps_s": TUNE["eps_s"], "gamma_a": TUNE["gamma_a"]}, "phi0": PHI0, "gamma_a": CFG["do_asmc"]["gamma_a"]["value"], "eps_s": CFG["do_asmc"]["eps_s"]["value"],
-           "results": {}}
+    jobs = [(c, t, it, sc, sd) for it in items for c in cases for t in tiers for sc in ITEMS[it] for sd in (101, 102, 103)]
+    fn = os.path.join(ROOT, "data", "processed", "asmc_compare.json")
+    out = json.load(open(fn)) if os.path.exists(fn) else {"results": {}}
+    out.update({"tuned": {"eps_s": TUNE["eps_s"], "gamma_a": TUNE["gamma_a"]}, "phi0": PHI0,
+                "gamma_a": CFG["do_asmc"]["gamma_a"]["value"], "eps_s": CFG["do_asmc"]["eps_s"]["value"]})
+    if TUNEK:
+        out["tuned_k"] = {k: TUNEK[k] for k in ("eps_s", "gamma_a", "k_max", "tau_s")}
     with Pool(2) as pool:
         for c, t, it, sc, sd, s in pool.imap_unordered(run, jobs):
             out["results"].setdefault(c, {}).setdefault(t, {}).setdefault(f"{it}x{sc}", {})[str(sd)] = s
+            json.dump(out, open(fn, "w"), indent=1, default=float)
             print("[asmc]", c, t, it, sc, sd, round(s["max_dev_V"], 3), round(s["du_rms_A"], 4), s.get("ks_max", ""), flush=True)
-    json.dump(out, open(os.path.join(ROOT, "data", "processed", "asmc_compare.json"), "w"), indent=1, default=float)
+    json.dump(out, open(fn, "w"), indent=1, default=float)
     print("[asmc] done")
 
 

@@ -12,7 +12,8 @@ def nc(k, v): L.append("\\newcommand{\\%s}{%s}" % (k, v))
 def mean(c, t, it, key): return float(np.mean([v[key] for v in R[c][t][it].values()]))
 def s101(c, t, it, key): return R[c][t][it]["101"][key]
 
-VAR = [("a", "A-DO-SMC"), ("afix", r"A-DO-SMC, fixed $\phi_0$"), ("asmc", "DO-ASMC, tuned"), ("asmc0", "DO-ASMC, start")]
+VAR = [("a", "A-DO-SMC"), ("afix", r"A-DO-SMC, fixed $\phi_0$"), ("asmc", "DO-ASMC, tuned"),
+       ("asmck", r"DO-ASMC, bounded"), ("asmc0", "DO-ASMC, start")]
 CASES = [("lam100", r"$\lambda=100$"), ("lam250", r"$\lambda=250$"), ("lam800", r"$\lambda=800$"),
          ("agent11", "agent 11"), ("agent22", "agent 22"), ("agent33", "agent 33")]
 IT = "us06x1.0"; IT2 = "us06x1.1"
@@ -23,7 +24,7 @@ def f(x, d=2):
     return f"{x:.{d}f}"
 
 T = [r"\begin{table*}[t]", r"\centering\footnotesize\setlength{\tabcolsep}{4pt}",
-     r"\caption{A-DO-SMC versus the DO-ASMC baseline on US06 (Tesla Model 3 plant). All variants share the NDO, sliding variable, conditional integrator, saturation and sampling. DO-ASMC: $\dot K=\gamma|s|\,\mathrm{sgn}(|s|-\epsilon_s)$, $K\ge K_{\min}=K(0)=\SI{120}{V/s}$, fixed layer $\phi_0=\SI{0.5}{V}$; start: $\epsilon_s=\SI{0.25}{V}$, $\gamma=10^4$\,s$^{-2}$; tuned on the training cycles: $\epsilon_s=\AsmcEps$\,V, $\gamma=\AsmcGam$\,s$^{-2}$. A-DO-SMC, fixed $\phi_0$: gain law of A-DO-SMC with the DO-ASMC layer. Agent rows replay the $(\tau_b,v_{sc,ref},\lambda)$ schedule of each filter-v2 agent. max$|e|$, RMS $e$, RMS $\Delta u$ (applied command increment per sample) and saturation: mean over noise seeds 101--103; $k_{s,\max}$ and $r_{\min}=\min_t k_s/|\Dt|$: seed 101, $t>0.2$\,s.}",
+     r"\caption{A-DO-SMC versus the DO-ASMC baseline on US06 (Tesla Model 3 plant). All variants share the NDO, sliding variable, conditional integrator, saturation and sampling. DO-ASMC: $\dot K=\gamma|s|\,\mathrm{sgn}(|s|-\epsilon_s)$, $K\ge K_{\min}=K(0)=\SI{120}{V/s}$, fixed layer $\phi_0=\SI{0.5}{V}$; start: $\epsilon_s=\SI{0.25}{V}$, $\gamma=10^4$\,s$^{-2}$; tuned on the training cycles: $\epsilon_s=\AsmcEps$\,V, $\gamma=\AsmcGam$\,s$^{-2}$; bounded: in addition $K\le K_{\max}=k_{s,hi}=\KsHi$\,V/s and $|s|$ low-pass filtered in the adaptation law ($\tau_s=\SI{2}{ms}$), re-tuned on the training cycles with the same grid and rule ($\epsilon_s=\AsmkEps$\,V, $\gamma=\AsmkGam$\,s$^{-2}$). A-DO-SMC, fixed $\phi_0$: gain law of A-DO-SMC with the DO-ASMC layer. Agent rows replay the $(\tau_b,v_{sc,ref},\lambda)$ schedule of each filter-v2 agent. max$|e|$, RMS $e$, RMS $\Delta u$ (applied command increment per sample) and saturation: mean over noise seeds 101--103; $k_{s,\max}$ and $r_{\min}=\min_t k_s/|\Dt|$: seed 101, $t>0.2$\,s.}",
      r"\label{tab:asmc}", r"\begin{tabular}{@{}llccccccc@{}}", r"\toprule",
      r" & & \multicolumn{6}{c}{US06} & US06$\times1.1$\\",
      r"$\lambda$ schedule & Tier 1 & max$|e|$ (V) & RMS $e$ (V) & RMS $\Delta u$ (A) & Sat. (\%) & $k_{s,\max}$ (V/s) & $r_{\min}$ & max$|e|$ (V)\\",
@@ -42,7 +43,8 @@ open(os.path.join(ROOT, "paper", "tab_asmc.tex"), "w").write("\n".join(T) + "\n"
 
 g = D["tuned"]["gamma_a"]
 nc("AsmcEps", f"{D['tuned']['eps_s']:.2f}"); nc("AsmcGam", r"10^{%d}" % round(np.log10(g)))
-tags = {"a": "A", "afix": "Fix", "asmc": "As", "asmc0": "Az"}
+tags = {"a": "A", "afix": "Fix", "asmc": "As", "asmc0": "Az", "asmck": "Ak"}
+nc("AsmkEps", f"{D['tuned_k']['eps_s']:.2f}"); nc("AsmkGam", r"10^{%d}" % round(np.log10(D['tuned_k']['gamma_a'])))
 ctag = {"lam100": "L", "lam250": "N", "lam800": "H"}
 for c, cl in ctag.items():
     for t, tl in tags.items():
@@ -71,7 +73,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 plots.style()
 RAW = os.path.join(ROOT, "data", "raw", "asmc")
 S = {"a": ("A-DO-SMC", "#0072B2", "-"), "afix": (r"A-DO-SMC, fixed $\phi_0$", "#009E73", (0, (4, 2))),
-     "asmc": ("DO-ASMC, tuned", "#D55E00", "-"), "asmc0": ("DO-ASMC, start", "#CC79A7", (0, (1, 1.5)))}
+     "asmc": ("DO-ASMC, tuned", "#D55E00", "-"), "asmck": ("DO-ASMC, bounded", "#E69F00", (0, (6, 1.5, 1, 1.5))),
+     "asmc0": ("DO-ASMC, start", "#CC79A7", (0, (1, 1.5)))}
 fig, axs = plt.subplots(2, 2, figsize=(plots.W2, 3.8), sharex=True)
 for j, c in enumerate(("lam100", "lam250")):
     for t, (lab, col, ls) in S.items():
@@ -85,7 +88,30 @@ for j, c in enumerate(("lam100", "lam250")):
     axs[1, j].set_xlabel("Time (s)"); axs[1, j].set_ylim(-8, 8)
     axs[1, j].legend(loc="lower left", fontsize=5.5, frameon=True, framealpha=0.85)
 axs[0, 0].set_ylabel(r"$k_s$ or $K$ (V/s)"); axs[1, 0].set_ylabel(r"$e$ (V)")
-axs[0, 0].legend(loc="lower center", bbox_to_anchor=(1.05, 1.12), ncol=4, frameon=False)
-axs[1, 0].text(0.98, 0.95, "DO-ASMC, tuned: clipped at 8 V", transform=axs[1, 0].transAxes, ha="right", va="top", fontsize=5.5,
+axs[0, 0].legend(loc="lower center", bbox_to_anchor=(1.05, 1.12), ncol=5, frameon=False, fontsize=6)
+axs[1, 0].text(0.98, 0.80, "DO-ASMC, tuned: clipped at 8 V", transform=axs[1, 0].transAxes, ha="right", va="top", fontsize=5.5,
                color="#D55E00", bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85))
+# ---- in-figure notes
+KMAX = D["tuned_k"]["k_max"]
+for j, c in enumerate(("lam100", "lam250")):
+    axs[0, j].axhline(KMAX, color="#E69F00", lw=0.7, ls="--")
+    axs[0, j].set_ylim(50, 3e9)
+    dt_ = np.load(os.path.join(RAW, f"{c}_asmc_us06_x1.0_s101.npz")); dz = np.load(os.path.join(RAW, f"{c}_asmc0_us06_x1.0_s101.npz"))
+    if c == "lam100":
+        k1 = int(np.argmax(dt_["ks"] > 1e5)); tk1 = float(dt_["t"][k1])
+        plots.note(axs[0, j], "tuned: $K$ keeps growing, loop diverges", (tk1, 1e5), (598, 1.0e9), color="#D55E00", ha="right")
+    k0 = int(np.argmax(dz["ks"] > 1e6)); tk0 = float(dz["t"][k0])
+    plots.note(axs[0, j], "start values: $K>10^{7}$ V/s,\ninput saturates", (tk0, 1e6), (55 if c == "lam100" else 340, 1.2e8 if c == "lam100" else 5e8),
+               color="#CC79A7")
+    axs[0, j].text(598, 6e3, "bounded: $K$ clipped\nat $K_{\\max}=%.0f$ V/s" % KMAX, fontsize=5.8, ha="right", va="center",
+                   color="#B8860B", bbox=plots.BOX)
+    axs[0, j].text(0.99, 0.04, "A-DO-SMC: $k_s$ follows the observer error", transform=axs[0, j].transAxes,
+                   fontsize=5.8, ha="right", color="#0072B2", bbox=plots.BOX)
+db = np.load(os.path.join(RAW, "lam100_asmck_us06_x1.0_s101.npz")); kb = np.argmax(np.abs(db["vdc"] - 500.0))
+plots.note(axs[1, 0], "bounded: $K=K_{\\max}$\ntoo small at low $\\lambda$", (float(db["t"][kb]), float(np.clip(db["vdc"][kb] - 500.0, -7.0, 7.0))),
+           (55, 6.0), color="#B8860B")
+axs[1, 1].text(0.12, 0.96, "nominal $\\lambda$: all non-diverging\nvariants stay within 3 V", transform=axs[1, 1].transAxes,
+               fontsize=5.8, va="top", bbox=plots.BOX)
+for ax, lab in zip(axs.flat, ("(a)", "(b)", "(c)", "(d)")):
+    plots.panel_label(ax, lab)
 plots.save(fig, os.path.join(ROOT, "results", "figures", "F7_asmc_gain"))

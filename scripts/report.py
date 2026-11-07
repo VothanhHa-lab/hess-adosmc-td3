@@ -257,15 +257,43 @@ def figures(cfg, E):
     sf(np.array([0.2, cfg["supervision"]["vsc_ref"]["value"], 250.0]), np.zeros(3), cfg["plant"]["ocv_nom"]["value"])
     A = cfg["agent"]
     axs[1].axhline(sf.v_lo_last, color="k", lw=0.6, ls="-.")
-    axs[1].text(0.99, 0.97, f"dash-dot: filter lower bound {sf.v_lo_last:.0f} V;  red dotted: SC penalty band; dotted: references",
-                transform=axs[1].transAxes, fontsize=6, ha="right", va="top", bbox=BB)
-    axs[1].axhline(A["reward"].get("sc_pen_lo", 190.0), color="r", lw=0.5, ls=":")
+    pen = A["reward"].get("sc_pen_lo", 190.0)
+    axs[1].axhline(pen, color="r", lw=0.5, ls=":")
+    axs[1].text(0.995, 0.97, "dotted lines: $v_{sc}^{ref}$ chosen by each supervisor", transform=axs[1].transAxes,
+                fontsize=6, ha="right", va="top", bbox=BB)
+    axs[1].text(155, sf.v_lo_last + 1.5, f"filter lower bound on $v_{{sc}}^{{ref}}$: {sf.v_lo_last:.0f} V", fontsize=5.8,
+                va="bottom", bbox=BB)
+    axs[1].text(400, pen - 1.5, f"lower edge of SC penalty band: {pen:.1f} V", fontsize=5.8, va="top", color="r", bbox=BB)
+    # where the learned and the predictive supervisors draw the SC deepest
+    axs[1].set_ylim(193, 372)
+    for nm, col, tx, ty in ((f"A-DO-SMC + TD3 + filter v2 [s{med_seed}]", "#0072B2", 420, 205),
+                            ("A-DO-SMC + MPC-EMS (persistence)", "#009E73", 150, 207)):
+        d = np.load(os.path.join(RAW, res[nm][it]["101"]["raw"] + ".npz")); k = int(np.argmin(d["vC_sc"]))
+        lab = "TD3" if "TD3" in nm else "MPC-EMS"
+        plots.note(axs[1], f"{lab}: SC drawn to {d['vC_sc'][k]:.0f} V", (d["t"][k], d["vC_sc"][k]),
+                   (tx, ty), color=col)
 
     for b in A["tau_range"]:
         axs[2].axhline(b, color="k", lw=0.5, ls="-.")
-    axs[2].text(0.99, 0.5, r"dash-dot: filter bounds on $\tau_b$", transform=axs[2].transAxes, fontsize=6, ha="right", bbox=BB)
+    axs[2].set_ylim(0.022, 25)
+    axs[2].text(0.995, 0.975, "dash-dot: filter bounds on $\\tau_b$;  fixed: $\\tau_b=0.2$ s;  rule: slow split set by the SC SOC",
+                transform=axs[2].transAxes, fontsize=5.8, ha="right", va="top", bbox=BB)
+    axs[2].text(0.995, 0.025, "TD3 and MPC-EMS jump between the bounds", transform=axs[2].transAxes, fontsize=5.8,
+                ha="right", va="bottom", bbox=BB)
     axs[3].axhline(cfg["control"]["lam"]["value"], color="k", lw=0.5, ls="-.")
-    axs[3].text(0.99, 0.12, r"dash-dot: nominal $\lambda$ (fixed, rule, MPC-EMS)", transform=axs[3].transAxes, fontsize=6, ha="right", bbox=BB)
+    axs[3].text(0.995, 0.06, r"dash-dot: nominal $\lambda$ (fixed, rule, MPC-EMS)", transform=axs[3].transAxes, fontsize=6, ha="right", bbox=BB)
+    dv = np.load(os.path.join(RAW, res[f"A-DO-SMC + TD3 + filter v2 [s{med_seed}]"][it]["101"]["raw"] + ".npz"))
+    lam_nom = cfg["control"]["lam"]["value"]
+    axs[3].set_ylim(110, 900)
+    axs[3].text(0.05, 0.255, "TD3 keeps $\\lambda$ above nominal %.1f %% of the time (mean %.0f s$^{-1}$, minimum %.0f s$^{-1}$)"
+                % (100 * np.mean(dv["lam"] > lam_nom), np.mean(dv["lam"]), np.min(dv["lam"])),
+                transform=axs[3].transAxes, fontsize=5.8, color="#0072B2", va="center", bbox=BB, zorder=12)
+    ibmax = cfg["limits"]["Ibmax"]["value"]
+    axs[4].axhline(ibmax, color="k", lw=0.5, ls="-.")
+    axs[4].text(0.995, 0.03, f"dash-dot: battery current limit {ibmax:.0f} A (1C); RMS values in the legend",
+                transform=axs[4].transAxes, fontsize=6, ha="right", va="bottom", bbox=BB)
+    for ax, lab in zip(axs, ("(a)", "(b)", "(c)", "(d)", "(e)")):
+        plots.panel_label(ax, lab)
     axs[4].legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=4, fontsize=6, frameon=False)
     plots.save(fig, os.path.join(FIG, "F4_us06_supervision"))
 
@@ -299,7 +327,7 @@ def figures(cfg, E):
         axs[0].text(x[k], gmax[k] + 0.04 * top, f"{100 * (v2m[k] - fixm[k]) / fixm[k]:+.1f} %", ha="center", va="bottom",
                     fontsize=6, color="#0072B2", fontweight="bold")
     axs[0].set_ylim(0, max(gmax) + 0.16 * top)
-    axs[0].text(0.01, 0.99, "labels: TD3 + filter v2 vs fixed", transform=axs[0].transAxes, fontsize=6, va="top",
+    axs[0].text(0.09, 0.99, "labels: TD3 + filter v2 vs fixed", transform=axs[0].transAxes, fontsize=6, va="top",
                 color="#0072B2")
     nof = np.array([group_vals(res, cfg, "A-DO-SMC + TD3 no-filter", it, "sat_frac") for it in items]).mean(1)
     for k in range(len(items)):
@@ -308,6 +336,11 @@ def figures(cfg, E):
     h, l = axs[0].get_legend_handles_labels()
     fig.legend(h, [t.replace("A-DO-SMC + ", "") for t in l], loc="upper center", ncol=4, fontsize=6, frameon=False)
     fig.subplots_adjust(top=0.84)
+    for ax, lab in zip(axs, ("(a)", "(b)")):
+        plots.panel_label(ax, lab, x=0.012, y=0.97)
+    v2b = np.array(group_vals(res, cfg, PROPOSED, "us06x1.1", "sat_frac")).mean()
+    axs[1].text(0.99, 0.97, "only TD3 without filter saturates on ×1.0/×1.2 cycles\n(numbers: its mean); US06×1.1: filter v2 %.2f %%\n(one deficit run, seed 33)" % v2b,
+                transform=axs[1].transAxes, fontsize=6, ha="right", va="top", bbox=plots.BOX)
     plots.save(fig, os.path.join(FIG, "F5_test_battery_rms_saturation"))
     return med_seed
 

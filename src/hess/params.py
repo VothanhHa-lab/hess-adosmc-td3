@@ -26,6 +26,7 @@ NAMES = [
     # --- DO-ASMC baseline (increase-decrease adaptive gain driven by the sliding variable) ---
     "phi0", "gamma_a", "eps_s",       # fixed boundary layer, adaptation rate, adaptation threshold
     "phi_fix",                        # >0: A-DO-SMC with a fixed boundary layer phi_fix (ablation)
+    "k_max", "tau_s",                 # DO-ASMC variant: upper gain bound (0 = none), low-pass on |s| in the law (0 = none)
 ]
 IDX = {n: i for i, n in enumerate(NAMES)}
 NP = len(NAMES)
@@ -39,7 +40,7 @@ NP = len(NAMES)
  TS, N_SUB, SWITCHED, DELAY, CTRL, LOAD_SCALE,
  SIG_V, SIG_I,
  VSC_REF, KE, PREC_MAX, K_MIN, BETA, TAU_F, TAU_ENV,
- PHI0, GAMMA_A, EPS_S, PHI_FIX) = range(NP)
+ PHI0, GAMMA_A, EPS_S, PHI_FIX, K_MAX, TAU_S) = range(NP)
 
 CTRL_PI, CTRL_DOSMC, CTRL_MPC, CTRL_ADOSMC, CTRL_ASMC = 0, 1, 2, 3, 4
 CTRL_NAMES = {CTRL_PI: "PI", CTRL_DOSMC: "DO-SMC", CTRL_MPC: "Robust MPC", CTRL_ADOSMC: "A-DO-SMC",
@@ -90,6 +91,8 @@ def build_params(cfg, ctrl, switched=False, overrides=None):
     p[IDX["gamma_a"]] = float(asmc.get("gamma_a", {}).get("value", 1.0e4))
     p[IDX["eps_s"]] = float(asmc.get("eps_s", {}).get("value", 0.25))
     p[IDX["phi_fix"]] = 0.0
+    p[IDX["k_max"]] = 0.0
+    p[IDX["tau_s"]] = 0.0
     if overrides:
         for k, val in overrides.items():
             p[IDX[k]] = float(val)
